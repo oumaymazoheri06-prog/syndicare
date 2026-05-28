@@ -26,14 +26,13 @@ export default function ForgotPassword({ status }) {
 
     return (
         <GuestLayout>
-            <Head title="Forgot Password" />
+            <Head title="Mot de passe oublié" />
 
             <div className="mb-8">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Forgot password</h1>
+                <h1 className={authTitleClass}>Mot de passe oublié</h1>
                 <p className={authDescriptionClass}>
-                    Forgot your password? Enter your email address and we will
-                    send you a reset link.
+                    Saisissez votre adresse email et nous vous enverrons un lien de reinitialisation.
                 </p>
             </div>
 
@@ -63,7 +62,7 @@ export default function ForgotPassword({ status }) {
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        Email Password Reset Link
+                        Envoyer le lien de reinitialisation
                     </PrimaryButton>
                 </div>
             </form>

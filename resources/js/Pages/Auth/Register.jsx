@@ -32,14 +32,13 @@ export default function Register() {
 
     return (
         <GuestLayout>
-            <Head title="Register" />
+            <Head title="Inscription" />
 
             <div className="mb-6">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Create your account</h1>
+                <h1 className={authTitleClass}>Creer votre compte</h1>
                 <p className={authDescriptionClass}>
-                    Join the platform to manage your residence and stay
-                    connected.
+                    Rejoignez la plateforme pour gérer votre résidence et rester informé.
                 </p>
             </div>
 
@@ -47,7 +46,7 @@ export default function Register() {
                 <div>
                     <InputLabel
                         htmlFor="name"
-                        value="Name"
+                        value="Nom"
                         className={authLabelClass}
                     />
 
@@ -90,7 +89,7 @@ export default function Register() {
                 <div>
                     <InputLabel
                         htmlFor="password"
-                        value="Password"
+                        value="Mot de passe"
                         className={authLabelClass}
                     />
 
@@ -111,7 +110,7 @@ export default function Register() {
                 <div>
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
+                        value="Confirmer le mot de passe"
                         className={authLabelClass}
                     />
 
@@ -136,14 +135,14 @@ export default function Register() {
 
                 <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
                     <Link href={route("login")} className={authLinkClass}>
-                        Already registered?
+                        Deja inscrit ?
                     </Link>
 
                     <PrimaryButton
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        Register
+                        S inscrire
                     </PrimaryButton>
                 </div>
             </form>

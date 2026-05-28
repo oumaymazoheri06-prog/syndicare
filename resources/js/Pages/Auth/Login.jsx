@@ -31,14 +31,13 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout>
-            <Head title="Log in" />
+            <Head title="Connexion" />
 
             <div className="mb-6">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Welcome back</h1>
+                <h1 className={authTitleClass}>Bon retour</h1>
                 <p className={authDescriptionClass}>
-                    Sign in to manage your account and continue to the
-                    dashboard.
+                    Connectez-vous pour gérer votre compte et accéder au tableau de bord.
                 </p>
             </div>
 
@@ -67,7 +66,7 @@ export default function Login({ status, canResetPassword }) {
                 <div>
                     <div className="flex items-center justify-between gap-4">
                         <label htmlFor="password" className={authLabelClass}>
-                            Password
+                            Mot de passe
                         </label>
                     </div>
 
@@ -94,14 +93,14 @@ export default function Login({ status, canResetPassword }) {
                             }
                             className={authCheckboxClass}
                         />
-                        <span>Remember me</span>
+                        <span>Se souvenir de moi</span>
                     </label>
                     {canResetPassword && (
                         <Link
                             href={route("password.request")}
                             className={authLinkClass}
                         >
-                            Forgot password?
+                            Mot de passe oublié ?
                         </Link>
                     )}
                 </div>
@@ -111,7 +110,7 @@ export default function Login({ status, canResetPassword }) {
                     disabled={processing}
                     className={authButtonWideClass}
                 >
-                    Log in
+                    Se connecter
                 </button>
             </form>
         </GuestLayout>

@@ -7,6 +7,7 @@ export default function Index({ announcements }) {
     const config = resourceConfigs.announcements;
     const { auth } = usePage().props;
     const user = auth.user;
+    const canManageAnnouncements = user?.role === "Syndic";
 
     const [items, setItems] = useState(announcements);
 
@@ -48,7 +49,10 @@ export default function Index({ announcements }) {
             items={items}
             columns={config.indexColumns}
             routeKey={config.routeKey}
-            createLabel={`New ${config.singular}`}
+            createLabel={`Nouveau ${config.singular}`}
+            canCreate={canManageAnnouncements}
+            canEdit={canManageAnnouncements}
+            canDelete={canManageAnnouncements}
         />
     );
 }

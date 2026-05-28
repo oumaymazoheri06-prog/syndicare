@@ -50,7 +50,7 @@ function resolveFieldValue(record, field) {
 
 function renderInput(field, data, setData, errors) {
     const commonClassName = 'mt-1 block w-full';
-    const fieldClassName = 'rounded-xl border-slate-200 bg-white shadow-sm focus:border-emerald-600 focus:ring-emerald-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300';
+    const fieldClassName = 'rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-emerald-600 focus:ring-emerald-600';
 
     if (field.type === 'textarea') {
         return (
@@ -71,7 +71,7 @@ function renderInput(field, data, setData, errors) {
                 value={data[field.name]}
                 onChange={(event) => setData(field.name, event.target.value)}
             >
-                <option value="">Select {field.label}</option>
+                <option value="">Selectionner {field.label}</option>
                 {field.options?.map((option) => (
                     <option key={String(optionValue(option))} value={optionValue(option)}>
                         {optionLabel(option)}
@@ -88,8 +88,8 @@ function renderInput(field, data, setData, errors) {
                     checked={Boolean(data[field.name])}
                     onChange={(event) => setData(field.name, event.target.checked)}
                 />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                    {field.helperText ?? `Enable ${field.label.toLowerCase()}`}
+                <span className="text-sm text-gray-600">
+                    {field.helperText ?? `Activer ${field.label.toLowerCase()}`}
                 </span>
             </div>
         );
@@ -118,7 +118,7 @@ function displayValue(record, field) {
     }
 
     if (field.type === 'checkbox') {
-        return value ? 'Yes' : 'No';
+        return value ? 'Oui' : 'Non';
     }
 
     if (value === null || value === undefined || value === '') {
@@ -170,6 +170,8 @@ export function CrudIndexPage({
     canView = true,
     canEdit = true,
     canDelete = true,
+    filters = null,
+
 }) {
     const rows = Array.isArray(items) ? items : items?.data ?? [];
     const showActions = canView || canEdit || canDelete;
@@ -178,14 +180,14 @@ export function CrudIndexPage({
             href={route(`${resource}.create`)}
             className="inline-flex items-center justify-center rounded-full bg-[#0e3715] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#14532d]"
         >
-            {createLabel ?? `New ${title.slice(0, -1)}`}
+            {createLabel ?? `Nouveau ${title.slice(0, -1)}`}
         </Link>
     ) : null;
 
     return (
         <AdminLayout
             title={title}
-            subtitle={`Gestion, consultation et mise a jour des enregistrements ${title.toLowerCase()}.`}
+            subtitle={`Gestion, consultation et mise a jour des ${title.toLowerCase()}.`}
             toolbar={toolbar}
         >
             <Head title={title} />
@@ -200,8 +202,10 @@ export function CrudIndexPage({
                                     </h3>
                                     <p className="text-xs text-slate-500 sm:text-sm">
                                         Parcourez, modifiez et suivez les donnees de {title.toLowerCase()}.
+                               
                                     </p>
                                 </div>
+                                {filters && (<div className="flex items-center space-x-2">{filters}</div>)}
                             </div>
 
                             <div className="overflow-x-auto rounded-[1.5rem] border border-emerald-100 bg-[#fffdf8] shadow-sm">
@@ -244,7 +248,7 @@ export function CrudIndexPage({
                                                                             href={route(`${resource}.show`, rowKey)}
                                                                             className="rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-slate-700 transition hover:bg-slate-50 sm:px-3 sm:text-xs"
                                                                         >
-                                                                            View
+                                                                            Voir
                                                                         </Link>
                                                                     )}
                                                                     {canEdit && (
@@ -252,7 +256,7 @@ export function CrudIndexPage({
                                                                             href={route(`${resource}.edit`, rowKey)}
                                                                             className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-800 transition hover:bg-emerald-100 sm:px-3 sm:text-xs"
                                                                         >
-                                                                            Edit
+                                                                            Modifier
                                                                         </Link>
                                                                     )}
                                                                     {canDelete && (
@@ -261,13 +265,13 @@ export function CrudIndexPage({
                                                                             method="delete"
                                                                             as="button"
                                                                             onClick={(event) => {
-                                                                                if (!window.confirm('Delete this record?')) {
+                                                                                if (!window.confirm('Supprimer cet enregistrement ?')) {
                                                                                     event.preventDefault();
                                                                                 }
                                                                             }}
                                                                             className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-rose-700 transition hover:bg-rose-100 sm:px-3 sm:text-xs"
                                                                         >
-                                                                            Delete
+                                                                            Supprimer
                                                                         </Link>
                                                                     )}
                                                                 </div>
@@ -282,7 +286,7 @@ export function CrudIndexPage({
                                                     colSpan={columns.length + (showActions ? 1 : 0)}
                                                     className="px-4 py-10 text-center text-sm text-slate-500"
                                                 >
-                                                    No records found.
+                                                    Aucun enregistrement trouve.
                                                 </td>
                                             </tr>
                                         )}
@@ -305,10 +309,13 @@ export function CrudFormPage({
     defaults,
     action,
     method = 'post',
-    submitLabel = 'Save',
+    submitLabel = 'Enregistrer',
 }) {
     const normalizedDefaults = normalizeDefaults(fields, defaults);
     const { data, setData, post, put, patch, processing, errors } = useForm(normalizedDefaults);
+    const visibleFields = fields.filter(
+        (field) => !field.visibleWhen || field.visibleWhen(data),
+    );
 
     const submit = (event) => {
         event.preventDefault();
@@ -337,17 +344,17 @@ export function CrudFormPage({
                     href={route(`${resource}.index`)}
                     className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0e3715]"
                 >
-                    Back to list
+                    Retour a la liste
                 </Link>
             }
         >
             <Head title={title} />
 
             <div className="mx-auto max-w-5xl">
-                <section className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/85 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
+                <section className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur">
                         <form onSubmit={submit} className="space-y-5 p-4 sm:p-6">
                             <div className="grid gap-4 md:grid-cols-2 sm:gap-6">
-                                {fields.map((field) => (
+                                {visibleFields.map((field) => (
                                     <div
                                         key={field.name}
                                         className={field.className ?? field.wrapperClassName ?? ''}
@@ -375,9 +382,9 @@ export function CrudFormPage({
                                 <PrimaryButton disabled={processing}>{submitLabel}</PrimaryButton>
                                 <Link
                                     href={route(`${resource}.index`)}
-                                    className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-semibold uppercase tracking-widest text-slate-700 shadow-sm transition duration-150 ease-in-out hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 dark:border-gray-500 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-offset-gray-800 sm:text-xs"
+                                    className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-[10px] font-semibold uppercase tracking-widest text-slate-700 shadow-sm transition duration-150 ease-in-out hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 sm:text-xs"
                                 >
-                                    Cancel
+                                    Annuler
                                 </Link>
                             </div>
                         </form>
@@ -395,6 +402,7 @@ export function CrudShowPage({
     routeKey = 'id',
     canEdit = true,
     actions = null,
+    children = null,
 }) {
     return (
         <AdminLayout
@@ -408,14 +416,14 @@ export function CrudShowPage({
                             href={route(`${resource}.edit`, record[routeKey] ?? record.id)}
                             className="inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-100"
                         >
-                            Edit
+                            Modifier
                         </Link>
                     )}
                     <Link
                         href={route(`${resource}.index`)}
                         className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0e3715]"
                     >
-                        Back to list
+                        Retour a la liste
                     </Link>
                 </div>
             }
@@ -423,25 +431,27 @@ export function CrudShowPage({
             <Head title={title} />
 
             <div className="mx-auto max-w-5xl">
-                <section className="overflow-hidden rounded-[2rem] border border-white/70 bg-white/85 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur dark:border-gray-800 dark:bg-gray-900/80">
+                <section className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur">
                         <div className="grid gap-0 md:grid-cols-2">
                             {fields.map((field, index) => (
                                 <div
                                     key={field.name}
-                                    className={`border-b border-slate-100 p-4 dark:border-gray-800 sm:p-6 ${
+                                    className={`border-b border-slate-100 p-4 sm:p-6 ${
                                         index % 2 === 0 ? 'md:border-r' : ''
                                     }`}
                                 >
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-gray-400 sm:text-xs sm:tracking-[0.2em]">
+                                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 sm:text-xs sm:tracking-[0.2em]">
                                         {field.label}
                                     </p>
-                                    <p className="mt-2 text-sm text-slate-900 dark:text-gray-100 sm:text-base">
+                                    <p className="mt-2 text-sm text-slate-900 sm:text-base">
                                         {displayValue(record, field)}
                                     </p>
                                 </div>
                             ))}
                         </div>
                 </section>
+
+                {children}
             </div>
         </AdminLayout>
     );

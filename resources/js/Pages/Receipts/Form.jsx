@@ -12,7 +12,7 @@ export default function Form({ receipt, payments }) {
 
     return (
         <CrudFormPage
-            title={receipt ? `Edit ${config.singular}` : `Create ${config.singular}`}
+            title={receipt ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -22,7 +22,7 @@ export default function Form({ receipt, payments }) {
                     : route(`${config.route}.store`)
             }
             method={receipt ? 'put' : 'post'}
-            submitLabel={receipt ? `Update ${config.singular}` : `Create ${config.singular}`}
+            submitLabel={receipt ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
         />
     );
 }

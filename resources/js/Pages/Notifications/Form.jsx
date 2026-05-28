@@ -12,7 +12,7 @@ export default function Form({ notification, users }) {
 
     return (
         <CrudFormPage
-            title={notification ? `Edit ${config.singular}` : `Create ${config.singular}`}
+            title={notification ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -22,7 +22,7 @@ export default function Form({ notification, users }) {
                     : route(`${config.route}.store`)
             }
             method={notification ? 'put' : 'post'}
-            submitLabel={notification ? `Update ${config.singular}` : `Create ${config.singular}`}
+            submitLabel={notification ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
         />
     );
 }

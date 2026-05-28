@@ -12,14 +12,17 @@ class AnnouncementCreated implements ShouldBroadcast
 {
     use Dispatchable, SerializesModels;
 
+    private const TARGET_COPROPRIETAIRES = ['coproprietaires', 'copropriétaires'];
+
     public function __construct(public Announcement $announcement) {}
 
     public function broadcastOn(): array
     {
         $buildingSegment = $this->announcement->building_id ?? 'all';
-        $roleSegment = match ($this->announcement->target_role) {
-            'locataires' => 'Locataire',
-            'copropriétaires', 'coproprietaires', 'copropriÃ©taires' => 'Coproprietaire',
+        $targetRole = $this->announcement->target_role;
+        $roleSegment = match (true) {
+            $targetRole === 'locataires' => 'Locataire',
+            in_array($targetRole, self::TARGET_COPROPRIETAIRES, true) => 'Coproprietaire',
             default => 'all',
         };
 

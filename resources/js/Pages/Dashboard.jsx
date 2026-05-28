@@ -701,10 +701,10 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
 
     return (
         <AdminLayout
-            title="Dashboard coproprietaire"
+            title="Tableau de bord coproprietaire"
             subtitle="Solde personnel, appels de fonds, PV d'AG et incidents."
         >
-            <Head title="Dashboard coproprietaire" />
+            <Head title="Tableau de bord coproprietaire" />
 
             <div className="space-y-5 sm:space-y-6">
                 <RoleHero
@@ -1019,10 +1019,10 @@ function TenantDashboard({ auth = {}, data = {} }) {
 
     return (
         <AdminLayout
-            title="Dashboard locataire"
+            title="Tableau de bord locataire"
             subtitle="Mur d'annonces et reclamations techniques."
         >
-            <Head title="Dashboard locataire" />
+            <Head title="Tableau de bord locataire" />
 
             <div className="space-y-5 sm:space-y-6">
                 <RoleHero
@@ -1270,10 +1270,10 @@ export default function Dashboard({
 
     return (
         <AdminLayout
-            title="Dashboard"
+            title="Tableau de bord"
             subtitle="Pilotage financier, suivi des residents, incidents, documents et communications."
         >
-            <Head title="Dashboard" />
+            <Head title="Tableau de bord" />
 
             <div className="space-y-5 sm:space-y-6">
                 <section className="dashboard-appear dashboard-card rounded-lg bg-[#0f3c1d] p-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.16)] sm:p-6 lg:p-7">
@@ -1406,7 +1406,7 @@ export default function Dashboard({
                     <MetricCard
                         label="Impayes"
                         value={formatCurrency(summary.unpaidCharges)}
-                        helper="Charges pending et overdue"
+                        helper="Charges en attente et en retard"
                         tone="rose"
                     />
                     <MetricCard

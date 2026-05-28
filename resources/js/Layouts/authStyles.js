@@ -1,14 +1,14 @@
 export const authPageClass =
-    "relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_#edf7ef_0%,_#d7e5d1_34%,_#a8b69a_100%)] text-slate-900";
+    "relative min-h-screen w-screen max-w-[100vw] overflow-hidden bg-[radial-gradient(circle_at_top,_#edf7ef_0%,_#d7e5d1_34%,_#a8b69a_100%)] text-slate-900";
 
 export const authOverlayClass =
     "absolute inset-0 bg-white/10 backdrop-blur-[1px]";
 
 export const authShellClass =
-    "relative flex min-h-screen items-end justify-center px-3 pb-4 pt-5 sm:px-6 sm:pb-8 sm:pt-8 lg:px-16 lg:pb-10";
+    "relative flex min-h-screen w-screen max-w-[100vw] items-end justify-start overflow-hidden px-3 pb-4 pt-5 sm:justify-center sm:px-6 sm:pb-8 sm:pt-8 lg:px-16 lg:pb-10";
 
 export const authCardClass =
-    "mx-auto w-full max-w-[480px] rounded-[1.5rem] border border-white/25 bg-white/35 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.12)] backdrop-blur-md sm:rounded-[2rem] sm:p-8";
+    "min-w-0 w-[22.5rem] max-w-[calc(100vw-1.5rem)] rounded-[1.5rem] border border-white/25 bg-white/35 p-5 shadow-[0_18px_40px_rgba(15,23,42,0.12)] backdrop-blur-md sm:mx-auto sm:w-full sm:max-w-[480px] sm:rounded-[2rem] sm:p-8";
 
 export const authEyebrowClass =
     "text-xs font-bold uppercase tracking-[0.28em] text-lime-900/90";

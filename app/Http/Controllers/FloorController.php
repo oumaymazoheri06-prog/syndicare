@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Audit_log;
 use App\Models\Building;
 use App\Models\Floor;
 use Illuminate\Http\RedirectResponse;
@@ -29,12 +30,16 @@ class FloorController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'number' => ['required', 'string', 'max:255', 'unique:floors,number'],
-            'building_id' => ['required', 'exists:buildings,id'],
+            'number' => ['required', 'string', 'max:255', $this->tenantUnique('floors', 'number')],
+            'building_id' => ['required', $this->tenantExists('buildings')],
         ]);
 
         Floor::create($validated);
-
+Audit_log:: create([
+    'action'=> 'Creation de floor',
+    'details'=>'Un floor numero '.$validated['number'].' a ete creer dans le batiment ID '.$validated['building_id'].'.',
+'performed_by' =>auth()->id(),
+]);
         return redirect()->route('floors.index')->with('success', 'Floor created successfully.');
     }
 
@@ -53,22 +58,35 @@ class FloorController extends Controller
         ]);
     }
 
+
+
+
+
+
     public function update(Request $request, Floor $floor): RedirectResponse
     {
         $validated = $request->validate([
-            'number' => ['required', 'string', 'max:255', Rule::unique('floors', 'number')->ignore($floor->id)],
-            'building_id' => ['required', 'exists:buildings,id'],
+            'number' => ['required', 'string', 'max:255', $this->tenantUnique('floors', 'number')->ignore($floor->id)],
+            'building_id' => ['required', $this->tenantExists('buildings')],
         ]);
 
         $floor->update($validated);
-
+Audit_log::create([
+    'action' => 'Mise à jour de floor',
+    'details' => 'Le floor ID '.$floor->id.' a été mis à jour       en numero '.$validated['number'].' dans le batiment ID '.$validated['building_id'].'.',
+    'performed_by' => auth()->id(),
+]);
         return redirect()->route('floors.index')->with('success', 'Floor updated successfully.');
     }
 
     public function destroy(Floor $floor): RedirectResponse
     {
         $floor->delete();
-
+Audit_log::create([
+    'action' => 'Suppression de floor',
+    'details' => 'Le floor ID '.$floor->id.' a été supprimé.',  
+    'performed_by' => auth()->id(),
+]);
         return redirect()->route('floors.index')->with('success', 'Floor deleted successfully.');
     }
 }

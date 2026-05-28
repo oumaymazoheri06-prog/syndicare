@@ -31,6 +31,8 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $supportedLocales = config('app.supported_locales', []);
+        $currentLocale = app()->getLocale();
         $buildingIds = $user
             ? $user->apartments()
                 ->with('floor:id,building_id')
@@ -46,6 +48,19 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $user,
                 'building_ids' => $buildingIds,
+            ],
+            'locale' => [
+                'current' => $currentLocale,
+                'direction' => $supportedLocales[$currentLocale]['direction'] ?? 'ltr',
+                'available' => collect($supportedLocales)
+                    ->map(fn (array $language, string $code) => [
+                        'code' => $code,
+                        'name' => $language['name'] ?? strtoupper($code),
+                        'native' => $language['native'] ?? strtoupper($code),
+                        'direction' => $language['direction'] ?? 'ltr',
+                    ])
+                    ->values()
+                    ->all(),
             ],
             'notifications' => [
                 'unread' => $user

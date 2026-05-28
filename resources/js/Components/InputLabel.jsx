@@ -8,7 +8,7 @@ export default function InputLabel({
         <label
             {...props}
             className={
-                `block text-lg font-bold text-slate-50 dark:text-sky-700 ` +
+                `block text-sm font-semibold text-slate-800 ` +
                 className
             }
         >

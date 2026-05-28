@@ -10,18 +10,31 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
-
+use App\Policies\ChargePolicy;
+use App\Models\Audit_log;
 class ChargeController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Charge::class);
+
+        $query = Charge::query()->latest();
+
+        if ($request->user()->role !== 'Syndic') {
+            $query->whereHas('apartment', function ($q) use ($request) {
+                $q->where('user_id', $request->user()->id);
+            });
+        }
+
         return Inertia::render('Charges/Index', [
-            'charges' => Charge::query()->latest()->paginate(10),
+            'charges' => $query->paginate(10),
         ]);
     }
 
     public function create(): Response
     {
+        $this->authorize('create', Charge::class);
+
         return Inertia::render('Charges/Create', [
             'apartments' => Apartment::query()->orderBy('number')->get(),
         ]);
@@ -29,16 +42,23 @@ class ChargeController extends Controller
 
     public function store(Request $request, NotificationService $notifications): RedirectResponse
     {
+        $this->authorize('create', Charge::class);
+
         $validated = $request->validate([
             'description' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date'],
-            'apartment_id' => ['required', 'exists:apartments,id'],
+            'apartment_id' => ['required', $this->tenantExists('apartments')],
             'status' => ['required', Rule::in(['pending', 'paid', 'overdue'])],
         ]);
 
         $charge = Charge::create($validated);
         $charge->load('apartment.user');
+ Audit_log:: create([
+    'action'=> 'Creation de charge',
+    'details'=>'Une charge de '.$charge->amount.' DH a ete creee.',
+'performed_by' =>auth()->id(),
+ ]);
 
         $notifications->createForUser(
             $charge->apartment?->user,
@@ -56,6 +76,7 @@ class ChargeController extends Controller
 
     public function show(Charge $charge): Response
     {
+        $this->authorize('view',$charge);
         return Inertia::render('Charges/Show', [
             'charge' => $charge,
         ]);
@@ -63,6 +84,8 @@ class ChargeController extends Controller
 
     public function edit(Charge $charge): Response
     {
+        $this->authorize('update', $charge);
+
         return Inertia::render('Charges/Edit', [
             'charge' => $charge,
             'apartments' => Apartment::query()->orderBy('number')->get(),
@@ -71,22 +94,39 @@ class ChargeController extends Controller
 
     public function update(Request $request, Charge $charge): RedirectResponse
     {
+        $this->authorize('update', $charge);
+
         $validated = $request->validate([
             'description' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date'],
-            'apartment_id' => ['required', 'exists:apartments,id'],
+            'apartment_id' => ['required', $this->tenantExists('apartments')],
             'status' => ['required', Rule::in(['pending', 'paid', 'overdue'])],
         ]);
 
         $charge->update($validated);
+
+Audit_log::create([
+    'action' => 'Modification de charge',
+    'details' => 'La charge '.$charge->description.' a ete modifiee.',
+    'performed_by' => auth()->id(),
+]);
+
 
         return redirect()->route('charges.index')->with('success', 'Charge updated successfully.');
     }
 
     public function destroy(Charge $charge): RedirectResponse
     {
+        $this->authorize('delete', $charge);
+
         $charge->delete();
+        Audit_log::create([
+    'action' => 'Suppression de charge',
+    'details' => 'La charge '.$charge->description.' a ete supprimee.',
+    'performed_by' => auth()->id(),
+]);
+
 
         return redirect()->route('charges.index')->with('success', 'Charge deleted successfully.');
     }

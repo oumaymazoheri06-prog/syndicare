@@ -1,15 +1,38 @@
 import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs } from '../_shared/resources';
 
-export default function Form({ document }) {
+export default function Form({ document, buildings = [], apartments = [] }) {
     const config = resourceConfigs.documents;
+    const fields = config.formFields.map((field) => {
+        if (field.name === 'building_id') {
+            return {
+                ...field,
+                options: buildings.map((building) => ({
+                    value: building.id,
+                    label: building.name,
+                })),
+            };
+        }
+
+        if (field.name === 'apartment_id') {
+            return {
+                ...field,
+                options: apartments.map((apartment) => ({
+                    value: apartment.id,
+                    label: apartment.label ?? apartment.number,
+                })),
+            };
+        }
+
+        return field;
+    });
     const defaults = config.toFormData(document);
 
     return (
         <CrudFormPage
-            title={document ? `Edit ${config.singular}` : `Create ${config.singular}`}
+            title={document ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
             resource={config.route}
-            fields={config.formFields}
+            fields={fields}
             defaults={defaults}
             action={
                 document
@@ -17,7 +40,7 @@ export default function Form({ document }) {
                     : route(`${config.route}.store`)
             }
             method={document ? 'put' : 'post'}
-            submitLabel={document ? `Update ${config.singular}` : `Create ${config.singular}`}
+            submitLabel={document ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
         />
     );
 }

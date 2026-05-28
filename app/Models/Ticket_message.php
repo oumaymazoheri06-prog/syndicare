@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Ticket_message extends Model
 {
-    use HasFactory;
+    use BelongsToOrganization, HasFactory;
 
-    protected $fillable = ['message', 'ticket_id', 'sender_id'];
+    protected $fillable = ['organization_id', 'message', 'ticket_id', 'sender_id'];
 
     public function ticket()
     {

@@ -21,21 +21,19 @@ export default function VerifyEmail({ status }) {
 
     return (
         <GuestLayout>
-            <Head title="Email Verification" />
+            <Head title="Verification email" />
 
             <div className="mb-8">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Verify your email</h1>
+                <h1 className={authTitleClass}>Verifiez votre email</h1>
                 <p className={authDescriptionClass}>
-                    Thanks for signing up. Please verify your email address to
-                    continue.
+                    Merci pour votre inscription. Verifiez votre adresse email pour continuer.
                 </p>
             </div>
 
             {status === 'verification-link-sent' && (
                 <div className={authStatusClass}>
-                    A new verification link has been sent to the email address
-                    you provided during registration.
+                    Un nouveau lien de verification a ete envoye a l adresse email fournie.
                 </div>
             )}
 
@@ -45,7 +43,7 @@ export default function VerifyEmail({ status }) {
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        Resend Verification Email
+                        Renvoyer l email de verification
                     </PrimaryButton>
 
                     <Link
@@ -54,7 +52,7 @@ export default function VerifyEmail({ status }) {
                         as="button"
                         className={authLinkClass}
                     >
-                        Log Out
+                        Deconnexion
                     </Link>
                 </div>
             </form>

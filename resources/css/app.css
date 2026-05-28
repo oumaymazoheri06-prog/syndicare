@@ -12,6 +12,22 @@
     body {
         overflow-x: hidden;
     }
+
+    html[dir="rtl"] body {
+        font-family:
+            Tahoma,
+            Arial,
+            sans-serif;
+        text-align: right;
+    }
+
+    html[dir="rtl"] .text-left {
+        text-align: right;
+    }
+
+    html[dir="rtl"] [class*="tracking-"] {
+        letter-spacing: 0;
+    }
 }
 
 @layer utilities {

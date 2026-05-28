@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (! Schema::hasColumn('announcements', 'target_role')) {
             Schema::table('announcements', function (Blueprint $table) {
-                $table->enum('target_role', ['all', 'copropriÃ©taires', 'locataires'])->default('all');
+                $table->enum('target_role', ['all', 'coproprietaires', 'locataires'])->default('all');
             });
         }
 

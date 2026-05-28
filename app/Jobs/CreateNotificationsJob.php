@@ -20,11 +20,16 @@ class CreateNotificationsJob implements ShouldQueue
         public string $title,
         public string $message,
         public string $type = 'info',
+        public ?int $organizationId = null,
     ) {}
 
     public function handle(): void
     {
-        $query = User::query()->select(['id']);
+        $query = User::query()->select(['id', 'organization_id']);
+
+        if ($this->organizationId) {
+            $query->where('organization_id', $this->organizationId);
+        }
 
         if ($this->target === 'user_ids') {
             $ids = array_values(array_filter(array_map('intval', $this->targetValues)));
@@ -65,6 +70,7 @@ class CreateNotificationsJob implements ShouldQueue
 
             foreach ($users as $user) {
                 $rows[] = [
+                    'organization_id' => $this->organizationId ?? $user->organization_id,
                     'title' => $this->title,
                     'message' => $this->message,
                     'user_id' => $user->id,

@@ -12,7 +12,7 @@ export default function Form({ ticket, users }) {
 
     return (
         <CrudFormPage
-            title={ticket ? `Edit ${config.singular}` : `Create ${config.singular}`}
+            title={ticket ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -22,7 +22,7 @@ export default function Form({ ticket, users }) {
                     : route(`${config.route}.store`)
             }
             method={ticket ? 'put' : 'post'}
-            submitLabel={ticket ? `Update ${config.singular}` : `Create ${config.singular}`}
+            submitLabel={ticket ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
         />
     );
 }

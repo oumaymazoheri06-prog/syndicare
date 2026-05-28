@@ -2,31 +2,38 @@ import NotificationDropdown from "@/Components/NotificationDropdown";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import Dropdown from "@/Components/Dropdown";
+import LanguageSwitcher from "@/Components/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nProvider";
 const navSections = [
     {
-        label: "Overview",
+        label: "Accueil",
         items: [
             {
-                label: "Dashboard",
+                label: "Tableau de bord",
                 href: route("dashboard"),
                 match: "dashboard",
+            },
+            {
+                label: "Membres",
+                href: route("users.index"),
+                match: "users.*",
             },
         ],
     },
     {
-        label: "Property",
+        label: "Patrimoine",
         items: [
             {
-                label: "Buildings",
+                label: "Immeubles",
                 href: route("buildings.index"),
                 match: "buildings.*",
             },
             {
-                label: "Apartments",
+                label: "Lots",
                 href: route("apartments.index"),
                 match: "apartments.*",
             },
-            { label: "Floors", href: route("floors.index"), match: "floors.*" },
+            { label: "Etages", href: route("floors.index"), match: "floors.*" },
         ],
     },
     {
@@ -38,19 +45,19 @@ const navSections = [
                 match: "charges.*",
             },
             {
-                label: "Expenses",
+                label: "Depenses",
                 href: route("expenses.index"),
                 match: "expenses.*",
             },
             {
-                label: "Payments",
+                label: "Paiements",
                 href: route("payments.index"),
                 match: "payments.*",
             },
         ],
     },
     {
-        label: "Operations",
+        label: "Gestion",
         items: [
             {
                 label: "Tickets",
@@ -63,24 +70,59 @@ const navSections = [
                 match: "items.*",
             },
             {
-                label: "Announcements",
+                label: "Annonces",
                 href: route("announcements.index"),
                 match: "announcements.*",
             },
-            { label: "Users", href: route("users.index"), match: "users.*" },
+            
             {
                 label: "Documents",
                 href: route("documents.index"),
                 match: "documents.*",
             },
             {
-                label: "Audit logs",
+                label: "Historique des actions",
                 href: route("audit-logs.index"),
                 match: "audit-logs.*",
             },
         ],
     },
 ];
+
+const superAdminNavSections = [
+    {
+        label: "Plateforme",
+        items: [
+            {
+                label: "Organisations",
+                href: route("admin.organizations.index"),
+                match: "admin.organizations.*",
+            },
+        ],
+    },
+];
+
+const residentNavMatches = {
+    Locataire: [
+        "dashboard",
+        "payments.*",
+        "receipts.*",
+        "tickets.*",
+        "items.*",
+        "announcements.*",
+        "documents.*",
+    ],
+    Coproprietaire: [
+        "dashboard",
+        "charges.*",
+        "payments.*",
+        "receipts.*",
+        "tickets.*",
+        "items.*",
+        "announcements.*",
+        "documents.*",
+    ],
+};
 
 function NavItem({ href, match, children, onNavigate }) {
     const active = route().current(match);
@@ -89,14 +131,14 @@ function NavItem({ href, match, children, onNavigate }) {
         <Link
             href={href}
             onClick={onNavigate}
-            className={`flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm font-medium transition ${
+            className={`flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm text-white font-medium transition ${
                 active
                     ? "bg-white/12 text-white"
                     : "text-emerald-50/80 hover:bg-white/8 hover:text-white"
             }`}
         >
             <span
-                className={`h-2 w-2 rounded-full ${
+                className={`h-2 w-2 rounded-full  ${
                     active ? "bg-lime-300" : "bg-white/70"
                 }`}
             />
@@ -131,21 +173,28 @@ function TopNavItem({ href, match, children, badge, onNavigate }) {
 export default function AdminLayout({ title, subtitle, toolbar, children }) {
     const { auth, flash, notifications } = usePage().props;
     const user = auth?.user;
+    const { isRtl } = useI18n();
     const [mobileNavOpen, setMobileNavOpen] = useState(false);
     const unreadNotifications = notifications?.unread || 0;
     const visibleNavSections =
-        user?.role === "Syndic"
-            ? navSections
-            : navSections
-                  .map((section) => ({
-                      ...section,
-                      items: section.items.filter(
-                          (item) => item.match === "dashboard",
-                      ),
-                  }))
-                  .filter((section) => section.items.length > 0);
+        user?.role === "SuperAdmin"
+            ? superAdminNavSections
+            : user?.role === "Syndic"
+              ? navSections
+              : navSections
+                    .map((section) => ({
+                        ...section,
+                        items: section.items.filter((item) =>
+                            (
+                                residentNavMatches[user?.role] || ["dashboard"]
+                            ).includes(item.match),
+                        ),
+                    }))
+                    .filter((section) => section.items.length > 0);
     const roleNote =
-        user?.role === "Locataire"
+        user?.role === "SuperAdmin"
+            ? "Pilotage des organisations, abonnements et revenus plateforme."
+            : user?.role === "Locataire"
             ? "Annonces de l'immeuble et reclamations techniques."
             : user?.role === "Coproprietaire"
               ? "Solde personnel, appels de fonds, documents et incidents."
@@ -162,10 +211,14 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                 />
             )}
 
-            <div className="min-h-screen lg:pl-[300px]">
+            <div className={`min-h-screen ${isRtl ? "lg:pr-[300px]" : "lg:pl-[300px]"}`}>
                 <aside
-                    className={`fixed inset-y-0 left-0 z-50 flex w-[min(86vw,19rem)] max-w-full flex-col gap-6 overflow-y-auto bg-[#0e3715] px-4 py-6 text-white shadow-2xl transition-transform duration-300 lg:w-[300px] lg:translate-x-0 lg:gap-8 lg:px-6 lg:py-8 lg:shadow-none ${
-                        mobileNavOpen ? "translate-x-0" : "-translate-x-full"
+                    className={`fixed inset-y-0 ${isRtl ? "right-0" : "left-0"} z-50 flex w-[min(86vw,19rem)] max-w-full flex-col gap-6 overflow-y-auto bg-[#0e3715] px-4 py-6 text-white shadow-2xl transition-transform duration-300 lg:w-[300px] lg:translate-x-0 lg:gap-8 lg:px-6 lg:py-8 lg:shadow-none ${
+                        mobileNavOpen
+                            ? "translate-x-0"
+                            : isRtl
+                              ? "translate-x-full"
+                              : "-translate-x-full"
                     }`}
                 >
                     <div className="flex items-start justify-between gap-4 lg:block">
@@ -184,11 +237,9 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                 </div>
 
                                 <div className="min-w-0 lg:mt-3 lg:text-center">
-                                    <p className="truncate text-lg font-black tracking-wide text-white sm:text-xl lg:text-2xl">
-                                        SyndiCare
-                                    </p>
+                                  
                                     <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-lime-100/80 sm:text-xs">
-                                        Admin console
+                                        Console de gestion
                                     </p>
                                 </div>
                             </div>
@@ -203,10 +254,10 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                         </button>
                     </div>
 
-                    <nav className="space-y-5">
+                    <nav className="space-y-6">
                         {visibleNavSections.map((section) => (
-                            <div key={section.label}>
-                                <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-emerald-100/45 sm:text-xs sm:tracking-[0.28em]">
+                            <div key={section.label} className="space-y-2">
+                                <p className="flex items-center rounded-xl border border-white/10 bg-white/8 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-lime-50 shadow-sm sm:text-[13px]">
                                     {section.label}
                                 </p>
                                 <div className="space-y-1">
@@ -226,6 +277,8 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                             </div>
                         ))}
                     </nav>
+
+                    <LanguageSwitcher variant="dark" />
 
                     <div className="mt-auto rounded-[1.25rem] bg-white/10 p-3 backdrop-blur-sm sm:rounded-[1.5rem] sm:p-4">
                         <p className="text-sm font-semibold text-white">
@@ -264,14 +317,23 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                 </p>
                             </div>
 
-                            <NotificationDropdown
-                                notifications={notifications?.latest}
-                                unreadCount={unreadNotifications}
-                                triggerClassName="h-10 w-10"
-                            />
+                            <div className="flex items-center gap-2">
+                                <LanguageSwitcher compact />
+                                <NotificationDropdown
+                                    notifications={notifications?.latest}
+                                    unreadCount={unreadNotifications}
+                                    triggerClassName="h-10 w-10"
+                                />
+                            </div>
                         </div>
 
-                        <header className="relative z-30 mt-20 border-b border-black/5 bg-[#f6f2e9]/95 shadow-sm backdrop-blur lg:fixed lg:left-[300px] lg:right-0 lg:top-0 lg:z-40 lg:mt-0">
+                        <header
+                            className={`relative z-30 mt-20 border-b border-black/5 bg-[#f6f2e9]/95 shadow-sm backdrop-blur lg:fixed ${
+                                isRtl
+                                    ? "lg:left-0 lg:right-[300px]"
+                                    : "lg:left-[300px] lg:right-0"
+                            } lg:top-0 lg:z-40 lg:mt-0`}
+                        >
                             <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-6 sm:py-5">
                                 <div className="hidden items-center justify-between gap-4 lg:flex">
                                     <div className="min-w-0">
@@ -293,6 +355,8 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                             >
                                                 Tableau de bord
                                             </TopNavItem> */}
+
+                                            <LanguageSwitcher />
 
                                             <NotificationDropdown
                                                 notifications={
@@ -325,7 +389,7 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                                             "profile.edit",
                                                         )}
                                                     >
-                                                        Profile
+                                                        Profil
                                                     </Dropdown.Link>
 
                                                     <Dropdown.Link
@@ -333,7 +397,7 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                                         method="post"
                                                         as="button"
                                                     >
-                                                        Log Out
+                                                        Deconnexion
                                                     </Dropdown.Link>
                                                 </Dropdown.Content>
                                             </Dropdown>
@@ -368,7 +432,7 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                                 <Dropdown.Link
                                                     href={route("profile.edit")}
                                                 >
-                                                    Profile
+                                                    Profil
                                                 </Dropdown.Link>
 
                                                 <Dropdown.Link
@@ -376,7 +440,7 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                                     method="post"
                                                     as="button"
                                                 >
-                                                    Log Out
+                                                    Deconnexion
                                                 </Dropdown.Link>
                                             </Dropdown.Content>
                                         </Dropdown>

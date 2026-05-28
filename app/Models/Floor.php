@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Floor extends Model
 {
-    use HasFactory;
+    use BelongsToOrganization, HasFactory;
 
-    protected $fillable = ['number', 'building_id'];
+    protected $fillable = ['organization_id', 'number', 'building_id'];
 
     public function building()
     {

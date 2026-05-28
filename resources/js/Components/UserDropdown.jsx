@@ -11,11 +11,11 @@ export default function UserDropdown({ user }) {
 
             <Dropdown.Content>
                 <Dropdown.Link href={route("profile.edit")}>
-                    Profile
+                    Profil
                 </Dropdown.Link>
 
                 <Dropdown.Link href={route("logout")} method="post" as="button">
-                    Log Out
+                    Deconnexion
                 </Dropdown.Link>
             </Dropdown.Content>
         </Dropdown>

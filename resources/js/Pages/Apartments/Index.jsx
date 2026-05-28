@@ -11,7 +11,7 @@ export default function Index({ apartments }) {
             items={apartments}
             columns={config.indexColumns}
             routeKey={config.routeKey}
-            createLabel={`New ${config.singular}`}
+            createLabel={`Nouveau ${config.singular}`}
         />
     );
 }

@@ -18,7 +18,7 @@ export default function Form({ apartment, floors, users }) {
 
     return (
         <CrudFormPage
-            title={apartment ? `Edit ${config.singular}` : `Create ${config.singular}`}
+            title={apartment ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -28,7 +28,7 @@ export default function Form({ apartment, floors, users }) {
                     : route(`${config.route}.store`)
             }
             method={apartment ? 'put' : 'post'}
-            submitLabel={apartment ? `Update ${config.singular}` : `Create ${config.singular}`}
+            submitLabel={apartment ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
         />
     );
 }

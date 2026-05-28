@@ -1,8 +1,11 @@
 import { CrudIndexPage } from '@/Components/CrudScaffold';
+import { usePage } from '@inertiajs/react';
 import { resourceConfigs } from '../_shared/resources';
 
 export default function Index({ charges }) {
     const config = resourceConfigs.charges;
+    const { auth } = usePage().props;
+    const canManageCharges = auth?.user?.role === 'Syndic';
 
     return (
         <CrudIndexPage
@@ -11,7 +14,10 @@ export default function Index({ charges }) {
             items={charges}
             columns={config.indexColumns}
             routeKey={config.routeKey}
-            createLabel={`New ${config.singular}`}
+            createLabel={`Nouveau ${config.singular}`}
+            canCreate={canManageCharges}
+            canEdit={canManageCharges}
+            canDelete={canManageCharges}
         />
     );
 }

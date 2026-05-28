@@ -11,7 +11,7 @@ export default function Form({ announcement, buildings = [] }) {
             ? {
                   ...field,
                   options: [
-                      { value: "", label: "All Buildings" },
+                      { value: "", label: "Tous les immeubles" },
                       ...buildings.map((b) => ({ value: b.id, label: b.name })),
                   ],
               }
@@ -22,8 +22,8 @@ export default function Form({ announcement, buildings = [] }) {
         <CrudFormPage
             title={
                 announcement
-                    ? `Edit ${config.singular}`
-                    : `Create ${config.singular}`
+                    ? `Modifier ${config.singular}`
+                    : `Creer ${config.singular}`
             }
             resource={config.route}
             fields={fields}
@@ -36,8 +36,8 @@ export default function Form({ announcement, buildings = [] }) {
             method={announcement ? "put" : "post"}
             submitLabel={
                 announcement
-                    ? `Update ${config.singular}`
-                    : `Create ${config.singular}`
+                    ? `Mettre a jour ${config.singular}`
+                    : `Creer ${config.singular}`
             }
         />
     );

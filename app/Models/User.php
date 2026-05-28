@@ -15,6 +15,7 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
+        'organization_id',
         'name',
         'email',
         'phone_number',
@@ -38,6 +39,11 @@ class User extends Authenticatable
     public function apartments()
     {
         return $this->hasMany(Apartment::class, 'user_id');
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class);
     }
 
     public function tickets()
@@ -84,4 +90,5 @@ class User extends Authenticatable
     {
         return $this->hasMany(Item::class);
     }
+   
 }

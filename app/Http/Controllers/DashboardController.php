@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Cache;
 
 use App\Models\Announcement;
 use App\Models\Apartment;
@@ -23,10 +24,12 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function index(): Response
+    public function index(): Response|RedirectResponse
     {
         $user = request()->user();
-
+        if ($user?->role === 'SuperAdmin') {
+            return redirect()->route('admin.organizations.index');
+        }
         if ($user?->role === 'Coproprietaire') {
             return $this->coOwnerDashboard($user);
         }
@@ -165,7 +168,9 @@ class DashboardController extends Controller
                 ->whereNotNull('user_id')
                 ->distinct('user_id')
                 ->count('user_id')
-            : User::count();
+            : User::query()
+                ->where('organization_id', $user->organization_id)
+                ->count();
 
         $buildingCount = $buildingId
             ? Building::query()->whereKey($buildingId)->count()
@@ -557,7 +562,6 @@ class DashboardController extends Controller
             'all',
             'coproprietaires',
             'copropriétaires',
-            'copropriÃ©taires',
         ])->limit(4)->get()->map(fn (Announcement $announcement) => [
             'id' => $announcement->id,
             'title' => $announcement->title,
@@ -697,7 +701,7 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'month' => ['nullable', 'date_format:Y-m'],
-            'building_id' => ['nullable', 'integer', 'exists:buildings,id'],
+            'building_id' => ['nullable', 'integer', $this->tenantExists('buildings')],
         ]);
 
         return $service->preview(
@@ -714,22 +718,35 @@ class DashboardController extends Controller
     {
         $validated = $request->validate([
             'month' => ['nullable', 'date_format:Y-m'],
-            'building_id' => ['nullable', 'integer', 'exists:buildings,id'],
+            'building_id' => ['nullable', 'integer', $this->tenantExists('buildings')],
         ]);
 
         $period = $this->chargePeriod($validated['month'] ?? null);
         $buildingId = $validated['building_id'] ?? null;
-        $result = $service->generate($period, $buildingId);
-
-        $this->notifyGeneratedCharges($result['created_charge_ids'] ?? [], $period, $notifications);
+        $lockName = 'generate-charge:'.$period->format('Y-m').':building:'.($buildingId ?? 'all');
+        $lock  = Cache::lock($lockName , 300);
+        if(! $lock->get()){
 
         return redirect()
-            ->route('dashboard', $buildingId ? ['building_id' => $buildingId] : [])
-            ->with(
-                'success',
-                $result['created'].' charges generees pour '.$result['period_label'].
-                ' ('.$result['skipped'].' deja existantes).'
-            );
+        ->route('dashboard',$buildingId ? ['building_id'=>$buildingId] :[])
+        ->with('error','La génération des charges est déjà en cours. Veuillez patienter . ');
+        }
+        try {
+    $result = $service->generate($period, $buildingId);
+
+    $this->notifyGeneratedCharges($result['created_charge_ids'] ?? [], $period, $notifications);
+
+    return redirect()
+        ->route('dashboard', $buildingId ? ['building_id' => $buildingId] : [])
+        ->with(
+            'success',
+            $result['created'].' charges generees pour '.$result['period_label'].
+            ' ('.$result['skipped'].' deja existantes).'
+        );
+} finally {
+    $lock->release();
+}
+
     }
 
     private function chargePeriod(?string $month): Carbon

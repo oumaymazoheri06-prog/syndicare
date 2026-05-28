@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Payment extends Model
 {
-    use HasFactory;
+    use BelongsToOrganization, HasFactory;
 
-    protected $fillable = ['amount', 'charge_id', 'status', 'payment_date'];
+    protected $fillable = ['organization_id', 'amount', 'charge_id', 'status', 'payment_date'];
 
     protected $casts = [
         'payment_date' => 'date',

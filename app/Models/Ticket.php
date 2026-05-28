@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Ticket extends Model
 {
-    use HasFactory;
+    use BelongsToOrganization, HasFactory;
 
-    protected $fillable = ['title', 'description', 'apartment_id', 'assingned_by', 'assigned_to', 'status'];
+    protected $fillable = ['organization_id', 'title', 'description', 'apartment_id', 'assingned_by', 'assigned_to', 'status'];
 
     public function createdBy()
     {

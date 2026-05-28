@@ -7,7 +7,7 @@ export default function Form({ auditLog }) {
 
     return (
         <CrudFormPage
-            title={auditLog ? `Edit ${config.singular}` : `Create ${config.singular}`}
+            title={auditLog ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
             resource={config.route}
             fields={config.formFields}
             defaults={defaults}
@@ -17,7 +17,7 @@ export default function Form({ auditLog }) {
                     : route(`${config.route}.store`)
             }
             method={auditLog ? 'put' : 'post'}
-            submitLabel={auditLog ? `Update ${config.singular}` : `Create ${config.singular}`}
+            submitLabel={auditLog ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
         />
     );
 }

@@ -14,8 +14,8 @@ export default function Form({ ticketMessage, tickets }) {
         <CrudFormPage
             title={
                 ticketMessage
-                    ? `Edit ${config.singular}`
-                    : `Create ${config.singular}`
+                    ? `Modifier ${config.singular}`
+                    : `Creer ${config.singular}`
             }
             resource={config.route}
             fields={fields}
@@ -27,7 +27,7 @@ export default function Form({ ticketMessage, tickets }) {
             }
             method={ticketMessage ? 'put' : 'post'}
             submitLabel={
-                ticketMessage ? `Update ${config.singular}` : `Create ${config.singular}`
+                ticketMessage ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`
             }
         />
     );

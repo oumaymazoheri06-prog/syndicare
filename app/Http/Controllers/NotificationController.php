@@ -15,6 +15,8 @@ class NotificationController extends Controller
 {
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Notification::class);
+
         $query = Notification::query()->latest();
 
         if ($request->user()?->role !== 'Syndic') {
@@ -28,26 +30,31 @@ class NotificationController extends Controller
 
     public function create(): Response
     {
-        $this->ensureSyndic();
+        $this->authorize('create', Notification::class);
 
         return Inertia::render('Notifications/Create', [
-            'users' => User::query()->orderBy('name')->get(),
+            'users' => User::query()
+                ->where('organization_id', request()->user()?->organization_id)
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
     public function store(Request $request, NotificationService $notifications): RedirectResponse
     {
-        $this->ensureSyndic();
+        $this->authorize('create', Notification::class);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string'],
-            'user_id' => ['required', 'exists:users,id'],
+            'user_id' => ['required', $this->tenantExists('users')],
             'type' => ['required', Rule::in(['info', 'warning', 'error'])],
             'is_read' => ['nullable', 'boolean'],
         ]);
 
-        $targetUser = User::query()->find($validated['user_id']);
+        $targetUser = User::query()
+            ->where('organization_id', $request->user()->organization_id)
+            ->find($validated['user_id']);
 
         $notifications->createForUser(
             $targetUser,
@@ -61,7 +68,7 @@ class NotificationController extends Controller
 
     public function show(Request $request, Notification $notification): Response
     {
-        $this->ensureCanView($request, $notification);
+        $this->authorize('view', $notification);
 
         if ($request->user()?->id === $notification->user_id && ! $notification->is_read) {
             $notification->update([
@@ -76,22 +83,25 @@ class NotificationController extends Controller
 
     public function edit(Request $request, Notification $notification): Response
     {
-        $this->ensureSyndic();
+        $this->authorize('update', $notification);
 
         return Inertia::render('Notifications/Edit', [
             'notification' => $notification,
-            'users' => User::query()->orderBy('name')->get(),
+            'users' => User::query()
+                ->where('organization_id', request()->user()?->organization_id)
+                ->orderBy('name')
+                ->get(),
         ]);
     }
 
     public function update(Request $request, Notification $notification): RedirectResponse
     {
-        $this->ensureSyndic();
+        $this->authorize('update', $notification);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'message' => ['required', 'string'],
-            'user_id' => ['required', 'exists:users,id'],
+            'user_id' => ['required', $this->tenantExists('users')],
             'type' => ['required', Rule::in(['info', 'warning', 'error'])],
             'is_read' => ['nullable', 'boolean'],
         ]);
@@ -113,7 +123,7 @@ class NotificationController extends Controller
 
     public function destroy(Request $request, Notification $notification): RedirectResponse
     {
-        $this->ensureSyndic();
+        $this->authorize('delete', $notification);
 
         $notification->delete();
 
@@ -122,7 +132,7 @@ class NotificationController extends Controller
 
     public function markRead(Request $request, Notification $notification): RedirectResponse
     {
-        $this->ensureCanView($request, $notification);
+        $this->authorize('update', $notification);
 
         $notification->update([
             'is_read' => true,
@@ -133,7 +143,7 @@ class NotificationController extends Controller
 
     public function markUnread(Request $request, Notification $notification): RedirectResponse
     {
-        $this->ensureCanView($request, $notification);
+        $this->authorize('update', $notification);
 
         $notification->update([
             'is_read' => false,
@@ -149,19 +159,5 @@ class NotificationController extends Controller
             ->update(['is_read' => true]);
 
         return back()->with('success', 'Toutes les alertes ont ete marquees comme lues.');
-    }
-
-    private function ensureSyndic(): void
-    {
-        abort_unless(request()->user()?->role === 'Syndic', 403, 'Unauthorized');
-    }
-
-    private function ensureCanView(Request $request, Notification $notification): void
-    {
-        abort_unless(
-            $request->user()?->role === 'Syndic' || $notification->user_id === $request->user()?->id,
-            403,
-            'Unauthorized'
-        );
     }
 }

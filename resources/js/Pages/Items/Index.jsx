@@ -190,7 +190,7 @@ export default function Index({ items, filters = {}, stats = {} }) {
                     <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
                         <div>
                             <p className="text-xs font-bold uppercase tracking-[0.32em] text-emerald-100/70">
-                                Lost & Found
+                                Objets trouves
                             </p>
                             <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">
                                 Centraliser les objets signales par les residents
@@ -248,7 +248,7 @@ export default function Index({ items, filters = {}, stats = {} }) {
                                     href={route("items.index")}
                                     className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                                 >
-                                    Reset
+                                    Reinitialiser
                                 </Link>
                             </div>
                         </form>

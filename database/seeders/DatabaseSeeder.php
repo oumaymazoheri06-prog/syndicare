@@ -12,6 +12,7 @@ use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Floor;
 use App\Models\Notification;
+use App\Models\Organization;
 use App\Models\Payment;
 use App\Models\Receipt;
 use App\Models\Ticket;
@@ -29,7 +30,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $organization = Organization::firstOrCreate(
+            ['slug' => 'syndicare-demo'],
+            [
+                'name' => 'SyndiCare Demo',
+                'email' => 'syndic@example.com',
+            ]
+        );
+
         $syndic = User::factory()->create([
+            'organization_id' => $organization->id,
             'name' => 'System Admin',
             'email' => 'syndic@example.com',
             'phone_number' => '0600000001',
@@ -39,19 +49,23 @@ class DatabaseSeeder extends Seeder
         $coOwners = User::factory()
             ->count(6)
             ->create([
+                'organization_id' => $organization->id,
                 'role' => 'Coproprietaire',
             ]);
 
         $residents = User::factory()
             ->count(12)
             ->create([
+                'organization_id' => $organization->id,
                 'role' => 'Locataire',
             ]);
 
         $assignableUsers = $coOwners->merge($residents);
         $allUsers = $assignableUsers->push($syndic);
 
-        $buildings = Building::factory()->count(3)->create();
+        $buildings = Building::factory()->count(3)->create([
+            'organization_id' => $organization->id,
+        ]);
         $apartments = collect();
         $charges = collect();
         $payments = collect();
@@ -60,6 +74,7 @@ class DatabaseSeeder extends Seeder
             $floors = Floor::factory()
                 ->count(3)
                 ->create([
+                    'organization_id' => $organization->id,
                     'building_id' => $building->id,
                 ]);
 
@@ -67,6 +82,7 @@ class DatabaseSeeder extends Seeder
                 foreach (range(1, 4) as $apartmentIndex) {
                     $apartments->push(
                         Apartment::factory()->create([
+                            'organization_id' => $organization->id,
                             'number' => sprintf(
                                 'B%s-F%s-A%s',
                                 $buildingIndex + 1,
@@ -86,6 +102,7 @@ class DatabaseSeeder extends Seeder
             foreach (range(1, 2) as $chargeIndex) {
                 $charges->push(
                     Charge::factory()->create([
+                        'organization_id' => $organization->id,
                         'description' => fake()->sentence(4),
                         'amount' => fake()->randomFloat(2, 50, 1200),
                         'date' => fake()->dateTimeBetween('-6 months', '+1 month')->format('Y-m-d'),
@@ -101,6 +118,7 @@ class DatabaseSeeder extends Seeder
 
             $payments->push(
                 Payment::factory()->create([
+                    'organization_id' => $organization->id,
                     'amount' => $charge->amount,
                     'charge_id' => $charge->id,
                     'status' => $isValidated ? 'validated' : 'pending',
@@ -114,6 +132,7 @@ class DatabaseSeeder extends Seeder
         foreach ($payments->where('status', 'validated') as $payment) {
             if (fake()->boolean(75)) {
                 Receipt::factory()->create([
+                    'organization_id' => $organization->id,
                     'payment_id' => $payment->id,
                 ]);
             }
@@ -123,6 +142,7 @@ class DatabaseSeeder extends Seeder
             Expense::factory()
                 ->count(4)
                 ->create([
+                    'organization_id' => $organization->id,
                     'building_id' => $building->id,
                 ]);
         }
@@ -130,6 +150,7 @@ class DatabaseSeeder extends Seeder
         Announcement::factory()
             ->count(6)
             ->create([
+                'organization_id' => $organization->id,
                 'creator_id' => $syndic->id,
             ]);
 
@@ -137,12 +158,14 @@ class DatabaseSeeder extends Seeder
             Notification::factory()
                 ->count(2)
                 ->create([
+                    'organization_id' => $organization->id,
                     'user_id' => $user->id,
                 ]);
         }
 
         foreach ($allUsers->take(10) as $user) {
             Document::factory()->create([
+                'organization_id' => $organization->id,
                 'uploaded_by' => $user->id,
             ]);
         }
@@ -151,6 +174,7 @@ class DatabaseSeeder extends Seeder
 
         foreach ($ticketOwners as $resident) {
             $ticket = Ticket::factory()->create([
+                'organization_id' => $organization->id,
                 'title' => fake()->sentence(4),
                 'description' => fake()->paragraph(),
                 'assingned_by' => $resident->id,
@@ -159,12 +183,14 @@ class DatabaseSeeder extends Seeder
             ]);
 
             Ticket_message::factory()->create([
+                'organization_id' => $organization->id,
                 'ticket_id' => $ticket->id,
                 'sender_id' => $resident->id,
                 'message' => fake()->sentence(12),
             ]);
 
             Ticket_message::factory()->create([
+                'organization_id' => $organization->id,
                 'ticket_id' => $ticket->id,
                 'sender_id' => $syndic->id,
                 'message' => fake()->sentence(14),
@@ -174,6 +200,7 @@ class DatabaseSeeder extends Seeder
         Audit_log::factory()
             ->count(12)
             ->create([
+                'organization_id' => $organization->id,
                 'performed_by' => $syndic->id,
             ]);
 

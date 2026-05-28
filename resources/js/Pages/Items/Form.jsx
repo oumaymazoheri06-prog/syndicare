@@ -84,11 +84,11 @@ export default function Form({ item, apartments = [] }) {
                 className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]"
             >
                 <section className="overflow-hidden rounded-[2rem] border border-white/75 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-                    <div className="bg-gradient-to-r from-[#0e3715] via-emerald-700 to-[#d4af37] px-5 py-4 text-white">
-                        <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-emerald-100/70">
+                    <div className="border-b border-emerald-100 bg-[#f7f4ee] px-5 py-4">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-[#386146]">
                             Fiche objet
                         </p>
-                        <h2 className="mt-1 text-xl font-black">
+                        <h2 className="mt-1 text-xl font-black text-slate-950">
                             Informations principales
                         </h2>
                     </div>

@@ -7,7 +7,7 @@ export default function Form({ cacheLock }) {
 
     return (
         <CrudFormPage
-            title={cacheLock ? `Edit ${config.singular}` : `Create ${config.singular}`}
+            title={cacheLock ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
             resource={config.route}
             fields={config.formFields}
             defaults={defaults}
@@ -17,7 +17,7 @@ export default function Form({ cacheLock }) {
                     : route(`${config.route}.store`)
             }
             method={cacheLock ? 'put' : 'post'}
-            submitLabel={cacheLock ? `Update ${config.singular}` : `Create ${config.singular}`}
+            submitLabel={cacheLock ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
         />
     );
 }

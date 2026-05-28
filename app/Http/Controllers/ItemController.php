@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Apartment;
+use App\Models\Audit_log;
 use App\Models\Item;
 use App\Models\ItemClaim;
 use App\Services\NotificationService;
@@ -20,13 +21,31 @@ class ItemController extends Controller
 
     public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Item::class);
+
         $filters = [
             'search' => $request->string('search')->toString(),
             'type' => $request->string('type')->toString(),
             'status' => $request->string('status')->toString(),
         ];
 
-        $query = Item::query()
+        $baseQuery = Item::query();
+
+        if ($request->user()->role !== 'Syndic') {
+            $buildingIds = $this->residentBuildingIds($request);
+
+            $baseQuery->where(function ($query) use ($request, $buildingIds) {
+                $query->where('user_id', $request->user()->id);
+
+                if ($buildingIds->isNotEmpty()) {
+                    $query->orWhereHas('apartment.floor', function ($floorQuery) use ($buildingIds) {
+                        $floorQuery->whereIn('building_id', $buildingIds);
+                    });
+                }
+            });
+        }
+
+        $query = (clone $baseQuery)
             ->with(['user:id,name,role', 'apartment.floor.building'])
             ->withCount('claims')
             ->when($filters['type'], fn ($q, $type) => $q->where('type', $type))
@@ -42,7 +61,7 @@ class ItemController extends Controller
             })
             ->latest();
 
-        $statsQuery = Item::query();
+        $statsQuery = clone $baseQuery;
 
         return Inertia::render('Items/Index', [
             'items' => $query
@@ -62,6 +81,8 @@ class ItemController extends Controller
 
     public function create(): Response
     {
+        $this->authorize('create', Item::class);
+
         return Inertia::render('Items/Create', [
             'apartments' => $this->apartmentOptions(),
         ]);
@@ -69,6 +90,8 @@ class ItemController extends Controller
 
     public function store(Request $request, NotificationService $notifications): RedirectResponse
     {
+        $this->authorize('create', Item::class);
+
         $validated = $this->validateItem($request);
 
         $imagePath = $request->file('image')?->store('lost-found', 'public');
@@ -80,7 +103,11 @@ class ItemController extends Controller
             'user_id' => $request->user()->id,
             'image_path' => $imagePath,
         ]);
-
+ Audit_log:: create([
+    'action'=> 'Creation de declaration d\'objet',      
+    'details'=>'Un objet a ete declare comme '.$item->type.' : "'.$item->title.'" par '.$request->user()->name.'.',
+'performed_by' =>auth()->id(),
+ ]);
         $this->notifyResidents($item, $notifications, $request->user()->name);
 
         if ($item->type === 'Trouve') {
@@ -99,6 +126,8 @@ class ItemController extends Controller
 
     public function show(Item $item): Response
     {
+        $this->authorize('view', $item);
+
         $item->load([
             'user:id,name,email,role',
             'apartment.floor.building',
@@ -117,7 +146,7 @@ class ItemController extends Controller
 
     public function edit(Item $item): Response
     {
-        abort_unless($this->canManage($item), 403);
+        $this->authorize('update', $item);
 
         return Inertia::render('Items/Edit', [
             'item' => $this->serializeItem($item),
@@ -127,7 +156,7 @@ class ItemController extends Controller
 
     public function update(Request $request, Item $item): RedirectResponse
     {
-        abort_unless($this->canManage($item), 403);
+        $this->authorize('update', $item);
 
         $validated = $this->validateItem($request, true);
 
@@ -146,7 +175,11 @@ class ItemController extends Controller
             : null;
 
         $item->update($validated);
-
+Audit_log::create([
+    'action' => 'Mise à jour de déclaration d\'objet',
+    'details' => 'La declaration de l\'objet "'.$item->title.'" a   été mise à jour par '.$request->user()->name.'.',
+    'performed_by' => auth()->id(),
+]);
         return redirect()
             ->route('items.show', $item)
             ->with('success', 'Objet mis a jour avec succes.');
@@ -154,7 +187,7 @@ class ItemController extends Controller
 
     public function updateStatus(Request $request, Item $item, NotificationService $notifications): RedirectResponse
     {
-        abort_unless($this->canManage($item), 403);
+        $this->authorize('update', $item);
 
         $validated = $request->validate([
             'status' => ['required', Rule::in(self::STATUSES)],
@@ -164,7 +197,11 @@ class ItemController extends Controller
             'status' => $validated['status'],
             'resolved_at' => in_array($validated['status'], ['rendu', 'ferme'], true) ? now() : null,
         ]);
-
+Audit_log::create([
+    'action' => 'Mise à jour de statut d\'objet',
+    'details' => 'Le statut de l\'objet "'.$item->title.'" a été mis à jour en "'.$validated['status'].'" par '.$request->user()->name.'.',
+    'performed_by' => auth()->id(),
+]);
         $notifications->createForUser(
             $item->user,
             'Statut objet mis a jour',
@@ -177,7 +214,7 @@ class ItemController extends Controller
 
     public function claim(Request $request, Item $item, NotificationService $notifications): RedirectResponse
     {
-        abort_if($request->user()->id === $item->user_id, 422, 'Vous avez deja declare cet objet.');
+        $this->authorize('claim', $item);
 
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:1000'],
@@ -210,13 +247,19 @@ class ItemController extends Controller
 
     public function destroy(Item $item): RedirectResponse
     {
-        abort_unless($this->canManage($item), 403);
+        $this->authorize('delete', $item);
 
         if ($item->image_path) {
             Storage::disk('public')->delete($item->image_path);
         }
 
         $item->delete();
+
+        Audit_log::create([
+            'action' => 'Suppression de déclaration d\'objet',
+            'details' => 'La declaration de l\'objet "'.$item->title.'" a été supprimée par '.$request->user()->name.'.',
+            'performed_by' => auth()->id(),
+        ]);
 
         return redirect()->route('items.index')->with('success', 'Objet supprime.');
     }
@@ -230,7 +273,7 @@ class ItemController extends Controller
             'location' => ['nullable', 'string', 'max:255'],
             'date' => ['nullable', 'date'],
             'type' => ['required', Rule::in(self::TYPES)],
-            'apartment_id' => ['nullable', 'exists:apartments,id'],
+            'apartment_id' => ['nullable', $this->tenantExists('apartments')],
             'image' => ['nullable', 'image', 'max:4096'],
         ];
 
@@ -435,6 +478,18 @@ class ItemController extends Controller
                     $apartment->floor?->building?->name ? ' - '.$apartment->floor->building->name : ''
                 )),
             ]);
+    }
+
+    private function residentBuildingIds(Request $request)
+    {
+        return $request->user()
+            ->apartments()
+            ->with('floor:id,building_id')
+            ->get()
+            ->pluck('floor.building_id')
+            ->filter()
+            ->unique()
+            ->values();
     }
 
     private function canManage(Item $item): bool

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Mail\UserInvitationMail;
+use App\Models\Audit_log;
 use App\Models\User;
 use App\Models\UserInvitation;
+use GuzzleHttp\Psr7\Query;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -21,11 +23,29 @@ class UserController extends Controller
 
     private const INVITABLE_ROLES = ['Coproprietaire', 'Locataire'];
 
-    public function index(): Response
+    public function index( Request $request): Response
+
     {
+
+
+$query = User::query()
+    ->where('organization_id', $request->user()->organization_id);
+
+    if ($request->filled('role')) {
+    $query->where('role', $request->role);
+}
+if($request->user()->role ==='Syndic')
+    { 
+        $query->whereIn('role',['Locataire','Coproprietaire']);
+
+
+    }
+
+
         return Inertia::render('Users/Index', [
-            'users' => User::query()
-                ->with('latestInvitation')
+            
+
+               'users'=> $query->with('latestInvitation')
                 ->latest()
                 ->paginate(10)
                 ->through(fn (User $user) => $this->serializeUser($user)),
@@ -49,11 +69,18 @@ class UserController extends Controller
         ]);
 
         $user = User::create([
+            'organization_id' => $request->user()->organization_id,
             'name' => $validated['name'],
             'email' => $validated['email'],
             'phone_number' => $validated['phone_number'] ?? null,
             'role' => $validated['role'],
             'password' => Hash::make(Str::random(48)),
+        ]);
+
+        Audit_log::create([
+            'action' => 'Création de compte utilisateur',
+            'details' => 'Un compte pour '.$user->name.' a été créé avec le rôle '.$user->role.'.',
+            'performed_by' => auth()->id(),
         ]);
 
         [$invitation, $token] = $this->createInvitation($user, $request->user()?->id);
@@ -73,6 +100,8 @@ class UserController extends Controller
 
     public function show(User $user): Response
     {
+        $this->ensureSameOrganization($user);
+
         $user->load('latestInvitation');
 
         return Inertia::render('Users/Show', [
@@ -82,6 +111,8 @@ class UserController extends Controller
 
     public function edit(User $user): Response
     {
+        $this->ensureSameOrganization($user);
+
         return Inertia::render('Users/Edit', [
             'user' => $user,
         ]);
@@ -89,6 +120,8 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
+        $this->ensureSameOrganization($user);
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
@@ -110,11 +143,19 @@ class UserController extends Controller
 
         $user->save();
 
+        Audit_log::create([
+            'action' => 'Mise à jour de compte utilisateur',
+            'details' => 'Le compte de '.$user->name.' a été mis à jour.',
+            'performed_by' => auth()->id(),
+        ]);
+
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
     public function resendInvitation(Request $request, User $user): RedirectResponse
     {
+        $this->ensureSameOrganization($user);
+
         if (! in_array($user->role, self::INVITABLE_ROLES, true)) {
             return back()->with('error', 'Seuls les coproprietaires et locataires peuvent recevoir une invitation.');
         }
@@ -138,8 +179,14 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-        $user->delete();
+        $this->ensureSameOrganization($user);
 
+        $user->delete();
+Audit_log::create([
+    'action' => 'Suppression de compte utilisateur',
+    'details' => 'Le compte de '.$user->name.' a été supprimé.',
+    'performed_by' => auth()->id(),
+]);
         return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 
@@ -188,6 +235,15 @@ class UserController extends Controller
             'can_resend_invitation' => in_array($user->role, self::INVITABLE_ROLES, true)
                 && $user->email_verified_at === null,
         ];
+    }
+
+    private function ensureSameOrganization(User $user): void
+    {
+        abort_unless(
+            $user->organization_id === request()->user()?->organization_id,
+            403,
+            'Unauthorized'
+        );
     }
 
     private function invitationStatus(User $user, ?UserInvitation $invitation): string

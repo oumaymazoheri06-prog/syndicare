@@ -28,14 +28,13 @@ export default function ConfirmPassword() {
 
     return (
         <GuestLayout>
-            <Head title="Confirm Password" />
+            <Head title="Confirmation du mot de passe" />
 
             <div className="mb-8">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Confirm password</h1>
+                <h1 className={authTitleClass}>Confirmer le mot de passe</h1>
                 <p className={authDescriptionClass}>
-                    This is a secure area of the application. Please confirm
-                    your password before continuing.
+                    Cette zone est securisee. Confirmez votre mot de passe pour continuer.
                 </p>
             </div>
 
@@ -43,7 +42,7 @@ export default function ConfirmPassword() {
                 <div>
                     <InputLabel
                         htmlFor="password"
-                        value="Password"
+                        value="Mot de passe"
                         className={authLabelClass}
                     />
 
@@ -65,7 +64,7 @@ export default function ConfirmPassword() {
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        Confirm
+                        Confirmer
                     </PrimaryButton>
                 </div>
             </form>

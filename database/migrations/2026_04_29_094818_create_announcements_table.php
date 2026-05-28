@@ -17,7 +17,7 @@ return new class extends Migration
     $table->text('content');
  $table->foreignId('building_id')->nullable()->constrained()->nullOnDelete();
     // null = tous les immeubles
-    $table->enum('target_role', ['all', 'copropriétaires', 'locataires'])->default('all');
+    $table->enum('target_role', ['all', 'coproprietaires', 'locataires'])->default('all');
 
     $table->foreignId('creator_id')
           ->constrained('users')

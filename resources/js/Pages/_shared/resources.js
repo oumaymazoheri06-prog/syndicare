@@ -1,12 +1,55 @@
-const roles = ['Syndic', 'Coproprietaire', 'Locataire'];
-const notificationTypes = ['info', 'warning', 'error'];
-const ticketStatuses = ['open', 'in_progress', 'closed'];
-const chargeStatuses = ['pending', 'paid', 'overdue'];
-const paymentStatuses = ['pending', 'validated'];
+const roles = [
+    { value: 'Syndic', label: 'Syndic' },
+    { value: 'Coproprietaire', label: 'Coproprietaire' },
+    { value: 'Locataire', label: 'Locataire' },
+];
+
+const notificationTypes = [
+    { value: 'info', label: 'Information' },
+    { value: 'warning', label: 'Avertissement' },
+    { value: 'error', label: 'Erreur' },
+];
+
+const ticketStatuses = [
+    { value: 'open', label: 'Ouvert' },
+    { value: 'in_progress', label: 'En cours' },
+    { value: 'closed', label: 'Ferme' },
+];
+
+const chargeStatuses = [
+    { value: 'pending', label: 'En attente' },
+    { value: 'paid', label: 'Payee' },
+    { value: 'overdue', label: 'En retard' },
+];
+
+const paymentStatuses = [
+    { value: 'pending', label: 'En attente' },
+    { value: 'validated', label: 'Valide' },
+];
+
+const documentTargetTypes = [
+    { value: 'all', label: 'Tout le monde' },
+    { value: 'building', label: 'Immeuble' },
+    { value: 'apartment', label: 'Lot' },
+    { value: 'role', label: 'Role' },
+];
+
+const documentTargetRoles = [
+    { value: 'Coproprietaire', label: 'Coproprietaire' },
+    { value: 'Locataire', label: 'Locataire' },
+];
+
+const announcementTargetRoles = [
+    { value: 'all', label: 'Tous' },
+    { value: 'coproprietaires', label: 'Copropriétaires' },
+    { value: 'locataires', label: 'Locataires' },
+];
 
 const text = (value = '') => value ?? '';
 const bool = (value = false) => Boolean(value);
 const dateValue = (value = '') => (value ? String(value).slice(0, 10) : '');
+const optionLabelFor = (options, value) =>
+    options.find((option) => option.value === value)?.label ?? value ?? '-';
 
 export const asOptions = (items = [], valueKey = 'id', labelKey = 'name') =>
     items.map((item) => ({
@@ -16,36 +59,36 @@ export const asOptions = (items = [], valueKey = 'id', labelKey = 'name') =>
 
 export const resourceConfigs = {
     users: {
-        title: 'Users',
-        singular: 'User',
+        title: 'Membres',
+        singular: 'membre',
         route: 'users',
         routeKey: 'id',
         indexColumns: [
-            { key: 'name', label: 'Name' },
+            { key: 'name', label: 'Nom' },
             { key: 'email', label: 'Email' },
-            { key: 'phone_number', label: 'Phone' },
-            { key: 'role', label: 'Role' },
-            { key: 'invitation_status', label: 'Status' },
+            { key: 'phone_number', label: 'Telephone' },
+            { key: 'role', label: 'Role', render: (value) => optionLabelFor(roles, value) },
+            { key: 'invitation_status', label: 'Statut' },
         ],
         formFields: [
-            { name: 'name', label: 'Name', type: 'text' },
+            { name: 'name', label: 'Nom', type: 'text' },
             { name: 'email', label: 'Email', type: 'email' },
-            { name: 'phone_number', label: 'Phone Number', type: 'text' },
+            { name: 'phone_number', label: 'Telephone', type: 'text' },
             { name: 'role', label: 'Role', type: 'select', options: roles },
-            { name: 'password', label: 'Password', type: 'password' },
+            { name: 'password', label: 'Mot de passe', type: 'password' },
             {
                 name: 'password_confirmation',
-                label: 'Confirm Password',
+                label: 'Confirmer le mot de passe',
                 type: 'password',
             },
         ],
         showFields: [
-            { name: 'name', label: 'Name' },
+            { name: 'name', label: 'Nom' },
             { name: 'email', label: 'Email' },
-            { name: 'phone_number', label: 'Phone' },
-            { name: 'role', label: 'Role' },
-            { name: 'invitation_status', label: 'Status' },
-            { name: 'invitation_expires_at', label: 'Invitation Expiration' },
+            { name: 'phone_number', label: 'Telephone' },
+            { name: 'role', label: 'Role', format: (value) => optionLabelFor(roles, value) },
+            { name: 'invitation_status', label: 'Statut' },
+            { name: 'invitation_expires_at', label: 'Expiration de l invitation' },
         ],
         toFormData: (record = {}) => ({
             name: text(record.name),
@@ -58,30 +101,30 @@ export const resourceConfigs = {
     },
     residents: {
         title: 'Residents',
-        singular: 'Resident',
+        singular: 'resident',
         route: 'residents',
         routeKey: 'id',
         indexColumns: [
-            { key: 'name', label: 'Name' },
+            { key: 'name', label: 'Nom' },
             { key: 'email', label: 'Email' },
-            { key: 'phone_number', label: 'Phone' },
+            { key: 'phone_number', label: 'Telephone' },
         ],
         formFields: [
-            { name: 'name', label: 'Name', type: 'text' },
+            { name: 'name', label: 'Nom', type: 'text' },
             { name: 'email', label: 'Email', type: 'email' },
-            { name: 'phone_number', label: 'Phone Number', type: 'text' },
-            { name: 'password', label: 'Password', type: 'password' },
+            { name: 'phone_number', label: 'Telephone', type: 'text' },
+            { name: 'password', label: 'Mot de passe', type: 'password' },
             {
                 name: 'password_confirmation',
-                label: 'Confirm Password',
+                label: 'Confirmer le mot de passe',
                 type: 'password',
             },
         ],
         showFields: [
-            { name: 'name', label: 'Name' },
+            { name: 'name', label: 'Nom' },
             { name: 'email', label: 'Email' },
-            { name: 'phone_number', label: 'Phone' },
-            { name: 'role', label: 'Role' },
+            { name: 'phone_number', label: 'Telephone' },
+            { name: 'role', label: 'Role', format: (value) => optionLabelFor(roles, value) },
         ],
         toFormData: (record = {}) => ({
             name: text(record.name),
@@ -92,27 +135,27 @@ export const resourceConfigs = {
         }),
     },
     apartments: {
-        title: 'Apartments',
-        singular: 'Apartment',
+        title: 'Lots',
+        singular: 'lot',
         route: 'apartments',
         routeKey: 'id',
         indexColumns: [
-            { key: 'number', label: 'Number' },
-            { key: 'floor_id', label: 'Floor' },
+            { key: 'number', label: 'Numero' },
+            { key: 'floor_id', label: 'Etage' },
             { key: 'user_id', label: 'Resident' },
-            { key: 'area', label: 'Area' },
+            { key: 'area', label: 'Surface' },
         ],
         formFields: [
-            { name: 'number', label: 'Number', type: 'text' },
-            { name: 'floor_id', label: 'Floor', type: 'select', options: [] },
+            { name: 'number', label: 'Numero', type: 'text' },
+            { name: 'floor_id', label: 'Etage', type: 'select', options: [] },
             { name: 'user_id', label: 'Resident', type: 'select', options: [] },
-            { name: 'area', label: 'Area', type: 'number', step: '0.01', min: '0' },
+            { name: 'area', label: 'Surface', type: 'number', step: '0.01', min: '0' },
         ],
         showFields: [
-            { name: 'number', label: 'Number' },
-            { name: 'floor_id', label: 'Floor' },
+            { name: 'number', label: 'Numero' },
+            { name: 'floor_id', label: 'Etage' },
             { name: 'user_id', label: 'Resident' },
-            { name: 'area', label: 'Area' },
+            { name: 'area', label: 'Surface' },
         ],
         toFormData: (record = {}) => ({
             number: text(record.number),
@@ -122,21 +165,21 @@ export const resourceConfigs = {
         }),
     },
     buildings: {
-        title: 'Buildings',
-        singular: 'Building',
+        title: 'Immeubles',
+        singular: 'immeuble',
         route: 'buildings',
         routeKey: 'id',
         indexColumns: [
-            { key: 'name', label: 'Name' },
-            { key: 'address', label: 'Address' },
+            { key: 'name', label: 'Nom' },
+            { key: 'address', label: 'Adresse' },
         ],
         formFields: [
-            { name: 'name', label: 'Name', type: 'text' },
-            { name: 'address', label: 'Address', type: 'text' },
+            { name: 'name', label: 'Nom', type: 'text' },
+            { name: 'address', label: 'Adresse', type: 'text' },
         ],
         showFields: [
-            { name: 'name', label: 'Name' },
-            { name: 'address', label: 'Address' },
+            { name: 'name', label: 'Nom' },
+            { name: 'address', label: 'Adresse' },
         ],
         toFormData: (record = {}) => ({
             name: text(record.name),
@@ -144,21 +187,21 @@ export const resourceConfigs = {
         }),
     },
     floors: {
-        title: 'Floors',
-        singular: 'Floor',
+        title: 'Etages',
+        singular: 'etage',
         route: 'floors',
         routeKey: 'id',
         indexColumns: [
-            { key: 'number', label: 'Number' },
-            { key: 'building_id', label: 'Building' },
+            { key: 'number', label: 'Numero' },
+            { key: 'building_id', label: 'Immeuble' },
         ],
         formFields: [
-            { name: 'number', label: 'Number', type: 'text' },
-            { name: 'building_id', label: 'Building', type: 'select', options: [] },
+            { name: 'number', label: 'Numero', type: 'text' },
+            { name: 'building_id', label: 'Immeuble', type: 'select', options: [] },
         ],
         showFields: [
-            { name: 'number', label: 'Number' },
-            { name: 'building_id', label: 'Building' },
+            { name: 'number', label: 'Numero' },
+            { name: 'building_id', label: 'Immeuble' },
         ],
         toFormData: (record = {}) => ({
             number: text(record.number),
@@ -167,28 +210,28 @@ export const resourceConfigs = {
     },
     charges: {
         title: 'Charges',
-        singular: 'Charge',
+        singular: 'charge',
         route: 'charges',
         routeKey: 'id',
         indexColumns: [
             { key: 'description', label: 'Description' },
-            { key: 'amount', label: 'Amount' },
+            { key: 'amount', label: 'Montant' },
             { key: 'date', label: 'Date' },
-            { key: 'status', label: 'Status' },
+            { key: 'status', label: 'Statut', render: (value) => optionLabelFor(chargeStatuses, value) },
         ],
         formFields: [
             { name: 'description', label: 'Description', type: 'text' },
-            { name: 'amount', label: 'Amount', type: 'number', step: '0.01', min: '0' },
+            { name: 'amount', label: 'Montant', type: 'number', step: '0.01', min: '0' },
             { name: 'date', label: 'Date', type: 'date' },
-            { name: 'apartment_id', label: 'Apartment', type: 'select', options: [] },
-            { name: 'status', label: 'Status', type: 'select', options: chargeStatuses },
+            { name: 'apartment_id', label: 'Lot', type: 'select', options: [] },
+            { name: 'status', label: 'Statut', type: 'select', options: chargeStatuses },
         ],
         showFields: [
             { name: 'description', label: 'Description' },
-            { name: 'amount', label: 'Amount' },
+            { name: 'amount', label: 'Montant' },
             { name: 'date', label: 'Date' },
-            { name: 'apartment_id', label: 'Apartment' },
-            { name: 'status', label: 'Status' },
+            { name: 'apartment_id', label: 'Lot' },
+            { name: 'status', label: 'Statut', format: (value) => optionLabelFor(chargeStatuses, value) },
         ],
         toFormData: (record = {}) => ({
             description: text(record.description),
@@ -199,28 +242,28 @@ export const resourceConfigs = {
         }),
     },
     expenses: {
-        title: 'Expenses',
-        singular: 'Expense',
+        title: 'Depenses',
+        singular: 'depense',
         route: 'expenses',
         routeKey: 'id',
         indexColumns: [
-            { key: 'title', label: 'Title' },
-            { key: 'amount', label: 'Amount' },
+            { key: 'title', label: 'Titre' },
+            { key: 'amount', label: 'Montant' },
             { key: 'date', label: 'Date' },
         ],
         formFields: [
-            { name: 'title', label: 'Title', type: 'text' },
+            { name: 'title', label: 'Titre', type: 'text' },
             { name: 'description', label: 'Description', type: 'text' },
-            { name: 'amount', label: 'Amount', type: 'number', step: '0.01', min: '0' },
+            { name: 'amount', label: 'Montant', type: 'number', step: '0.01', min: '0' },
             { name: 'date', label: 'Date', type: 'date' },
-            { name: 'building_id', label: 'Building', type: 'select', options: [] },
+            { name: 'building_id', label: 'Immeuble', type: 'select', options: [] },
         ],
         showFields: [
-            { name: 'title', label: 'Title' },
+            { name: 'title', label: 'Titre' },
             { name: 'description', label: 'Description' },
-            { name: 'amount', label: 'Amount' },
+            { name: 'amount', label: 'Montant' },
             { name: 'date', label: 'Date' },
-            { name: 'building_id', label: 'Building' },
+            { name: 'building_id', label: 'Immeuble' },
         ],
         toFormData: (record = {}) => ({
             title: text(record.title),
@@ -231,49 +274,44 @@ export const resourceConfigs = {
         }),
     },
     announcements: {
-    title: 'Announcements',
-    singular: 'Announcement',
-    route: 'announcements',
-    routeKey: 'id',
-  indexColumns: [
-    { key: 'title', label: 'Title' },
-    { key: 'content', label: 'Content' }, // ← make sure it's 'content' not 'body'
-],
-    formFields: [
-        { name: 'title', label: 'Title', type: 'text' },
-        { name: 'content', label: 'Content', type: 'textarea', className: 'md:col-span-2' },
-        {
-            name: 'target_role',
-            label: 'Target Role',
-            type: 'select',
-            options: [
-                { value: 'all', label: 'All' },
-                { value: 'copropriétaires', label: 'Copropriétaires' },
-                { value: 'locataires', label: 'Locataires' },
-            ],
-        },
-        {
-            name: 'building_id',
-            label: 'Building',
-            type: 'select',
-            options: [], // populate dynamically — see below
-        },
-    ],
-    showFields: [
-        { name: 'title', label: 'Title' },
-        { name: 'content', label: 'Content' },
-        { name: 'target_role', label: 'Target Role' },
-    ],
-    toFormData: (record = {}) => ({
-        title: text(record.title),
-        content: text(record.content),
-        target_role: record.target_role ?? 'all',
-        building_id: record.building_id ?? '',
-    }),
-},
+        title: 'Annonces',
+        singular: 'annonce',
+        route: 'announcements',
+        routeKey: 'id',
+        indexColumns: [
+            { key: 'title', label: 'Titre' },
+            { key: 'content', label: 'Contenu' },
+        ],
+        formFields: [
+            { name: 'title', label: 'Titre', type: 'text' },
+            { name: 'content', label: 'Contenu', type: 'textarea', className: 'md:col-span-2' },
+            {
+                name: 'target_role',
+                label: 'Role cible',
+                type: 'select',
+                options: announcementTargetRoles,
+            },
+            { name: 'building_id', label: 'Immeuble', type: 'select', options: [] },
+        ],
+        showFields: [
+            { name: 'title', label: 'Titre' },
+            { name: 'content', label: 'Contenu' },
+            {
+                name: 'target_role',
+                label: 'Role cible',
+                format: (value) => optionLabelFor(announcementTargetRoles, value),
+            },
+        ],
+        toFormData: (record = {}) => ({
+            title: text(record.title),
+            content: text(record.content),
+            target_role: record.target_role ?? 'all',
+            building_id: record.building_id ?? '',
+        }),
+    },
     auditLogs: {
-        title: 'Audit Logs',
-        singular: 'Audit Log',
+        title: 'Journal d activite',
+        singular: 'action',
         route: 'audit-logs',
         routeKey: 'id',
         indexColumns: [
@@ -287,7 +325,7 @@ export const resourceConfigs = {
         showFields: [
             { name: 'action', label: 'Action' },
             { name: 'details', label: 'Details' },
-            { name: 'performed_by', label: 'Performed By' },
+            { name: 'performed_by', label: 'Realise par' },
         ],
         toFormData: (record = {}) => ({
             action: text(record.action),
@@ -296,52 +334,80 @@ export const resourceConfigs = {
     },
     documents: {
         title: 'Documents',
-        singular: 'Document',
+        singular: 'document',
         route: 'documents',
         routeKey: 'id',
         indexColumns: [
-            { key: 'title', label: 'Title' },
-            { key: 'file_path', label: 'File Path' },
+            { key: 'title', label: 'Titre' },
+            { key: 'file_path', label: 'Chemin du fichier' },
+            { key: 'target_label', label: 'Cible' },
         ],
         formFields: [
-            { name: 'title', label: 'Title', type: 'text' },
-            { name: 'file_path', label: 'File Path', type: 'text' },
+            { name: 'title', label: 'Titre', type: 'text' },
+            { name: 'file_path', label: 'Chemin du fichier', type: 'text' },
+            { name: 'target_type', label: 'Type de cible', type: 'select', options: documentTargetTypes },
+            {
+                name: 'building_id',
+                label: 'Immeuble',
+                type: 'select',
+                options: [],
+                visibleWhen: (data) => data.target_type === 'building',
+            },
+            {
+                name: 'apartment_id',
+                label: 'Lot',
+                type: 'select',
+                options: [],
+                visibleWhen: (data) => data.target_type === 'apartment',
+            },
+            {
+                name: 'target_role',
+                label: 'Role',
+                type: 'select',
+                options: documentTargetRoles,
+                visibleWhen: (data) => data.target_type === 'role',
+            },
         ],
         showFields: [
-            { name: 'title', label: 'Title' },
-            { name: 'file_path', label: 'File Path' },
-            { name: 'uploaded_by', label: 'Uploaded By' },
+            { name: 'title', label: 'Titre' },
+            { name: 'file_path', label: 'Chemin du fichier' },
+            { name: 'target_label', label: 'Cible' },
+            { name: 'uploaded_by', label: 'Ajoute par' },
         ],
         toFormData: (record = {}) => ({
             title: text(record.title),
             file_path: text(record.file_path),
+            target_type: record.target_type ?? (record.building_id ? 'building' : 'all'),
+            building_id: record.building_id ?? '',
+            apartment_id: record.apartment_id ?? '',
+            target_role: record.target_role ?? '',
         }),
     },
     notifications: {
         title: 'Alertes',
-        singular: 'Alerte',
+        singular: 'alerte',
         route: 'notifications',
         routeKey: 'id',
         indexColumns: [
-            { key: 'title', label: 'Title' },
+            { key: 'title', label: 'Titre' },
             { key: 'message', label: 'Message' },
             {
                 key: 'is_read',
-                label: 'Status',
+                label: 'Statut',
                 render: (value) => (value ? 'Lu' : 'Non lu'),
             },
         ],
         formFields: [
-            { name: 'title', label: 'Title', type: 'text' },
+            { name: 'title', label: 'Titre', type: 'text' },
             { name: 'message', label: 'Message', type: 'textarea', className: 'md:col-span-2' },
-            { name: 'user_id', label: 'User', type: 'select', options: [] },
+            { name: 'user_id', label: 'Utilisateur', type: 'select', options: [] },
             { name: 'type', label: 'Type', type: 'select', options: notificationTypes },
         ],
         showFields: [
-            { name: 'title', label: 'Title' },
+            { name: 'title', label: 'Titre' },
             { name: 'message', label: 'Message' },
-            { name: 'user_id', label: 'User' },
-            { name: 'type', label: 'Type' },
+            { name: 'user_id', label: 'Utilisateur' },
+            { name: 'type', label: 'Type', format: (value) => optionLabelFor(notificationTypes, value) },
             {
                 name: 'is_read',
                 label: 'Statut',
@@ -359,26 +425,26 @@ export const resourceConfigs = {
         }),
     },
     payments: {
-        title: 'Payments',
-        singular: 'Payment',
+        title: 'Paiements',
+        singular: 'paiement',
         route: 'payments',
         routeKey: 'id',
         indexColumns: [
-            { key: 'amount', label: 'Amount' },
-            { key: 'status', label: 'Status' },
-            { key: 'payment_date', label: 'Payment Date' },
+            { key: 'amount', label: 'Montant' },
+            { key: 'status', label: 'Statut', render: (value) => optionLabelFor(paymentStatuses, value) },
+            { key: 'payment_date', label: 'Date de paiement' },
         ],
         formFields: [
-            { name: 'amount', label: 'Amount', type: 'number', step: '0.01', min: '0' },
+            { name: 'amount', label: 'Montant', type: 'number', step: '0.01', min: '0' },
             { name: 'charge_id', label: 'Charge', type: 'select', options: [] },
-            { name: 'status', label: 'Status', type: 'select', options: paymentStatuses },
-            { name: 'payment_date', label: 'Payment Date', type: 'date' },
+            { name: 'status', label: 'Statut', type: 'select', options: paymentStatuses },
+            { name: 'payment_date', label: 'Date de paiement', type: 'date' },
         ],
         showFields: [
-            { name: 'amount', label: 'Amount' },
+            { name: 'amount', label: 'Montant' },
             { name: 'charge_id', label: 'Charge' },
-            { name: 'status', label: 'Status' },
-            { name: 'payment_date', label: 'Payment Date' },
+            { name: 'status', label: 'Statut', format: (value) => optionLabelFor(paymentStatuses, value) },
+            { name: 'payment_date', label: 'Date de paiement' },
         ],
         toFormData: (record = {}) => ({
             amount: record.amount ?? '',
@@ -388,21 +454,21 @@ export const resourceConfigs = {
         }),
     },
     receipts: {
-        title: 'Receipts',
-        singular: 'Receipt',
+        title: 'Recus',
+        singular: 'recu',
         route: 'receipts',
         routeKey: 'id',
         indexColumns: [
-            { key: 'file_path', label: 'File Path' },
-            { key: 'payment_id', label: 'Payment' },
+            { key: 'file_path', label: 'Chemin du fichier' },
+            { key: 'payment_id', label: 'Paiement' },
         ],
         formFields: [
-            { name: 'file_path', label: 'File Path', type: 'text' },
-            { name: 'payment_id', label: 'Payment', type: 'select', options: [] },
+            { name: 'file_path', label: 'Chemin du fichier', type: 'text' },
+            { name: 'payment_id', label: 'Paiement', type: 'select', options: [] },
         ],
         showFields: [
-            { name: 'file_path', label: 'File Path' },
-            { name: 'payment_id', label: 'Payment' },
+            { name: 'file_path', label: 'Chemin du fichier' },
+            { name: 'payment_id', label: 'Paiement' },
         ],
         toFormData: (record = {}) => ({
             file_path: text(record.file_path),
@@ -411,26 +477,26 @@ export const resourceConfigs = {
     },
     tickets: {
         title: 'Tickets',
-        singular: 'Ticket',
+        singular: 'ticket',
         route: 'tickets',
         routeKey: 'id',
         indexColumns: [
-            { key: 'title', label: 'Title' },
+            { key: 'title', label: 'Titre' },
             { key: 'description', label: 'Description' },
-            { key: 'status', label: 'Status' },
+            { key: 'status', label: 'Statut', render: (value) => optionLabelFor(ticketStatuses, value) },
         ],
         formFields: [
-            { name: 'title', label: 'Title', type: 'text' },
+            { name: 'title', label: 'Titre', type: 'text' },
             { name: 'description', label: 'Description', type: 'textarea', className: 'md:col-span-2' },
-            { name: 'assigned_to', label: 'Assigned To', type: 'select', options: [] },
-            { name: 'status', label: 'Status', type: 'select', options: ticketStatuses },
+            { name: 'assigned_to', label: 'Assigne a', type: 'select', options: [] },
+            { name: 'status', label: 'Statut', type: 'select', options: ticketStatuses },
         ],
         showFields: [
-            { name: 'title', label: 'Title' },
+            { name: 'title', label: 'Titre' },
             { name: 'description', label: 'Description' },
-            { name: 'status', label: 'Status' },
-            { name: 'assingned_by', label: 'Created By' },
-            { name: 'assigned_to', label: 'Assigned To' },
+            { name: 'status', label: 'Statut', format: (value) => optionLabelFor(ticketStatuses, value) },
+            { name: 'assingned_by', label: 'Cree par' },
+            { name: 'assigned_to', label: 'Assigne a' },
         ],
         toFormData: (record = {}) => ({
             title: text(record.title),
@@ -440,8 +506,8 @@ export const resourceConfigs = {
         }),
     },
     ticketMessages: {
-        title: 'Ticket Messages',
-        singular: 'Ticket Message',
+        title: 'Messages de ticket',
+        singular: 'message',
         route: 'ticket-messages',
         routeKey: 'id',
         indexColumns: [
@@ -455,7 +521,7 @@ export const resourceConfigs = {
         showFields: [
             { name: 'ticket_id', label: 'Ticket' },
             { name: 'message', label: 'Message' },
-            { name: 'sender_id', label: 'Sender' },
+            { name: 'sender_id', label: 'Expediteur' },
         ],
         toFormData: (record = {}) => ({
             ticket_id: record.ticket_id ?? '',
@@ -463,23 +529,23 @@ export const resourceConfigs = {
         }),
     },
     cacheLocks: {
-        title: 'Cache Locks',
-        singular: 'Cache Lock',
+        title: 'Traitements en cours',
+        singular: 'traitement',
         route: 'cache-locks',
         routeKey: 'key',
         indexColumns: [
-            { key: 'key', label: 'Key' },
-            { key: 'owner', label: 'Owner' },
+            { key: 'key', label: 'Cle' },
+            { key: 'owner', label: 'Detenteur' },
             { key: 'expiration', label: 'Expiration' },
         ],
         formFields: [
-            { name: 'key', label: 'Key', type: 'text' },
-            { name: 'owner', label: 'Owner', type: 'text' },
+            { name: 'key', label: 'Cle', type: 'text' },
+            { name: 'owner', label: 'Detenteur', type: 'text' },
             { name: 'expiration', label: 'Expiration', type: 'number', min: '0' },
         ],
         showFields: [
-            { name: 'key', label: 'Key' },
-            { name: 'owner', label: 'Owner' },
+            { name: 'key', label: 'Cle' },
+            { name: 'owner', label: 'Detenteur' },
             { name: 'expiration', label: 'Expiration' },
         ],
         toFormData: (record = {}) => ({
@@ -496,4 +562,6 @@ export const resourceLists = {
     ticketStatuses,
     chargeStatuses,
     paymentStatuses,
+    documentTargetTypes,
+    documentTargetRoles,
 };

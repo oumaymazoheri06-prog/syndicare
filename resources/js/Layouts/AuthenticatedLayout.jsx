@@ -1,5 +1,6 @@
 import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import NotificationDropdown from '@/Components/NotificationDropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
@@ -30,13 +31,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
                                 >
-                                    Dashboard
+                                    Tableau de bord
                                 </NavLink>
                             </div>
                         </div>
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
                             <div className="relative ms-3 flex items-center gap-2 sm:gap-3">
+                                <LanguageSwitcher />
                                 <NotificationDropdown
                                     notifications={notifications?.latest}
                                     unreadCount={notifications?.unread || 0}
@@ -74,14 +76,14 @@ export default function AuthenticatedLayout({ header, children }) {
                                         <Dropdown.Link
                                             href={route('profile.edit')}
                                         >
-                                            Profile
+                                            Profil
                                         </Dropdown.Link>
                                         <Dropdown.Link
                                             href={route('logout')}
                                             method="post"
                                             as="button"
                                         >
-                                            Log Out
+                                            Deconnexion
                                         </Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
@@ -142,7 +144,7 @@ export default function AuthenticatedLayout({ header, children }) {
                             href={route('dashboard')}
                             active={route().current('dashboard')}
                         >
-                            Dashboard
+                            Tableau de bord
                         </ResponsiveNavLink>
                     </div>
 
@@ -158,21 +160,24 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         <div className="mt-3 space-y-1">
                             <div className="px-4 pb-1">
-                                <NotificationDropdown
-                                    notifications={notifications?.latest}
-                                    unreadCount={notifications?.unread || 0}
-                                    triggerClassName="h-10 w-10"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <LanguageSwitcher compact />
+                                    <NotificationDropdown
+                                        notifications={notifications?.latest}
+                                        unreadCount={notifications?.unread || 0}
+                                        triggerClassName="h-10 w-10"
+                                    />
+                                </div>
                             </div>
                             <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
+                                Profil
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
                                 href={route('logout')}
                                 as="button"
                             >
-                                Log Out
+                                Deconnexion
                             </ResponsiveNavLink>
                         </div>
                     </div>

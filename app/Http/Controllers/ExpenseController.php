@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Audit_log;
 use App\Models\Building;
 use App\Models\Expense;
 use Illuminate\Http\RedirectResponse;
@@ -32,11 +33,15 @@ class ExpenseController extends Controller
             'description' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date'],
-            'building_id' => ['required', 'exists:buildings,id'],
+            'building_id' => ['required', $this->tenantExists('buildings')],
         ]);
 
         Expense::create($validated);
-
+Audit_log::create([
+            'action' => 'Creation de dépense',
+            'details' => 'Une dépense intitulée "' . $validated['title'] . '" a été créée pour le bâtiment ID ' . $validated['building_id'] . '.',
+            'performed_by' => auth()->id(),
+        ]);
         return redirect()->route('expenses.index')->with('success', 'Expense created successfully.');
     }
 
@@ -62,10 +67,15 @@ class ExpenseController extends Controller
             'description' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date'],
-            'building_id' => ['required', 'exists:buildings,id'],
+            'building_id' => ['required', $this->tenantExists('buildings')],
         ]);
 
         $expense->update($validated);
+Audit_log::create([
+            'action' => 'Mise à jour de dépense',
+            'details' => 'La dépense ID '.$expense->id.' a été mise à jour en "' . $validated['title'] . '" pour le bâtiment ID ' . $validated['building_id'] . '.',
+            'performed_by' => auth()->id(),
+        ]);
 
         return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
     }
@@ -73,7 +83,13 @@ class ExpenseController extends Controller
     public function destroy(Expense $expense): RedirectResponse
     {
         $expense->delete();
+Audit_log::create([
+            'action' => 'Suppression de dépense',
+            'details' => 'La dépense ID '.$expense->id.' a été supprimée.',
+            'performed_by' => auth()->id(),
+        ]);
 
+        
         return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully.');
     }
 }

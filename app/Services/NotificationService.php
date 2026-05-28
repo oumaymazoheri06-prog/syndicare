@@ -85,11 +85,11 @@ class NotificationService
         string $type,
     ): void {
         if (app()->runningUnitTests()) {
-            CreateNotificationsJob::dispatchSync($target, $targetValues, $title, $message, $type);
+            CreateNotificationsJob::dispatchSync($target, $targetValues, $title, $message, $type, auth()->user()?->organization_id);
 
             return;
         }
 
-        CreateNotificationsJob::dispatchAfterResponse($target, $targetValues, $title, $message, $type);
+        CreateNotificationsJob::dispatchAfterResponse($target, $targetValues, $title, $message, $type, auth()->user()?->organization_id);
     }
 }
