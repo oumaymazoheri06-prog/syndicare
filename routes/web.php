@@ -14,7 +14,6 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketMessageController;
 use App\Http\Controllers\UserController;
@@ -61,15 +60,15 @@ Route::middleware(['auth', 'verified', 'role:SuperAdmin'])
     });
 
 Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'verified', 'subscription.active'])
     ->name('dashboard');
 
 Route::get('/dashboard/charges-preview', [DashboardController::class, 'previewMonthlyCharges'])
-    ->middleware(['auth', 'verified', 'role:Syndic'])
+    ->middleware(['auth', 'verified', 'subscription.active', 'role:Syndic'])
     ->name('dashboard.charges-preview');
 
 Route::post('/dashboard/generate-charges', [DashboardController::class, 'generateMonthlyChargesForPeriod'])
-    ->middleware(['auth', 'verified', 'role:Syndic'])
+    ->middleware(['auth', 'verified', 'subscription.active', 'role:Syndic'])
     ->name('dashboard.generate-charges');
 
 Route::middleware('auth')->group(function () {
@@ -78,7 +77,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::middleware(['auth', 'verified', 'role:Syndic'])->group(function(){
+Route::middleware(['auth', 'verified', 'subscription.active', 'role:Syndic'])->group(function(){
 
 Route::post('users/{user}/invitation', [UserController::class, 'resendInvitation'])->name('users.invitation.resend');
     Route::resource('users', UserController::class);
@@ -105,7 +104,7 @@ Route::post('users/{user}/invitation', [UserController::class, 'resendInvitation
 );
 
 
-   Route::middleware(['auth','verified'])->group(function(){
+   Route::middleware(['auth','verified', 'subscription.active'])->group(function(){
 
 Route::resource('charges', ChargeController::class);
  Route::post('items/{item}/claims', [ItemController::class, 'claim'])->name('items.claims.store');
@@ -114,13 +113,12 @@ Route::resource('charges', ChargeController::class);
     Route::resource('ticket-messages', TicketMessageController::class);
     Route::resource('announcements', AnnouncementController::class);
     Route::resource('payments', PaymentController::class);
-    Route::resource('receipts', ReceiptController::class);
   
     Route::resource('documents', DocumentController::class);
     Route::patch('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
     Route::patch('notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.mark-read');
-    Route::patch('notifications/{notification}/unread', [NotificationController::class, 'markUnread'])->name('notifications.mark-unread');
-    Route::resource('notifications', NotificationController::class);
+    Route::resource('notifications', NotificationController::class)
+        ->except(['edit', 'update']);
     
  Route::resource('items', ItemController::class);
 

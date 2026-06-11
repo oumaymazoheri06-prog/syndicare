@@ -105,12 +105,7 @@ export default function NotificationDropdown({
                             Aucune alerte pour le moment.
                         </div>
                     ) : (
-                        visibleNotifications.map((notification) => {
-                            const markRoute = notification.is_read
-                                ? route('notifications.mark-unread', notification.id)
-                                : route('notifications.mark-read', notification.id);
-
-                            return (
+                        visibleNotifications.map((notification) => (
                                 <div
                                     key={notification.id}
                                     className={`px-3 py-3 transition sm:px-4 ${
@@ -148,23 +143,20 @@ export default function NotificationDropdown({
                                             </p>
                                         </Link>
 
-                                        <Link
-                                            href={markRoute}
-                                            method="patch"
-                                            as="button"
-                                            preserveScroll
-                                            className={`rounded-full px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] transition sm:px-3 sm:text-[11px] ${
-                                                notification.is_read
-                                                    ? 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-100'
-                                                    : 'border border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
-                                            }`}
-                                        >
-                                            {notification.is_read ? 'Non lu' : 'Lu'}
-                                        </Link>
+                                        {!notification.is_read && (
+                                            <Link
+                                                href={route('notifications.mark-read', notification.id)}
+                                                method="patch"
+                                                as="button"
+                                                preserveScroll
+                                                className="rounded-full border border-emerald-200 bg-emerald-100 px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-emerald-700 transition hover:bg-emerald-200 sm:px-3 sm:text-[11px]"
+                                            >
+                                                Lu
+                                            </Link>
+                                        )}
                                     </div>
                                 </div>
-                            );
-                        })
+                        ))
                     )}
                 </div>
 

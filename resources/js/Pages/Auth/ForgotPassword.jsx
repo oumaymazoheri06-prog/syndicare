@@ -7,11 +7,12 @@ import {
     authDescriptionClass,
     authEyebrowClass,
     authInputClass,
+    authLinkClass,
     authLabelClass,
     authStatusClass,
     authTitleClass,
 } from '@/Layouts/authStyles';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function ForgotPassword({ status }) {
     const { data, setData, post, processing, errors } = useForm({
@@ -57,7 +58,11 @@ export default function ForgotPassword({ status }) {
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="flex items-center justify-end">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <Link href={route('login')} className={authLinkClass}>
+                        Retour
+                    </Link>
+
                     <PrimaryButton
                         className={authButtonInlineClass}
                         disabled={processing}

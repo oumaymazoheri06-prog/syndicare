@@ -132,24 +132,13 @@ class NotificationController extends Controller
 
     public function markRead(Request $request, Notification $notification): RedirectResponse
     {
-        $this->authorize('update', $notification);
+        $this->authorize('markRead', $notification);
 
         $notification->update([
             'is_read' => true,
         ]);
 
         return back()->with('success', 'Alerte marquee comme lue.');
-    }
-
-    public function markUnread(Request $request, Notification $notification): RedirectResponse
-    {
-        $this->authorize('update', $notification);
-
-        $notification->update([
-            'is_read' => false,
-        ]);
-
-        return back()->with('success', 'Alerte marquee comme non lue.');
     }
 
     public function markAllAsRead(Request $request): RedirectResponse

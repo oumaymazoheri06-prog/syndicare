@@ -41,6 +41,23 @@ class ApartmentController extends Controller
             'area' => ['nullable', 'numeric', 'min:0'],
         ]);
 
+        $organization = $request->user()->organization;
+
+$limits = [
+    'basic' => 20,
+    'standard' => 100,
+    'premium' => 1000,
+];
+
+$maxLots = $limits[$organization->plan] ?? 0;
+
+$currentLots = Apartment::query()
+    ->where('organization_id', $organization->id)
+    ->count();
+
+if ($maxLots > 0 && $currentLots >= $maxLots) {
+    return back()->with('error', 'Votre plan limite votre organisation a '.$maxLots.' lots.');
+}
         Apartment::create($validated);
 Audit_log::create([
     'action' => 'Creation de apartment',

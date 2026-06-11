@@ -18,7 +18,9 @@ class ChargeController extends Controller
     {
         $this->authorize('viewAny', Charge::class);
 
-        $query = Charge::query()->latest();
+        $query = Charge::query()
+            ->with('latestPayment')
+            ->latest();
 
         if ($request->user()->role !== 'Syndic') {
             $query->whereHas('apartment', function ($q) use ($request) {

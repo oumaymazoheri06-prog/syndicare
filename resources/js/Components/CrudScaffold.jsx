@@ -171,10 +171,10 @@ export function CrudIndexPage({
     canEdit = true,
     canDelete = true,
     filters = null,
-
+    rowActions = null,
 }) {
     const rows = Array.isArray(items) ? items : items?.data ?? [];
-    const showActions = canView || canEdit || canDelete;
+    const showActions = canView || canEdit || canDelete || Boolean(rowActions);
     const toolbar = canCreate ? (
         <Link
             href={route(`${resource}.create`)}
@@ -274,6 +274,7 @@ export function CrudIndexPage({
                                                                             Supprimer
                                                                         </Link>
                                                                     )}
+                                                                    {rowActions && rowActions(row)}
                                                                 </div>
                                                             </td>
                                                         )}

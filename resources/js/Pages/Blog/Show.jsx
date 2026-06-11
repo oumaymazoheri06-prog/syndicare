@@ -1,7 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
-import { blogPosts } from './articles';
+import { useI18n } from '@/i18n/I18nProvider';
+import { blogImageForLocale, blogPosts } from './articles';
 
 function normalizeText(value) {
     return value
@@ -24,6 +25,7 @@ function LegalLine({ line }) {
 }
 
 export default function Show({ slug }) {
+    const { locale } = useI18n();
     const [search, setSearch] = useState('');
     const article = blogPosts.find((post) => post.slug === slug);
     const legalGroups = article?.legalContent?.groups ?? [];
@@ -135,7 +137,7 @@ export default function Show({ slug }) {
 
                     <div className="overflow-hidden rounded-[2rem] border border-white bg-white p-3 shadow-xl shadow-emerald-950/10">
                         <img
-                            src={article.image}
+                            src={blogImageForLocale(article, locale)}
                             alt={article.title}
                             className="aspect-[16/10] w-full rounded-[1.5rem] object-cover object-left-top"
                         />

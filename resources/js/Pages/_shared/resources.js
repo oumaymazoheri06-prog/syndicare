@@ -27,6 +27,12 @@ const paymentStatuses = [
     { value: 'validated', label: 'Valide' },
 ];
 
+const paymentMethods = [
+    { value: 'virement', label: 'Virement bancaire' },
+    { value: 'cashplus', label: 'Cash Plus' },
+    { value: 'manuel', label: 'Paiement direct au syndic' },
+];
+
 const documentTargetTypes = [
     { value: 'all', label: 'Tout le monde' },
     { value: 'building', label: 'Immeuble' },
@@ -248,6 +254,12 @@ export const resourceConfigs = {
         routeKey: 'id',
         indexColumns: [
             { key: 'title', label: 'Titre' },
+            { key: 'building', label: 'Immeuble', render: (_, record) => record.building?.name ?? '-' },
+            {
+                key: 'apartment',
+                label: 'Lots concernes',
+                render: (_, record) => record.apartment?.number ? `Lot ${record.apartment.number}` : 'Tous les lots',
+            },
             { key: 'amount', label: 'Montant' },
             { key: 'date', label: 'Date' },
         ],
@@ -263,7 +275,12 @@ export const resourceConfigs = {
             { name: 'description', label: 'Description' },
             { name: 'amount', label: 'Montant' },
             { name: 'date', label: 'Date' },
-            { name: 'building_id', label: 'Immeuble' },
+            { name: 'building', label: 'Immeuble', render: (_, record) => record.building?.name ?? '-' },
+            {
+                name: 'apartment',
+                label: 'Lots concernes',
+                render: (_, record) => record.apartment?.number ? `Lot ${record.apartment.number}` : 'Tous les lots',
+            },
         ],
         toFormData: (record = {}) => ({
             title: text(record.title),
@@ -271,6 +288,7 @@ export const resourceConfigs = {
             amount: record.amount ?? '',
             date: dateValue(record.date),
             building_id: record.building_id ?? '',
+            apartment_id: record.apartment_id ?? '',
         }),
     },
     announcements: {
@@ -437,18 +455,23 @@ export const resourceConfigs = {
         formFields: [
             { name: 'amount', label: 'Montant', type: 'number', step: '0.01', min: '0' },
             { name: 'charge_id', label: 'Charge', type: 'select', options: [] },
+            { name: 'method', label: 'Methode', type: 'select', options: paymentMethods },
             { name: 'status', label: 'Statut', type: 'select', options: paymentStatuses },
             { name: 'payment_date', label: 'Date de paiement', type: 'date' },
         ],
         showFields: [
             { name: 'amount', label: 'Montant' },
             { name: 'charge_id', label: 'Charge' },
+            { name: 'method', label: 'Methode', format: (value) => optionLabelFor(paymentMethods, value) },
+            { name: 'payment_proof', label: 'Preuve de paiement' },
             { name: 'status', label: 'Statut', format: (value) => optionLabelFor(paymentStatuses, value) },
             { name: 'payment_date', label: 'Date de paiement' },
         ],
         toFormData: (record = {}) => ({
             amount: record.amount ?? '',
             charge_id: record.charge_id ?? '',
+            method: record.method ?? '',
+            payment_proof: '',
             status: record.status ?? 'pending',
             payment_date: dateValue(record.payment_date),
         }),
@@ -562,6 +585,7 @@ export const resourceLists = {
     ticketStatuses,
     chargeStatuses,
     paymentStatuses,
+    paymentMethods,
     documentTargetTypes,
     documentTargetRoles,
 };

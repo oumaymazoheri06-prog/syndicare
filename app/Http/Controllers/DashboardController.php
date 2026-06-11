@@ -204,13 +204,21 @@ class DashboardController extends Controller
 
             'validatedPaymentsThisMonth' => (clone $paymentQuery)
                 ->where('status', 'validated')
-                ->whereNotNull('payment_date')
-                ->whereYear('payment_date', $now->year)
-                ->whereMonth('payment_date', $now->month)
+                ->whereHas('charge', function ($query) use ($now) {
+                    $query
+                        ->whereYear('date', $now->year)
+                        ->whereMonth('date', $now->month);
+                })
+                ->sum('amount'),
+
+            'chargesTotalAmount' => (clone $chargeQuery)->sum('amount'),
+            'validatedPaymentsTotal' => (clone $paymentQuery)
+                ->where('status', 'validated')
                 ->sum('amount'),
 
             'unpaidCharges' => (clone $chargeQuery)
                 ->whereIn('status', ['pending', 'overdue'])
+                
                 ->sum('amount'),
         ];
 
@@ -289,8 +297,8 @@ class DashboardController extends Controller
                 ];
             });
 
-        $collectionRate = (float) $summary['chargesThisMonth'] > 0
-            ? round(((float) $summary['validatedPaymentsThisMonth'] / (float) $summary['chargesThisMonth']) * 100)
+        $collectionRate = (float) $summary['chargesTotalAmount'] > 0
+            ? round(((float) $summary['validatedPaymentsTotal'] / (float) $summary['chargesTotalAmount']) * 100)
             : 0;
 
         $health = [
@@ -420,7 +428,7 @@ class DashboardController extends Controller
 
         $apartments = Apartment::query()
             ->where('user_id', $user->id)
-            ->with(['floor.building', 'charges.payments.receipt', 'tickets'])
+            ->with(['floor.building', 'charges.payments', 'tickets'])
             ->orderBy('number')
             ->get();
 
@@ -445,6 +453,9 @@ class DashboardController extends Controller
 
         $unpaidCharges = (clone $chargeQuery)
             ->whereIn('status', ['pending', 'overdue'])
+            ->whereDoesntHave('payments', function ($q) {
+                $q->whereIn('status', ['pending', 'validated']);
+            })
             ->sum('amount');
         $validatedPayments = (clone $paymentQuery)
             ->where('status', 'validated')
@@ -498,17 +509,12 @@ class DashboardController extends Controller
         });
 
         $recentCharges = (clone $chargeQuery)
-            ->with(['apartment.floor.building', 'payments.receipt'])
+            ->with(['apartment.floor.building', 'payments'])
             ->latest('date')
             ->limit(8)
             ->get()
             ->map(function (Charge $charge) {
                 $latestPayment = $charge->payments->sortByDesc('created_at')->first();
-                $receipt = $charge->payments
-                    ->where('status', 'validated')
-                    ->map(fn (Payment $payment) => $payment->receipt)
-                    ->filter()
-                    ->first();
 
                 return [
                     'id' => $charge->id,
@@ -519,12 +525,11 @@ class DashboardController extends Controller
                     'apartment' => $charge->apartment?->number,
                     'building' => $charge->apartment?->floor?->building?->name,
                     'payment_status' => $latestPayment?->status,
-                    'receipt_path' => $receipt?->file_path,
                 ];
             });
 
         $payments = (clone $paymentQuery)
-            ->with(['charge.apartment.floor.building', 'receipt'])
+            ->with(['charge.apartment.floor.building'])
             ->latest('payment_date')
             ->latest()
             ->limit(6)
@@ -538,7 +543,6 @@ class DashboardController extends Controller
                     'charge' => $payment->charge?->description,
                     'apartment' => $payment->charge?->apartment?->number,
                     'building' => $payment->charge?->apartment?->floor?->building?->name,
-                    'receipt_path' => $payment->receipt?->file_path,
                 ];
             });
 

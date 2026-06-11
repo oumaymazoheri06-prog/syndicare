@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Audit_log;
+use App\Models\Apartment;
 use App\Models\Building;
 use App\Models\Expense;
 use Illuminate\Http\RedirectResponse;
@@ -15,14 +16,17 @@ class ExpenseController extends Controller
     public function index(): Response
     {
         return Inertia::render('Expenses/Index', [
-            'expenses' => Expense::query()->latest()->paginate(10),
+            'expenses' => Expense::query()
+                ->with(['building', 'apartment'])
+                ->latest()
+                ->paginate(10),
         ]);
     }
 
     public function create(): Response
     {
         return Inertia::render('Expenses/Create', [
-            'buildings' => Building::query()->orderBy('name')->get(),
+            'buildings' => $this->buildingOptions(),
         ]);
     }
 
@@ -34,7 +38,14 @@ class ExpenseController extends Controller
             'amount' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date'],
             'building_id' => ['required', $this->tenantExists('buildings')],
+            'apartment_id' => ['nullable', $this->tenantExists('apartments')],
         ]);
+
+        if (! $this->apartmentBelongsToBuilding($validated['apartment_id'] ?? null, $validated['building_id'])) {
+            return back()
+                ->withErrors(['apartment_id' => 'Ce lot n appartient pas a cet immeuble.'])
+                ->withInput();
+        }
 
         Expense::create($validated);
 Audit_log::create([
@@ -48,15 +59,15 @@ Audit_log::create([
     public function show(Expense $expense): Response
     {
         return Inertia::render('Expenses/Show', [
-            'expense' => $expense,
+            'expense' => $expense->load(['building', 'apartment']),
         ]);
     }
 
     public function edit(Expense $expense): Response
     {
         return Inertia::render('Expenses/Edit', [
-            'expense' => $expense,
-            'buildings' => Building::query()->orderBy('name')->get(),
+            'expense' => $expense->load(['building', 'apartment']),
+            'buildings' => $this->buildingOptions(),
         ]);
     }
 
@@ -68,7 +79,14 @@ Audit_log::create([
             'amount' => ['required', 'numeric', 'min:0'],
             'date' => ['required', 'date'],
             'building_id' => ['required', $this->tenantExists('buildings')],
+            'apartment_id' => ['nullable', $this->tenantExists('apartments')],
         ]);
+
+        if (! $this->apartmentBelongsToBuilding($validated['apartment_id'] ?? null, $validated['building_id'])) {
+            return back()
+                ->withErrors(['apartment_id' => 'Ce lot n appartient pas a cet immeuble.'])
+                ->withInput();
+        }
 
         $expense->update($validated);
 Audit_log::create([
@@ -91,5 +109,25 @@ Audit_log::create([
 
         
         return redirect()->route('expenses.index')->with('success', 'Expense deleted successfully.');
+    }
+
+    private function buildingOptions()
+    {
+        return Building::query()
+            ->with(['apartments' => fn ($query) => $query->orderBy('number')])
+            ->orderBy('name')
+            ->get();
+    }
+
+    private function apartmentBelongsToBuilding(?int $apartmentId, int|string $buildingId): bool
+    {
+        if (! $apartmentId) {
+            return true;
+        }
+
+        return Apartment::query()
+            ->whereKey($apartmentId)
+            ->whereHas('floor', fn ($query) => $query->where('building_id', $buildingId))
+            ->exists();
     }
 }

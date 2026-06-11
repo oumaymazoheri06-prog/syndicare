@@ -1,7 +1,8 @@
 import { Head, Link } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
-import { blogPosts } from './Blog/articles';
+import { useState } from 'react';
+import { blogImageForLocale, blogPosts } from './Blog/articles';
 import LanguageSwitcher from '@/Components/LanguageSwitcher';
+import { useI18n } from '@/i18n/I18nProvider';
 
 const desktopShot = '/images/Screenshot%202026-05-15%20155304.png';
 const financeShot = '/images/Screenshot%202026-05-15%20155345.png';
@@ -10,6 +11,16 @@ const mobileShot = '/images/Screenshot%202026-05-15%20192635.png';
 const heroImage = '/images/hero.jpg';
 const loginShot = '/images/desktoplogin.png';
 const flyerShot = '/images/flyer.png';
+const arabicDesktopShot = '/images/dashboardarabe.png';
+const arabicFinanceShot = '/images/dashboard%20arabe%202png.png';
+const arabicDocumentsShot = '/images/declarer%20objet%20arab.png';
+const arabicMobileShot = '/images/dashboard%20mobile%20arab.png';
+const arabicLoginShot = '/images/arablogin.png';
+const LOT_MIN = 1;
+const LOT_MAX = 1000;
+const PRICING_PRESETS = [10, 45, 100, 200, 500];
+const CONTACT_EMAIL = 'syndicaremanager@gmail.com';
+const WHATSAPP_URL = 'https://wa.me/212663442169';
 
 const syndicFeatures = [
     ['Gestion des lots', 'Suivez les lots, résidents, immeubles et étages depuis un seul espace.'],
@@ -61,8 +72,36 @@ function priceForLots(lots) {
     return lots * 4.5;
 }
 
+function pricingDetailsForLots(lots) {
+    if (lots < 20) {
+        return {
+            monthlyBase: 100,
+            rateLabel: 'Forfait minimum',
+            calculation: '100 Dh / mois jusqu a 19 lots',
+        };
+    }
+
+    const rate = lots <= 100 ? 4.7 : 4.5;
+
+    return {
+        monthlyBase: priceForLots(lots),
+        rateLabel: `${rate.toLocaleString('fr-FR')} Dh / lot`,
+        calculation: `${lots} lots x ${rate.toLocaleString('fr-FR')} Dh`,
+    };
+}
+
 function formatPrice(value) {
-    return `${Math.round(value)} Dh`;
+    return `${Math.round(value).toLocaleString('fr-FR')} Dh`;
+}
+
+function normalizeLots(value) {
+    const parsed = Number(value);
+
+    if (!Number.isFinite(parsed)) {
+        return LOT_MIN;
+    }
+
+    return Math.min(LOT_MAX, Math.max(LOT_MIN, Math.round(parsed)));
 }
 
 function FeatureList({ eyebrow, title, description, features }) {
@@ -101,14 +140,26 @@ function FeatureList({ eyebrow, title, description, features }) {
 }
 
 export default function Welcome({ auth }) {
+    const { locale } = useI18n();
     const [lots, setLots] = useState(45);
     const [billing, setBilling] = useState('monthly');
-    const monthlyPrice = useMemo(() => {
-        const base = priceForLots(lots);
-        return billing === 'annual' ? base * 0.9 : base;
-    }, [lots, billing]);
+    const updateLots = (value) => setLots(normalizeLots(value));
+    const pricingDetails = pricingDetailsForLots(lots);
+    const monthlyPrice = billing === 'annual'
+        ? pricingDetails.monthlyBase * 0.9
+        : pricingDetails.monthlyBase;
+    const annualPrice = monthlyPrice * 12;
+    const sliderProgress = ((lots - LOT_MIN) / (LOT_MAX - LOT_MIN)) * 100;
 
     const destination = auth?.user ? route('dashboard') : route('login');
+    const currentYear = new Date().getFullYear();
+    const isArabic = locale === 'ar';
+    const localizedDesktopShot = isArabic ? arabicDesktopShot : desktopShot;
+    const localizedFinanceShot = isArabic ? arabicFinanceShot : financeShot;
+    const localizedDocumentsShot = isArabic ? arabicDocumentsShot : documentsShot;
+    const localizedMobileShot = isArabic ? arabicMobileShot : mobileShot;
+    const localizedLoginShot = isArabic ? arabicLoginShot : loginShot;
+    const localizedBlogImage = (post) => blogImageForLocale(post, locale);
 
     return (
         <>
@@ -162,7 +213,9 @@ export default function Welcome({ auth }) {
                                 {auth?.user ? 'Tableau de bord' : 'Connexion'}
                             </Link>
                             <a
-                                href="#tarifs"
+                                href={WHATSAPP_URL}
+                                target="_blank"
+                                rel="noreferrer"
                                 className="hidden rounded-full bg-[#0b3516] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#14532d] sm:inline-flex"
                             >
                                 Demander une démo
@@ -173,9 +226,9 @@ export default function Welcome({ auth }) {
 
                 <main id="accueil">
                     <section
-                        className="relative overflow-hidden bg-[#0b3516]"
+                        className="relative overflow-hidden bg-[#132018]"
                         style={{
-                            backgroundImage: `linear-gradient(90deg, rgba(6, 35, 15, 0.96) 0%, rgba(6, 35, 15, 0.86) 45%, rgba(6, 35, 15, 0.5) 100%), url(${heroImage})`,
+                            backgroundImage: `linear-gradient(90deg, rgba(8, 26, 18, 0.86) 0%, rgba(10, 28, 21, 0.64) 46%, rgba(15, 23, 42, 0.18) 100%), url(${heroImage})`,
                             backgroundPosition: 'center top',
                             backgroundSize: 'cover',
                         }}
@@ -203,7 +256,7 @@ export default function Welcome({ auth }) {
                                 <div className="mt-8 flex max-w-[21.5rem] flex-col gap-3 sm:max-w-none sm:flex-row">
                                     <Link
                                         href={destination}
-                                        className="inline-flex justify-center rounded-full bg-white px-6 py-3 text-sm font-black text-[#0b3516] shadow-lg shadow-emerald-950/30 transition hover:bg-emerald-50"
+                                        className="inline-flex justify-center rounded-full bg-white px-6 py-3 text-sm font-black text-[#0b3516] shadow-lg shadow-slate-950/20 transition hover:bg-emerald-50"
                                     >
                                         Accéder à l'espace syndic
                                     </Link>
@@ -237,17 +290,17 @@ export default function Welcome({ auth }) {
                             </div>
 
                             <div className="relative min-w-0 max-w-full">
-                                <div className="rounded-[2rem] border border-white bg-white/80 p-3 shadow-2xl shadow-emerald-950/15">
+                                <div className="rounded-[2rem] border border-white bg-white/80 p-3 shadow-2xl shadow-slate-950/10">
                                     <img
-                                        src={desktopShot}
+                                        src={localizedDesktopShot}
                                         alt="Aperçu du tableau de bord SyndiCare"
                                         className="aspect-[16/10] w-full rounded-[1.5rem] object-cover object-left-top"
                                     />
                                 </div>
 
-                                <div className="absolute -bottom-8 right-4 hidden w-36 rounded-[1.6rem] border border-white bg-white p-2 shadow-2xl shadow-emerald-950/20 sm:block lg:w-44">
+                                <div className="absolute -bottom-8 right-4 hidden w-36 rounded-[1.6rem] border border-white bg-white p-2 shadow-2xl shadow-slate-950/10 sm:block lg:w-44">
                                     <img
-                                        src={mobileShot}
+                                        src={localizedMobileShot}
                                         alt="Aperçu mobile SyndiCare"
                                         className="rounded-[1.2rem]"
                                     />
@@ -273,7 +326,7 @@ export default function Welcome({ auth }) {
                             <div className="mt-8 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
                                 <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-[#f6f2e9] p-3 shadow-sm">
                                     <img
-                                        src={financeShot}
+                                        src={localizedFinanceShot}
                                         alt="Gestion financière SyndiCare"
                                         className="aspect-[16/9] w-full rounded-[1.5rem] object-cover object-left-top"
                                     />
@@ -281,7 +334,7 @@ export default function Welcome({ auth }) {
                                 <div className="grid gap-4">
                                     <div className="overflow-hidden rounded-[2rem] border border-emerald-100 bg-[#f6f2e9] p-3 shadow-sm">
                                         <img
-                                            src={documentsShot}
+                                            src={localizedDocumentsShot}
                                             alt="Gestion des documents SyndiCare"
                                             className="aspect-[16/10] w-full rounded-[1.5rem] object-cover object-left-top"
                                         />
@@ -332,7 +385,7 @@ export default function Welcome({ auth }) {
                             <div className="grid gap-4">
                                 <div className="overflow-hidden rounded-[2rem] border border-white bg-white p-3 shadow-xl shadow-emerald-950/10">
                                     <img
-                                        src={loginShot}
+                                        src={localizedLoginShot}
                                         alt="Aperçu de la page de connexion SyndiCare"
                                         className="aspect-[16/9] w-full rounded-[1.5rem] object-cover object-center"
                                     />
@@ -422,7 +475,7 @@ export default function Welcome({ auth }) {
                                         className="group overflow-hidden rounded-[1.5rem] border border-emerald-100 bg-[#f6f2e9] shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-950/10"
                                     >
                                         <img
-                                            src={post.image}
+                                            src={localizedBlogImage(post)}
                                             alt={post.title}
                                             className="aspect-[16/10] w-full object-cover object-left-top transition duration-500 group-hover:scale-[1.03]"
                                         />
@@ -512,29 +565,105 @@ export default function Welcome({ auth }) {
                                     </div>
                                 </div>
 
+                                <div className="mt-6 flex flex-col gap-3 rounded-2xl bg-emerald-50 p-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <label
+                                        htmlFor="pricing-lots"
+                                        className="text-sm font-bold text-emerald-950"
+                                    >
+                                        Lots
+                                    </label>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => updateLots(lots - 1)}
+                                            disabled={lots <= LOT_MIN}
+                                            aria-label="Retirer un lot"
+                                            className="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-200 bg-white text-xl font-black text-[#0b3516] shadow-sm transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            -
+                                        </button>
+                                        <input
+                                            id="pricing-lots"
+                                            type="number"
+                                            min={LOT_MIN}
+                                            max={LOT_MAX}
+                                            step="1"
+                                            value={lots}
+                                            onInput={(event) => updateLots(event.currentTarget.value)}
+                                            onChange={(event) => updateLots(event.currentTarget.value)}
+                                            className="h-11 w-28 rounded-xl border-emerald-200 text-center text-base font-black text-[#0b3516] focus:border-[#0b3516] focus:ring-[#0b3516]"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => updateLots(lots + 1)}
+                                            disabled={lots >= LOT_MAX}
+                                            aria-label="Ajouter un lot"
+                                            className="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-200 bg-white text-xl font-black text-[#0b3516] shadow-sm transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <input
                                     type="range"
-                                    min="1"
-                                    max="1000"
+                                    min={LOT_MIN}
+                                    max={LOT_MAX}
+                                    step="1"
                                     value={lots}
-                                    onChange={(event) => setLots(Number(event.target.value))}
-                                    className="mt-8 w-full accent-[#0b3516]"
+                                    aria-label="Nombre total de lots"
+                                    onInput={(event) => updateLots(event.currentTarget.value)}
+                                    onChange={(event) => updateLots(event.currentTarget.value)}
+                                    className="mt-6 h-2 w-full cursor-pointer rounded-full accent-[#0b3516]"
+                                    style={{
+                                        background: `linear-gradient(to right, #0b3516 ${sliderProgress}%, #d1fae5 ${sliderProgress}%)`,
+                                    }}
                                 />
                                 <div className="mt-2 flex justify-between text-xs font-semibold text-slate-400">
                                     <span>1 lot</span>
                                     <span>1000 lots</span>
                                 </div>
 
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                    {PRICING_PRESETS.map((preset) => (
+                                        <button
+                                            key={preset}
+                                            type="button"
+                                            onClick={() => updateLots(preset)}
+                                            className={`rounded-full border px-3 py-1.5 text-xs font-black transition ${
+                                                lots === preset
+                                                    ? 'border-[#0b3516] bg-[#0b3516] text-white'
+                                                    : 'border-emerald-200 bg-emerald-50 text-[#0b3516] hover:bg-emerald-100'
+                                            }`}
+                                        >
+                                            {preset} lots
+                                        </button>
+                                    ))}
+                                </div>
+
                                 <div className="mt-8 rounded-[1.5rem] bg-[#0b3516] p-6 text-white">
                                     <p className="text-sm font-semibold text-emerald-100">
                                         Total estimé
                                     </p>
-                                    <p className="mt-2 text-5xl font-black">
+                                    <p key={monthlyPrice} className="mt-2 text-5xl font-black">
                                         {formatPrice(monthlyPrice)}
                                     </p>
                                     <p className="mt-2 text-sm text-emerald-50/75">
                                         par mois {billing === 'annual' ? 'avec facturation annuelle' : 'en facturation mensuelle'}
                                     </p>
+                                    <div className="mt-5 grid gap-2 text-sm font-semibold text-emerald-50/90 sm:grid-cols-2">
+                                        <p className="rounded-xl bg-white/10 px-3 py-2">
+                                            Tarif: {pricingDetails.rateLabel}
+                                        </p>
+                                        <p className="rounded-xl bg-white/10 px-3 py-2">
+                                            Calcul: {pricingDetails.calculation}
+                                        </p>
+                                    </div>
+                                    {billing === 'annual' && (
+                                        <p className="mt-3 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-emerald-50/90">
+                                            Total annuel estime: {formatPrice(annualPrice)}
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div className="mt-6 grid gap-2 text-sm font-semibold text-slate-600 sm:grid-cols-2">
@@ -565,12 +694,20 @@ export default function Welcome({ auth }) {
                                         </p>
                                     </div>
                                     <a
-                                        href="https://wa.me/212663442169"
+                                        href={WHATSAPP_URL}
+                                        target="_blank"
+                                        rel="noreferrer"
                                         className="inline-flex justify-center rounded-full bg-white px-6 py-3 text-sm font-black text-[#0b3516] transition hover:bg-emerald-50"
                                     >
                                         Contacter sur WhatsApp
                                     </a>
                                 </div>
+                                <a
+                                    href={`mailto:${CONTACT_EMAIL}`}
+                                    className="mt-5 inline-flex text-sm font-bold text-emerald-50/85 underline-offset-4 hover:text-white hover:underline"
+                                >
+                                    {CONTACT_EMAIL}
+                                </a>
                             </div>
                         </div>
                     </section>
@@ -604,15 +741,15 @@ export default function Welcome({ auth }) {
                 </main>
 
                 <footer className="border-t border-emerald-950/10 bg-[#0b3516] text-white">
-                    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_auto_auto] lg:px-8">
+                    <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_auto_auto_auto] lg:px-8">
                         <div>
                             <div className="flex items-center gap-3">
                                 <img
                                     src="/images/logo.png"
                                     alt="Logo SyndiCare"
-                                    className="h-12 w-12 object-contain"
+                                    className="h-16 w-16 object-contain sm:h-20 sm:w-20"
                                 />
-                                <p className="text-xl font-black">SyndiCare</p>
+                                <p className="text-2xl font-black">SyndiCare</p>
                             </div>
                             <p className="mt-3 max-w-md text-sm leading-6 text-emerald-50/75">
                                 Plateforme de gestion pour syndics: finances, réclamations,
@@ -634,6 +771,18 @@ export default function Welcome({ auth }) {
                                 <Link href={route('register')}>Inscription</Link>
                             </div>
                         </div>
+                        <div className="text-sm">
+                            <p className="font-black">Contact</p>
+                            <div className="mt-3 grid gap-2 text-emerald-50/75">
+                                <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+                                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer">
+                                    WhatsApp
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="border-t border-white/10 px-4 py-4 text-center text-xs font-semibold text-emerald-50/70">
+                        © {currentYear} SyndiCare. Tous droits réservés.
                     </div>
                 </footer>
             </div>

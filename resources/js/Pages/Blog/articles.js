@@ -137,6 +137,16 @@ const loi1800Articles = [
 const pickArticles = (numbers) =>
     loi1800Articles.filter((article) => numbers.includes(article.number));
 
+export const arabicBlogImages = {
+    '/images/image1.png': '/images/image3arabe.png',
+    '/images/image2.png': '/images/image2arabe.png',
+    '/images/image3.png': '/images/image1arabe.png',
+};
+
+export function blogImageForLocale(post, locale) {
+    return locale === 'ar' ? arabicBlogImages[post.image] ?? post.image : post.image;
+}
+
 export const blogPosts = [
     {
         slug: 'loi-18-00-copropriete-maroc',

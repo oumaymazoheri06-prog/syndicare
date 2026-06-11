@@ -10,7 +10,15 @@ class Expense extends Model
 {
     use BelongsToOrganization, HasFactory;
 
-    protected $fillable = ['organization_id', 'amount', 'description', 'date', 'building_id'];
+    protected $fillable = [
+        'organization_id',
+        'title',
+        'amount',
+        'description',
+        'date',
+        'building_id',
+        'apartment_id',
+    ];
 
     protected $casts = [
         'date' => 'date',
@@ -20,5 +28,10 @@ class Expense extends Model
     public function building()
     {
         return $this->belongsTo(Building::class);
+    }
+
+    public function apartment()
+    {
+        return $this->belongsTo(Apartment::class);
     }
 }

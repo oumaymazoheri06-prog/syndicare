@@ -13,11 +13,21 @@
         overflow-x: hidden;
     }
 
-    html[dir="rtl"] body {
+    html[dir="rtl"] body,
+    html[dir="rtl"] button,
+    html[dir="rtl"] input,
+    html[dir="rtl"] select,
+    html[dir="rtl"] textarea {
         font-family:
-            Tahoma,
+            Cairo,
+            "Noto Kufi Arabic",
+            "Noto Sans Arabic",
+            "Segoe UI",
             Arial,
             sans-serif;
+    }
+
+    html[dir="rtl"] body {
         text-align: right;
     }
 

@@ -105,8 +105,6 @@ const superAdminNavSections = [
 const residentNavMatches = {
     Locataire: [
         "dashboard",
-        "payments.*",
-        "receipts.*",
         "tickets.*",
         "items.*",
         "announcements.*",
@@ -116,7 +114,6 @@ const residentNavMatches = {
         "dashboard",
         "charges.*",
         "payments.*",
-        "receipts.*",
         "tickets.*",
         "items.*",
         "announcements.*",

@@ -11,11 +11,14 @@ export default function UpdateProfileInformation({
     className = '',
 }) {
     const user = usePage().props.auth.user;
+    const isSyndic = user.role === 'Syndic';
 
     const { data, setData, patch, errors, processing, recentlySuccessful } =
         useForm({
             name: user.name,
             email: user.email,
+            phone_number: user.phone_number || '',
+            payment_rib: user.payment_rib || '',
         });
 
     const submit = (e) => {
@@ -68,6 +71,38 @@ export default function UpdateProfileInformation({
 
                     <InputError className="mt-2" message={errors.email} />
                 </div>
+
+                <div>
+                    <InputLabel htmlFor="phone_number" value="Telephone" />
+
+                    <TextInput
+                        id="phone_number"
+                        type="text"
+                        className="mt-1 block w-full"
+                        value={data.phone_number}
+                        onChange={(e) => setData('phone_number', e.target.value)}
+                        autoComplete="tel"
+                    />
+
+                    <InputError className="mt-2" message={errors.phone_number} />
+                </div>
+
+                {isSyndic && (
+                    <div>
+                        <InputLabel htmlFor="payment_rib" value="RIB de paiement" />
+
+                        <TextInput
+                            id="payment_rib"
+                            type="text"
+                            className="mt-1 block w-full"
+                            value={data.payment_rib}
+                            onChange={(e) => setData('payment_rib', e.target.value)}
+                            placeholder="Ex: 007 810 0000000000000000 00"
+                        />
+
+                        <InputError className="mt-2" message={errors.payment_rib} />
+                    </div>
+                )}
 
                 {mustVerifyEmail && user.email_verified_at === null && (
                     <div>

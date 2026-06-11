@@ -10,7 +10,16 @@ class Payment extends Model
 {
     use BelongsToOrganization, HasFactory;
 
-    protected $fillable = ['organization_id', 'amount', 'charge_id', 'status', 'payment_date'];
+    protected $fillable = [
+        'organization_id',
+        'amount',
+        'charge_id',
+        'user_id',
+        'status',
+        'payment_date',
+        'method',
+        'payment_proof',
+    ];
 
     protected $casts = [
         'payment_date' => 'date',
@@ -25,5 +34,9 @@ class Payment extends Model
     public function charge()
     {
         return $this->belongsTo(Charge::class);
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

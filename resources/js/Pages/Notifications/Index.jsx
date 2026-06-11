@@ -16,7 +16,7 @@ export default function Index({ notifications }) {
             routeKey={config.routeKey}
             createLabel="Nouvelle alerte"
             canCreate={canManage}
-            canEdit={canManage}
+            canEdit={false}
             canDelete={canManage}
         />
     );
