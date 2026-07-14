@@ -17,14 +17,25 @@ class ApartmentController extends Controller
     public function index(): Response
     {
         return Inertia::render('Apartments/Index', [
-            'apartments' => Apartment::query()->latest()->paginate(10),
+            'apartments' => Apartment::query()
+                ->with(['floor.building', 'user'])
+                ->latest()
+                ->paginate(10)
+                ->through(fn (Apartment $apartment) => $this->serializeApartment($apartment)),
         ]);
     }
 
     public function create(): Response
     {
         return Inertia::render('Apartments/Create', [
-            'floors' => Floor::query()->orderBy('number')->get(),
+            'floors' => Floor::query()
+                ->with('building')
+                ->orderBy('number')
+                ->get()
+                ->map(fn (Floor $floor) => [
+                    'id' => $floor->id,
+                    'label' => $this->formatFloorLabel($floor),
+                ]),
             'users' => User::query()
                 ->where('organization_id', request()->user()?->organization_id)
                 ->orderBy('name')
@@ -56,21 +67,23 @@ $currentLots = Apartment::query()
     ->count();
 
 if ($maxLots > 0 && $currentLots >= $maxLots) {
-    return back()->with('error', 'Votre plan limite votre organisation a '.$maxLots.' lots.');
+    return back()->with('error', 'Votre plan limite votre organisation à '.$maxLots.' lots.');
 }
         Apartment::create($validated);
 Audit_log::create([
-    'action' => 'Creation de apartment',
-    'details' => 'Un appartement numero "' . $validated['number'] . '" a été créé au floor ID ' . $validated['floor_id'] . ' par ' . $request->user()->name . '.',
+    'action' => "Création d'appartement",
+    'details' => 'Un appartement numéro "' . $validated['number'] . '" a été créé à l\'étage ID ' . $validated['floor_id'] . ' par ' . $request->user()->name . '.',
     'performed_by' => auth()->id(),
 ]);
-        return redirect()->route('apartments.index')->with('success', 'Apartment created successfully.');
+        return redirect()->route('apartments.index')->with('success', 'Lot créé avec succès.');
     }
 
     public function show(Apartment $apartment): Response
     {
+        $apartment->load(['floor.building', 'user']);
+
         return Inertia::render('Apartments/Show', [
-            'apartment' => $apartment,
+            'apartment' => $this->serializeApartment($apartment),
         ]);
     }
 
@@ -78,7 +91,14 @@ Audit_log::create([
     {
         return Inertia::render('Apartments/Edit', [
             'apartment' => $apartment,
-            'floors' => Floor::query()->orderBy('number')->get(),
+            'floors' => Floor::query()
+                ->with('building')
+                ->orderBy('number')
+                ->get()
+                ->map(fn (Floor $floor) => [
+                    'id' => $floor->id,
+                    'label' => $this->formatFloorLabel($floor),
+                ]),
             'users' => User::query()
                 ->where('organization_id', request()->user()?->organization_id)
                 ->orderBy('name')
@@ -97,22 +117,81 @@ Audit_log::create([
 
         $apartment->update($validated);
 Audit_log::create([
-            'action' => 'Mise à jour de apartment',
+            'action' => "Mise à jour d'appartement",
             'details' => 'L\'appartement ID '.$apartment->id.' a été mis à jour en "' . $validated['number'] . '" par ' . $request->user()->name . '.',
             'performed_by' => auth()->id(),
         ]);
-        return redirect()->route('apartments.index')->with('success', 'Apartment updated successfully.');
+        return redirect()->route('apartments.index')->with('success', 'Lot mis à jour avec succès.');
+    }
+
+    public function updateOccupancy(Request $request, Apartment $apartment): RedirectResponse
+    {
+        $isOccupied = $request->boolean('is_occupied');
+        $validated = $request->validate([
+            'is_occupied' => ['required', 'boolean'],
+            'user_id' => [
+                'nullable',
+                Rule::exists('users', 'id')
+                    ->where(fn ($query) => $query
+                        ->where('organization_id', $request->user()?->organization_id)
+                        ->whereIn('role', ['Coproprietaire', 'Locataire'])),
+            ],
+        ]);
+
+        if ($isOccupied && empty($validated['user_id'])) {
+            return back()->withErrors([
+                'user_id' => 'Choisissez un résident pour occuper ce lot.',
+            ]);
+        }
+
+        $apartment->forceFill([
+            'user_id' => $isOccupied ? $validated['user_id'] : null,
+        ])->save();
+
+        Audit_log::create([
+            'action' => "Mise à jour de l'occupation du lot",
+            'details' => 'Le lot '.$apartment->number.' est maintenant '.($apartment->user_id ? 'occupé' : 'vide').'.',
+            'performed_by' => auth()->id(),
+        ]);
+
+        return back()->with('success', 'Occupation du lot mise à jour.');
     }
 
     public function destroy(Apartment $apartment, Request $request): RedirectResponse
     {
         $apartment->delete();
 Audit_log::create([
-            'action' => 'Suppression de apartment',
+            'action' => "Suppression d'appartement",
             'details' => 'L\'appartement ID '.$apartment->id.' a été supprimé par ' . $request->user()->name . '.',
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('apartments.index')->with('success', 'Apartment deleted successfully.');
+        return redirect()->route('apartments.index')->with('success', 'Lot supprimé avec succès.');
+    }
+
+    private function serializeApartment(Apartment $apartment): array
+    {
+        return [
+            'id' => $apartment->id,
+            'number' => $apartment->number,
+            'floor_id' => $apartment->floor_id,
+            'floor_label' => $apartment->floor ? $this->formatFloorLabel($apartment->floor) : '-',
+            'building_label' => $apartment->floor?->building?->name ?? '-',
+            'user_id' => $apartment->user_id,
+            'resident_label' => $apartment->user?->name ?? 'Aucun résident',
+            'occupancy_status' => $apartment->user_id ? 'Occupé' : 'Vide',
+            'area' => $apartment->area,
+        ];
+    }
+
+    private function formatFloorLabel(Floor $floor): string
+    {
+        $label = 'Étage '.$floor->number;
+
+        if ($floor->building?->name) {
+            $label .= ' - '.$floor->building->name;
+        }
+
+        return $label;
     }
 }

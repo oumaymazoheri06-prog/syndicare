@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Mail\UserInvitationMail;
+use App\Models\Apartment;
 use App\Models\Audit_log;
 use App\Models\User;
 use App\Models\UserInvitation;
-use GuzzleHttp\Psr7\Query;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 use Throwable;
@@ -23,29 +26,22 @@ class UserController extends Controller
 
     private const INVITABLE_ROLES = ['Coproprietaire', 'Locataire'];
 
-    public function index( Request $request): Response
-
+    public function index(Request $request): Response
     {
+        $query = User::query()
+            ->where('organization_id', $request->user()->organization_id);
 
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
 
-$query = User::query()
-    ->where('organization_id', $request->user()->organization_id);
-
-    if ($request->filled('role')) {
-    $query->where('role', $request->role);
-}
-if($request->user()->role ==='Syndic')
-    { 
-        $query->whereIn('role',['Locataire','Coproprietaire']);
-
-
-    }
-
+        if ($request->user()->role === 'Syndic') {
+            $query->whereIn('role', ['Locataire', 'Coproprietaire']);
+        }
 
         return Inertia::render('Users/Index', [
-            
-
-               'users'=> $query->with('latestInvitation')
+            'users' => $query
+                ->with(['latestInvitation', 'apartments.floor.building'])
                 ->latest()
                 ->paginate(10)
                 ->through(fn (User $user) => $this->serializeUser($user)),
@@ -56,9 +52,13 @@ if($request->user()->role ==='Syndic')
     {
         return Inertia::render('Users/Create', [
             'invitableRoles' => self::INVITABLE_ROLES,
+            'availableApartments' => $this->availableApartmentOptions(),
         ]);
     }
 
+    /**
+     * @throws ValidationException
+     */
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -66,24 +66,51 @@ if($request->user()->role ==='Syndic')
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
             'phone_number' => ['nullable', 'string', 'max:20'],
             'role' => ['required', Rule::in(self::INVITABLE_ROLES)],
+            'apartment_id' => [
+                'required',
+                Rule::exists('apartments', 'id')
+                    ->where(fn ($query) => $query
+                        ->where('organization_id', $request->user()->organization_id)
+                        ->whereNull('user_id')),
+            ],
         ]);
 
-        $user = User::create([
-            'organization_id' => $request->user()->organization_id,
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone_number' => $validated['phone_number'] ?? null,
-            'role' => $validated['role'],
-            'password' => Hash::make(Str::random(48)),
-        ]);
+        [$user, $invitation, $token] = DB::transaction(function () use ($request, $validated): array {
+            $apartment = Apartment::query()
+                ->with('floor.building')
+                ->whereKey($validated['apartment_id'])
+                ->where('organization_id', $request->user()->organization_id)
+                ->whereNull('user_id')
+                ->lockForUpdate()
+                ->first();
 
-        Audit_log::create([
-            'action' => 'Création de compte utilisateur',
-            'details' => 'Un compte pour '.$user->name.' a été créé avec le rôle '.$user->role.'.',
-            'performed_by' => auth()->id(),
-        ]);
+            if (! $apartment) {
+                throw ValidationException::withMessages([
+                    'apartment_id' => 'Ce lot est déjà occupé. Choisissez un lot libre.',
+                ]);
+            }
 
-        [$invitation, $token] = $this->createInvitation($user, $request->user()?->id);
+            $user = User::create([
+                'organization_id' => $request->user()->organization_id,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'phone_number' => $validated['phone_number'] ?? null,
+                'role' => $validated['role'],
+                'password' => Hash::make(Str::random(48)),
+            ]);
+
+            $apartment->forceFill(['user_id' => $user->id])->save();
+
+            Audit_log::create([
+                'action' => 'Création de compte utilisateur',
+                'details' => 'Un compte pour '.$user->name.' a été créé avec le rôle '.$user->role.' et associé au '.$this->formatApartmentLabel($apartment).'.',
+                'performed_by' => auth()->id(),
+            ]);
+
+            [$invitation, $token] = $this->createInvitation($user, $request->user()?->id);
+
+            return [$user, $invitation, $token];
+        });
 
         try {
             $this->sendInvitationEmail($user, $invitation, $token);
@@ -92,17 +119,17 @@ if($request->user()->role ==='Syndic')
 
             return redirect()
                 ->route('users.show', $user)
-                ->with('error', 'Compte cree, mais l email d invitation n a pas pu etre envoye.');
+                ->with('error', "Compte créé, mais l'e-mail d'invitation n'a pas pu être envoyé.");
         }
 
-        return redirect()->route('users.index')->with('success', 'Compte cree et invitation envoyee.');
+        return redirect()->route('users.index')->with('success', 'Compte créé et invitation envoyée.');
     }
 
     public function show(User $user): Response
     {
         $this->ensureSameOrganization($user);
 
-        $user->load('latestInvitation');
+        $user->load(['latestInvitation', 'apartments.floor.building']);
 
         return Inertia::render('Users/Show', [
             'user' => $this->serializeUser($user),
@@ -149,7 +176,7 @@ if($request->user()->role ==='Syndic')
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('users.index')->with('success', 'User updated successfully.');
+        return redirect()->route('users.index')->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
     public function resendInvitation(Request $request, User $user): RedirectResponse
@@ -157,11 +184,11 @@ if($request->user()->role ==='Syndic')
         $this->ensureSameOrganization($user);
 
         if (! in_array($user->role, self::INVITABLE_ROLES, true)) {
-            return back()->with('error', 'Seuls les coproprietaires et locataires peuvent recevoir une invitation.');
+            return back()->with('error', 'Seuls les copropriétaires et locataires peuvent recevoir une invitation.');
         }
 
         if ($user->email_verified_at !== null) {
-            return back()->with('error', 'Ce compte est deja actif.');
+            return back()->with('error', 'Ce compte est déjà actif.');
         }
 
         [$invitation, $token] = $this->createInvitation($user, $request->user()?->id);
@@ -171,23 +198,29 @@ if($request->user()->role ==='Syndic')
         } catch (Throwable $exception) {
             report($exception);
 
-            return back()->with('error', 'L email d invitation n a pas pu etre envoye.');
+            return back()->with('error', "L'e-mail d'invitation n'a pas pu être envoyé.");
         }
 
-        return back()->with('success', 'Invitation renvoyee.');
+        return back()->with('success', 'Invitation renvoyée.');
     }
 
     public function destroy(User $user): RedirectResponse
     {
         $this->ensureSameOrganization($user);
 
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
+
         $user->delete();
-Audit_log::create([
-    'action' => 'Suppression de compte utilisateur',
-    'details' => 'Le compte de '.$user->name.' a été supprimé.',
-    'performed_by' => auth()->id(),
-]);
-        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+
+        Audit_log::create([
+            'action' => 'Suppression de compte utilisateur',
+            'details' => 'Le compte de '.$user->name.' a été supprimé.',
+            'performed_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('users.index')->with('success', 'Utilisateur supprimé avec succès.');
     }
 
     private function createInvitation(User $user, ?int $creatorId): array
@@ -228,7 +261,10 @@ Audit_log::create([
             'name' => $user->name,
             'email' => $user->email,
             'phone_number' => $user->phone_number,
+            'profile_photo_url' => $user->profile_photo_url,
             'role' => $user->role,
+            'apartment_label' => $this->userApartmentLabel($user),
+            'apartments_count' => $user->apartments->count(),
             'email_verified_at' => $user->email_verified_at,
             'invitation_status' => $this->invitationStatus($user, $invitation),
             'invitation_expires_at' => $invitation?->expires_at?->format('d/m/Y H:i'),
@@ -253,17 +289,64 @@ Audit_log::create([
         }
 
         if ($invitation === null) {
-            return 'Non invite';
+            return 'Non invité';
         }
 
         if ($invitation->accepted_at !== null) {
-            return 'Accepte';
+            return 'Accepté';
         }
 
         if ($invitation->expires_at->isPast()) {
-            return 'Expiree';
+            return 'Expirée';
         }
 
-        return 'Invitation envoyee';
+        return 'Invitation envoyée';
+    }
+
+    private function availableApartmentOptions(): array
+    {
+        return Apartment::query()
+            ->with('floor.building')
+            ->where('organization_id', request()->user()?->organization_id)
+            ->whereNull('user_id')
+            ->orderBy('number')
+            ->get()
+            ->map(fn (Apartment $apartment) => [
+                'id' => $apartment->id,
+                'number' => $apartment->number,
+                'area' => $apartment->area !== null ? (float) $apartment->area : null,
+                'floor_number' => $apartment->floor?->number,
+                'building_name' => $apartment->floor?->building?->name,
+                'building_address' => $apartment->floor?->building?->address,
+                'label' => $this->formatApartmentLabel($apartment),
+            ])
+            ->sortBy('label', SORT_NATURAL)
+            ->values()
+            ->all();
+    }
+
+    private function userApartmentLabel(User $user): string
+    {
+        $labels = $user->apartments
+            ->map(fn (Apartment $apartment) => $this->formatApartmentLabel($apartment))
+            ->values()
+            ->all();
+
+        return count($labels) > 0 ? implode(', ', $labels) : 'Aucun lot';
+    }
+
+    private function formatApartmentLabel(Apartment $apartment): string
+    {
+        $parts = ['Lot '.$apartment->number];
+
+        if ($apartment->floor?->number) {
+            $parts[] = 'Étage '.$apartment->floor->number;
+        }
+
+        if ($apartment->floor?->building?->name) {
+            $parts[] = $apartment->floor->building->name;
+        }
+
+        return implode(' - ', $parts);
     }
 }

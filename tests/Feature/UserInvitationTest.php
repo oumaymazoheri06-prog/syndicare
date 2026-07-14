@@ -3,6 +3,10 @@
 namespace Tests\Feature;
 
 use App\Mail\UserInvitationMail;
+use App\Models\Apartment;
+use App\Models\Building;
+use App\Models\Floor;
+use App\Models\Organization;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -17,7 +21,33 @@ class UserInvitationTest extends TestCase
     {
         Mail::fake();
 
-        $admin = User::factory()->create(['role' => 'Syndic']);
+        $organization = Organization::create([
+            'name' => 'Syndicare Test',
+            'slug' => 'syndicare-test',
+            'plan' => 'standard',
+            'subscription_status' => 'active',
+        ]);
+
+        $admin = User::factory()->create([
+            'organization_id' => $organization->id,
+            'role' => 'Syndic',
+        ]);
+
+        $building = Building::factory()->create([
+            'organization_id' => $organization->id,
+        ]);
+
+        $floor = Floor::factory()->create([
+            'organization_id' => $organization->id,
+            'building_id' => $building->id,
+        ]);
+
+        $apartment = Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'number' => 'A-101',
+            'floor_id' => $floor->id,
+            'user_id' => null,
+        ]);
 
         $this->actingAs($admin)
             ->post(route('users.store'), [
@@ -25,6 +55,7 @@ class UserInvitationTest extends TestCase
                 'email' => 'resident@example.com',
                 'phone_number' => '0600000000',
                 'role' => 'Locataire',
+                'apartment_id' => $apartment->id,
             ])
             ->assertRedirect(route('users.index'));
 
@@ -34,6 +65,10 @@ class UserInvitationTest extends TestCase
         $this->assertDatabaseHas('user_invitations', [
             'user_id' => $resident->id,
             'accepted_at' => null,
+        ]);
+        $this->assertDatabaseHas('apartments', [
+            'id' => $apartment->id,
+            'user_id' => $resident->id,
         ]);
 
         $acceptUrl = null;

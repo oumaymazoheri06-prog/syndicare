@@ -72,7 +72,7 @@ class TicketMessageController extends Controller
 
         Ticket_message::create($validated + ['sender_id' => $request->user()->id]);
 
-        return redirect()->route('tickets.show', $ticket)->with('success', 'Message ajoute au suivi.');
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Message ajouté au suivi.');
     }
 
     public function show(Ticket_message $ticket_message): Response
@@ -108,7 +108,7 @@ class TicketMessageController extends Controller
 
         $ticket_message->update($validated);
 
-        return redirect()->route('ticket-messages.index')->with('success', 'Ticket message updated successfully.');
+        return redirect()->route('ticket-messages.index')->with('success', 'Message de ticket mis à jour avec succès.');
     }
 
     public function destroy(Ticket_message $ticket_message): RedirectResponse
@@ -117,6 +117,6 @@ class TicketMessageController extends Controller
 
         $ticket_message->delete();
 
-        return redirect()->route('ticket-messages.index')->with('success', 'Ticket message deleted successfully.');
+        return redirect()->route('ticket-messages.index')->with('success', 'Message de ticket supprimé avec succès.');
     }
 }

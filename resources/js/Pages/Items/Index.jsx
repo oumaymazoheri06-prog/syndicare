@@ -1,16 +1,16 @@
-import AdminLayout from "@/Layouts/AdminLayout";
+﻿import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 const typeLabels = {
     Perdue: "Objet perdu",
-    Trouve: "Objet trouve",
+    Trouve: "Objet trouvé",
 };
 
 const statusLabels = {
     ouvert: "Ouvert",
     en_contact: "En contact",
     rendu: "Rendu",
-    ferme: "Ferme",
+    ferme: "Fermé",
 };
 
 const statusStyles = {
@@ -48,7 +48,7 @@ function TypeBadge({ type }) {
 function StatCard({ label, value, tone }) {
     return (
         <div
-            className={`rounded-[1.35rem] border bg-gradient-to-br p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${tone}`}
+            className={`rounded-[1.35rem] border bg-white p-4 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md ${tone}`}
         >
             <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500">
                 {label}
@@ -77,7 +77,7 @@ function Pagination({ links }) {
                         preserveScroll
                         className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                             link.active
-                                ? "border-[#0e3715] bg-[#0e3715] text-white"
+                                ? "border-[#0F5132] bg-[#0F5132] text-white"
                                 : "border-emerald-100 bg-white text-slate-700 hover:bg-emerald-50"
                         } ${!link.url ? "pointer-events-none opacity-50" : ""}`}
                     >
@@ -96,7 +96,7 @@ function ItemCard({ item }) {
             className="group overflow-hidden rounded-[1.75rem] border border-white/75 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(15,23,42,0.14)]"
         >
             <div className="grid gap-0 sm:grid-cols-[180px_minmax(0,1fr)]">
-                <div className="relative min-h-44 bg-gradient-to-br from-[#0e3715] via-emerald-700 to-[#d4af37]">
+                <div className="relative min-h-44 bg-slate-100">
                     {item.image_url ? (
                         <img
                             src={item.image_url}
@@ -106,11 +106,11 @@ function ItemCard({ item }) {
                     ) : (
                         <div className="flex h-full min-h-44 items-center justify-center px-5 text-center">
                             <div>
-                                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-emerald-50/70">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.28em] text-slate-400">
                                     SyndiCare
                                 </p>
-                                <p className="mt-3 text-2xl font-black text-white">
-                                    {item.type === "Trouve" ? "Trouve" : "Perdu"}
+                                <p className="mt-3 text-2xl font-black text-slate-700">
+                                    {item.type === "Trouve" ? "Trouvé" : "Perdu"}
                                 </p>
                             </div>
                         </div>
@@ -127,7 +127,7 @@ function ItemCard({ item }) {
                         <h3 className="truncate text-xl font-black text-slate-950">
                             {item.title || "Objet sans titre"}
                         </h3>
-                        <p className="mt-1 text-sm font-semibold text-[#0e3715]">
+                        <p className="mt-1 text-sm font-semibold text-[#0F5132]">
                             {item.category}
                         </p>
                         <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
@@ -171,40 +171,39 @@ export default function Index({ items, filters = {}, stats = {} }) {
 
     return (
         <AdminLayout
-            title="Objets perdus et trouves"
-            subtitle="Declaration, suivi, suggestions automatiques et interaction entre residents."
+            title="Objets perdus et trouvés"
+            subtitle="Déclaration, suivi, suggestions automatiques et interaction entre résidents."
             toolbar={
                 <Link
                     href={route("items.create")}
-                    className="inline-flex items-center justify-center rounded-full bg-[#0e3715] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#14532d]"
+                    className="inline-flex items-center justify-center rounded-full bg-[#0F5132] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#146C43]"
                 >
-                    Declarer un objet
+                    Déclarer un objet
                 </Link>
             }
         >
-            <Head title="Objets perdus et trouves" />
+            <Head title="Objets perdus et trouvés" />
 
             <div className="space-y-5 sm:space-y-6">
-                <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0e3715] via-emerald-800 to-[#b8871d] p-5 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)] sm:p-6">
-                    <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-lime-300/20 blur-3xl" />
-                    <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
+                <section className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-6">
+                    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
                         <div>
-                            <p className="text-xs font-bold uppercase tracking-[0.32em] text-emerald-100/70">
-                                Objets trouves
+                            <p className="text-xs font-bold uppercase tracking-[0.32em] text-[#386146]">
+                                Objets trouvés
                             </p>
-                            <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">
-                                Centraliser les objets signales par les residents
+                            <h2 className="mt-3 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl">
+                                Centraliser les objets signalés par les résidents
                             </h2>
-                            <p className="mt-3 max-w-2xl text-sm leading-6 text-emerald-50/80">
-                                Les locataires et coproprietaires recoivent une alerte,
-                                et les declarations perdues proposent directement les
-                                objets trouves similaires.
+                            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                                Les locataires et copropriétaires reçoivent une alerte,
+                                et les déclarations perdues proposent directement les
+                                objets trouvés similaires.
                             </p>
                         </div>
 
                         <form
                             onSubmit={submit}
-                            className="rounded-[1.5rem] border border-white/15 bg-white/10 p-3 backdrop-blur"
+                            className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-3"
                         >
                             <div className="grid gap-2 sm:grid-cols-2">
                                 <input
@@ -213,42 +212,42 @@ export default function Index({ items, filters = {}, stats = {} }) {
                                         setData("search", event.target.value)
                                     }
                                     placeholder="Chercher un objet..."
-                                    className="rounded-2xl border border-white/20 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm focus:border-emerald-300 focus:ring-emerald-200 sm:col-span-2"
+                                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm focus:border-emerald-600 focus:ring-emerald-600 sm:col-span-2"
                                 />
                                 <select
                                     value={data.type}
                                     onChange={(event) =>
                                         setData("type", event.target.value)
                                     }
-                                    className="rounded-2xl border border-white/20 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm focus:border-emerald-300 focus:ring-emerald-200"
+                                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm focus:border-emerald-600 focus:ring-emerald-600"
                                 >
                                     <option value="">Tous les types</option>
                                     <option value="Perdue">Perdus</option>
-                                    <option value="Trouve">Trouves</option>
+                                    <option value="Trouve">Trouvés</option>
                                 </select>
                                 <select
                                     value={data.status}
                                     onChange={(event) =>
                                         setData("status", event.target.value)
                                     }
-                                    className="rounded-2xl border border-white/20 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm focus:border-emerald-300 focus:ring-emerald-200"
+                                    className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm focus:border-emerald-600 focus:ring-emerald-600"
                                 >
                                     <option value="">Tous les statuts</option>
                                     <option value="ouvert">Ouvert</option>
                                     <option value="en_contact">En contact</option>
                                     <option value="rendu">Rendu</option>
-                                    <option value="ferme">Ferme</option>
+                                    <option value="ferme">Fermé</option>
                                 </select>
                             </div>
                             <div className="mt-3 flex flex-wrap gap-2">
-                                <button className="rounded-full bg-[#d4af37] px-4 py-2 text-sm font-black text-[#0e3715] transition hover:bg-[#e5c85f]">
+                                <button className="rounded-full bg-[#0F5132] px-4 py-2 text-sm font-black text-white transition hover:bg-[#146C43]">
                                     Filtrer
                                 </button>
                                 <Link
                                     href={route("items.index")}
-                                    className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                                    className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                                 >
-                                    Reinitialiser
+                                    Réinitialiser
                                 </Link>
                             </div>
                         </form>
@@ -259,27 +258,27 @@ export default function Index({ items, filters = {}, stats = {} }) {
                     <StatCard
                         label="Objets perdus"
                         value={stats.lost || 0}
-                        tone="border-rose-100 from-rose-50 to-white"
+                        tone="border-rose-100"
                     />
                     <StatCard
-                        label="Objets trouves"
+                        label="Objets trouvés"
                         value={stats.found || 0}
-                        tone="border-emerald-100 from-emerald-50 to-white"
+                        tone="border-emerald-100"
                     />
                     <StatCard
                         label="Ouverts"
                         value={stats.open || 0}
-                        tone="border-amber-100 from-amber-50 to-white"
+                        tone="border-amber-100"
                     />
                     <StatCard
                         label="En contact"
                         value={stats.inContact || 0}
-                        tone="border-sky-100 from-sky-50 to-white"
+                        tone="border-sky-100"
                     />
                     <StatCard
                         label="Rendus"
                         value={stats.resolved || 0}
-                        tone="border-teal-100 from-teal-50 to-white"
+                        tone="border-teal-100"
                     />
                 </section>
 

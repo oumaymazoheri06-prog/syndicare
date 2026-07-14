@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -40,6 +41,43 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit');
     }
 
+    public function updatePhoto(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'profile_photo' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
+        $user = $request->user();
+        $previousPhoto = $user->profile_photo_path;
+
+        $path = $request->file('profile_photo')->store('profile-photos', 'public');
+
+        $user->forceFill([
+            'profile_photo_path' => $path,
+        ])->save();
+
+        if ($previousPhoto) {
+            Storage::disk('public')->delete($previousPhoto);
+        }
+
+        return Redirect::route('profile.edit')->with('success', 'Photo de profil mise à jour.');
+    }
+
+    public function destroyPhoto(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+
+            $user->forceFill([
+                'profile_photo_path' => null,
+            ])->save();
+        }
+
+        return Redirect::route('profile.edit')->with('success', 'Photo de profil supprimée.');
+    }
+
     /**
      * Delete the user's account.
      */
@@ -52,6 +90,10 @@ class ProfileController extends Controller
         $user = $request->user();
 
         Auth::logout();
+
+        if ($user->profile_photo_path) {
+            Storage::disk('public')->delete($user->profile_photo_path);
+        }
 
         $user->delete();
 

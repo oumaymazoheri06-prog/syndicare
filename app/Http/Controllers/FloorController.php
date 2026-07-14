@@ -36,11 +36,11 @@ class FloorController extends Controller
 
         Floor::create($validated);
 Audit_log:: create([
-    'action'=> 'Creation de floor',
-    'details'=>'Un floor numero '.$validated['number'].' a ete creer dans le batiment ID '.$validated['building_id'].'.',
+    'action'=> "Création d'étage",
+    'details'=>'Un étage numéro '.$validated['number'].' a été créé dans le bâtiment ID '.$validated['building_id'].'.',
 'performed_by' =>auth()->id(),
 ]);
-        return redirect()->route('floors.index')->with('success', 'Floor created successfully.');
+        return redirect()->route('floors.index')->with('success', 'Étage créé avec succès.');
     }
 
     public function show(Floor $floor): Response
@@ -72,21 +72,21 @@ Audit_log:: create([
 
         $floor->update($validated);
 Audit_log::create([
-    'action' => 'Mise à jour de floor',
-    'details' => 'Le floor ID '.$floor->id.' a été mis à jour       en numero '.$validated['number'].' dans le batiment ID '.$validated['building_id'].'.',
+    'action' => "Mise à jour d'étage",
+    'details' => 'L\'étage ID '.$floor->id.' a été mis à jour en numéro '.$validated['number'].' dans le bâtiment ID '.$validated['building_id'].'.',
     'performed_by' => auth()->id(),
 ]);
-        return redirect()->route('floors.index')->with('success', 'Floor updated successfully.');
+        return redirect()->route('floors.index')->with('success', 'Étage mis à jour avec succès.');
     }
 
     public function destroy(Floor $floor): RedirectResponse
     {
         $floor->delete();
 Audit_log::create([
-    'action' => 'Suppression de floor',
-    'details' => 'Le floor ID '.$floor->id.' a été supprimé.',  
+    'action' => "Suppression d'étage",
+    'details' => 'L\'étage ID '.$floor->id.' a été supprimé.',
     'performed_by' => auth()->id(),
 ]);
-        return redirect()->route('floors.index')->with('success', 'Floor deleted successfully.');
+        return redirect()->route('floors.index')->with('success', 'Étage supprimé avec succès.');
     }
 }

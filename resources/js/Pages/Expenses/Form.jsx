@@ -1,4 +1,4 @@
-import InputError from '@/Components/InputError';
+﻿import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
@@ -41,18 +41,18 @@ export default function Form({ expense, buildings = [] }) {
 
     return (
         <AdminLayout
-            title={isEditing ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
-            subtitle={isEditing ? 'Modification de la depense.' : 'Creation d une nouvelle depense.'}
+            title={isEditing ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
+            subtitle={isEditing ? 'Modification de la dépense.' : "Création d'une nouvelle dépense."}
             toolbar={
                 <Link
                     href={route(`${config.route}.index`)}
-                    className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0e3715]"
+                    className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0F5132]"
                 >
-                    Retour a la liste
+                    Retour à la liste
                 </Link>
             }
         >
-            <Head title={isEditing ? `Modifier ${config.singular}` : `Creer ${config.singular}`} />
+            <Head title={isEditing ? `Modifier ${config.singular}` : `Créer ${config.singular}`} />
 
             <div className="mx-auto max-w-5xl">
                 <section className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur">
@@ -107,7 +107,7 @@ export default function Form({ expense, buildings = [] }) {
                                     className="mt-1 block w-full rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:border-emerald-600 focus:ring-emerald-600"
                                     required
                                 >
-                                    <option value="">Selectionner un immeuble</option>
+                                    <option value="">Sélectionner un immeuble</option>
                                     {buildings.map((building) => (
                                         <option key={building.id} value={building.id}>
                                             {building.name}
@@ -119,7 +119,7 @@ export default function Form({ expense, buildings = [] }) {
 
                             {data.building_id && (
                                 <div className="md:col-span-2">
-                                    <InputLabel htmlFor="apartment_id" value="Lots concernes" />
+                                    <InputLabel htmlFor="apartment_id" value="Lots concernés" />
                                     <select
                                         id="apartment_id"
                                         value={data.apartment_id}
@@ -153,7 +153,7 @@ export default function Form({ expense, buildings = [] }) {
 
                         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
                             <PrimaryButton disabled={processing}>
-                                {isEditing ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+                                {isEditing ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
                             </PrimaryButton>
                             <Link
                                 href={route(`${config.route}.index`)}

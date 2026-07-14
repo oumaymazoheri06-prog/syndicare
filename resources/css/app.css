@@ -66,6 +66,334 @@
         }
     }
 
+    @keyframes landing-intro-out {
+        0%,
+        82% {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        100% {
+            opacity: 0;
+            visibility: hidden;
+        }
+    }
+
+    @keyframes landing-intro-content {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes landing-intro-logo {
+        0% {
+            opacity: 0;
+            transform: translateY(18px) scale(0.82);
+        }
+
+        70% {
+            opacity: 1;
+            transform: translateY(0) scale(1.08);
+        }
+
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes landing-intro-letter {
+        from {
+            opacity: 0;
+            transform: translateY(24px) scale(0.94);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes landing-intro-shell {
+        0%,
+        100% {
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.34),
+                0 0 0 rgba(201, 162, 39, 0);
+        }
+
+        50% {
+            box-shadow:
+                0 34px 90px rgba(0, 0, 0, 0.38),
+                0 0 46px rgba(201, 162, 39, 0.22);
+        }
+    }
+
+    @keyframes landing-intro-progress {
+        from {
+            transform: scaleX(0);
+        }
+
+        to {
+            transform: scaleX(1);
+        }
+    }
+
+    @keyframes landing-stat-in {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(0.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes landing-stat-glow {
+        0%,
+        100% {
+            opacity: 0;
+            transform: translateX(-120%);
+        }
+
+        38% {
+            opacity: 0.7;
+        }
+
+        58% {
+            opacity: 0.15;
+            transform: translateX(120%);
+        }
+    }
+
+    @keyframes landing-chart-draw {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    @keyframes landing-chart-dot-in {
+        from {
+            opacity: 0;
+            transform: scale(0.55);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes landing-flow-pulse {
+        0%,
+        100% {
+            box-shadow: 0 0 0 0 rgba(201, 162, 39, 0);
+            transform: scale(1);
+        }
+
+        50% {
+            box-shadow: 0 0 0 7px rgba(201, 162, 39, 0.18);
+            transform: scale(1.08);
+        }
+    }
+
+    @keyframes landing-ecosystem-marquee {
+        from {
+            transform: translateX(0);
+        }
+
+        to {
+            transform: translateX(-50%);
+        }
+    }
+
+    @keyframes landing-workflow-progress {
+        from {
+            transform: scaleX(0);
+        }
+
+        to {
+            transform: scaleX(1);
+        }
+    }
+
+    .landing-intro {
+        animation: landing-intro-out 3.2s ease forwards;
+    }
+
+    .landing-intro::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        background:
+            linear-gradient(115deg, rgba(201, 162, 39, 0.14), transparent 34%),
+            linear-gradient(245deg, rgba(16, 185, 129, 0.14), transparent 38%),
+            repeating-linear-gradient(
+                90deg,
+                rgba(255, 255, 255, 0.045) 0,
+                rgba(255, 255, 255, 0.045) 1px,
+                transparent 1px,
+                transparent 76px
+            ),
+            repeating-linear-gradient(
+                0deg,
+                rgba(255, 255, 255, 0.035) 0,
+                rgba(255, 255, 255, 0.035) 1px,
+                transparent 1px,
+                transparent 76px
+            );
+        opacity: 0.72;
+    }
+
+    .landing-intro-content {
+        animation: landing-intro-content 560ms ease-out both;
+    }
+
+    .landing-intro-logo-shell {
+        animation: landing-intro-shell 2.35s ease-in-out 420ms infinite;
+    }
+
+    .landing-intro-logo {
+        animation: landing-intro-logo 980ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .landing-intro-word {
+        text-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+    }
+
+    .landing-intro-letter {
+        opacity: 0;
+        animation: landing-intro-letter 640ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .landing-intro-tagline {
+        animation: landing-intro-content 520ms ease-out 1.55s both;
+    }
+
+    .landing-intro-progress {
+        animation: landing-intro-progress 2.05s ease-out 720ms both;
+        transform-origin: left;
+    }
+
+    .landing-ecosystem-track {
+        animation: landing-ecosystem-marquee 32s linear infinite;
+    }
+
+    .landing-ecosystem-marquee:hover .landing-ecosystem-track {
+        animation-play-state: paused;
+    }
+
+    .landing-google-strip {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .landing-google-strip::-webkit-scrollbar {
+        display: none;
+    }
+
+    .landing-google-review {
+        animation: landing-stat-in 520ms ease-out both;
+    }
+
+    .landing-google-review:nth-child(2) {
+        animation-delay: 90ms;
+    }
+
+    .landing-google-review:nth-child(3) {
+        animation-delay: 180ms;
+    }
+
+    .landing-google-review:nth-child(4) {
+        animation-delay: 270ms;
+    }
+
+    .landing-dashboard-replay .landing-dashboard-preview,
+    .landing-dashboard-replay .landing-stat-card,
+    .landing-replay-section .landing-stat-card {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+    }
+
+    .landing-dashboard-replay.is-visible .landing-dashboard-preview,
+    .landing-dashboard-replay.is-visible .landing-stat-card,
+    .landing-replay-section.is-visible .landing-stat-card {
+        animation: landing-stat-in 620ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .landing-dashboard-preview .landing-chart-line {
+        stroke-dasharray: 620;
+        stroke-dashoffset: 620;
+    }
+
+    .landing-dashboard-replay.is-visible .landing-dashboard-preview .landing-chart-line {
+        animation: landing-chart-draw 1.45s ease-out 260ms both;
+    }
+
+    .landing-animated-stat::after {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 70%;
+        height: 3px;
+        content: "";
+        background: linear-gradient(90deg, transparent, rgba(201, 162, 39, 0.82), transparent);
+        pointer-events: none;
+        animation: landing-stat-glow 3.6s ease-in-out infinite;
+    }
+
+    .landing-chart-dot {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+    }
+
+    .landing-dashboard-replay.is-visible .landing-chart-dot,
+    .landing-product-preview.is-visible .landing-chart-dot {
+        animation: landing-chart-dot-in 360ms ease-out both;
+    }
+
+    .landing-product-preview .landing-stat-card,
+    .landing-product-preview .landing-product-metric,
+    .landing-product-preview .landing-resident-row,
+    .landing-product-preview .landing-flow-step {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+    }
+
+    .landing-product-preview.is-visible .landing-stat-card,
+    .landing-product-preview.is-visible .landing-product-metric,
+    .landing-product-preview.is-visible .landing-resident-row,
+    .landing-product-preview.is-visible .landing-flow-step {
+        animation: landing-stat-in 680ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    }
+
+    .landing-product-preview .landing-chart-line {
+        stroke-dasharray: 620;
+        stroke-dashoffset: 620;
+    }
+
+    .landing-product-preview.is-visible .landing-chart-line {
+        animation: landing-chart-draw 1.65s ease-out 760ms both;
+    }
+
+    .landing-product-preview.is-visible .landing-flow-pulse {
+        animation: landing-flow-pulse 1.8s ease-in-out infinite;
+    }
+
+    .landing-workflow-progress {
+        animation: landing-workflow-progress 1.1s ease-out both;
+        transform-origin: left;
+    }
+
     .dashboard-appear {
         animation: syndicare-rise 0.42s ease both;
     }
@@ -99,5 +427,39 @@
     .dashboard-accent-pulse {
         animation: syndicare-line 2.8s ease-in-out infinite;
         transform-origin: left;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .landing-intro,
+        .landing-intro-content,
+        .landing-intro-logo-shell,
+        .landing-intro-logo,
+        .landing-intro-letter,
+        .landing-intro-tagline,
+        .landing-intro-progress,
+        .landing-dashboard-preview,
+        .landing-stat-card,
+        .landing-chart-line,
+        .landing-chart-dot,
+        .landing-product-metric,
+        .landing-resident-row,
+        .landing-flow-step,
+        .landing-flow-pulse,
+        .landing-ecosystem-track,
+        .landing-google-review,
+        .landing-dashboard-replay,
+        .landing-replay-section,
+        .landing-animated-stat::after,
+        .landing-workflow-progress {
+            animation-duration: 1ms;
+            animation-delay: 0ms;
+        }
+
+        .landing-dashboard-replay .landing-dashboard-preview,
+        .landing-dashboard-replay .landing-stat-card,
+        .landing-replay-section .landing-stat-card {
+            opacity: 1;
+            transform: none;
+        }
     }
 }

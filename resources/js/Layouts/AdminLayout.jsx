@@ -1,39 +1,38 @@
-import NotificationDropdown from "@/Components/NotificationDropdown";
+﻿import NotificationDropdown from "@/Components/NotificationDropdown";
 import { Link, usePage } from "@inertiajs/react";
 import { useState } from "react";
 import Dropdown from "@/Components/Dropdown";
 import LanguageSwitcher from "@/Components/LanguageSwitcher";
+import UserAvatar from "@/Components/UserAvatar";
 import { useI18n } from "@/i18n/I18nProvider";
 const navSections = [
     {
-        label: "Accueil",
+        label: "Principal",
         items: [
             {
                 label: "Tableau de bord",
                 href: route("dashboard"),
                 match: "dashboard",
+                icon: "dashboard",
             },
-            {
-                label: "Membres",
-                href: route("users.index"),
-                match: "users.*",
-            },
-        ],
-    },
-    {
-        label: "Patrimoine",
-        items: [
             {
                 label: "Immeubles",
                 href: route("buildings.index"),
                 match: "buildings.*",
+                icon: "buildings",
             },
             {
                 label: "Lots",
                 href: route("apartments.index"),
                 match: "apartments.*",
+                icon: "lots",
             },
-            { label: "Etages", href: route("floors.index"), match: "floors.*" },
+            {
+                label: "Membres",
+                href: route("users.index"),
+                match: "users.*",
+                icon: "users",
+            },
         ],
     },
     {
@@ -43,47 +42,59 @@ const navSections = [
                 label: "Charges",
                 href: route("charges.index"),
                 match: "charges.*",
-            },
-            {
-                label: "Depenses",
-                href: route("expenses.index"),
-                match: "expenses.*",
+                icon: "charges",
             },
             {
                 label: "Paiements",
                 href: route("payments.index"),
                 match: "payments.*",
+                icon: "payments",
+            },
+            {
+                label: "Dépenses",
+                href: route("expenses.index"),
+                match: "expenses.*",
+                icon: "expenses",
             },
         ],
     },
     {
-        label: "Gestion",
+        label: "Communication",
         items: [
             {
-                label: "Tickets",
-                href: route("tickets.index"),
-                match: "tickets.*",
-            },
-            {
-                label: "Objets perdus",
-                href: route("items.index"),
-                match: "items.*",
+                label: "Documents",
+                href: route("documents.index"),
+                match: "documents.*",
+                icon: "documents",
             },
             {
                 label: "Annonces",
                 href: route("announcements.index"),
                 match: "announcements.*",
-            },
-            
-            {
-                label: "Documents",
-                href: route("documents.index"),
-                match: "documents.*",
+                icon: "announcements",
             },
             {
-                label: "Historique des actions",
+                label: "Tickets",
+                href: route("tickets.index"),
+                match: "tickets.*",
+                icon: "tickets",
+            },
+        ],
+    },
+    {
+        label: "Plus",
+        items: [
+            {
+                label: "Objets perdus",
+                href: route("items.index"),
+                match: "items.*",
+                icon: "items",
+            },
+            {
+                label: "Historique",
                 href: route("audit-logs.index"),
                 match: "audit-logs.*",
+                icon: "history",
             },
         ],
     },
@@ -97,6 +108,7 @@ const superAdminNavSections = [
                 label: "Organisations",
                 href: route("admin.organizations.index"),
                 match: "admin.organizations.*",
+                icon: "buildings",
             },
         ],
     },
@@ -114,6 +126,7 @@ const residentNavMatches = {
         "dashboard",
         "charges.*",
         "payments.*",
+        "expenses.*",
         "tickets.*",
         "items.*",
         "announcements.*",
@@ -121,25 +134,141 @@ const residentNavMatches = {
     ],
 };
 
-function NavItem({ href, match, children, onNavigate }) {
+function NavIcon({ name }) {
+    const icons = {
+        dashboard: (
+            <>
+                <path d="M4 4h7v7H4z" />
+                <path d="M13 4h7v4h-7z" />
+                <path d="M13 10h7v10h-7z" />
+                <path d="M4 13h7v7H4z" />
+            </>
+        ),
+        buildings: (
+            <>
+                <path d="M5 20V5l9-2v17" />
+                <path d="M14 8h5v12" />
+                <path d="M8 8h2" />
+                <path d="M8 12h2" />
+                <path d="M8 16h2" />
+            </>
+        ),
+        lots: (
+            <>
+                <path d="M4 10.5 12 4l8 6.5" />
+                <path d="M6 10v10h12V10" />
+                <path d="M10 20v-6h4v6" />
+            </>
+        ),
+        users: (
+            <>
+                <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                <path d="M3 21a6 6 0 0 1 12 0" />
+                <path d="M17 9a3 3 0 1 0 0-6" />
+                <path d="M17 14a5 5 0 0 1 4 5" />
+            </>
+        ),
+        charges: (
+            <>
+                <path d="M4 7h16" />
+                <path d="M6 7V5h12v2" />
+                <path d="M7 11h10" />
+                <path d="M7 15h6" />
+                <path d="M6 19h12" />
+            </>
+        ),
+        payments: (
+            <>
+                <path d="M3 7h18v10H3z" />
+                <path d="M3 10h18" />
+                <path d="M7 15h4" />
+            </>
+        ),
+        expenses: (
+            <>
+                <path d="M12 3v18" />
+                <path d="M17 7H9.5a3 3 0 0 0 0 6H14a3 3 0 0 1 0 6H6" />
+            </>
+        ),
+        documents: (
+            <>
+                <path d="M7 3h7l4 4v14H7z" />
+                <path d="M14 3v5h5" />
+                <path d="M9 13h6" />
+                <path d="M9 17h6" />
+            </>
+        ),
+        announcements: (
+            <>
+                <path d="M4 13h4l9 5V6l-9 5H4z" />
+                <path d="M8 13v5" />
+                <path d="M19 10a3 3 0 0 1 0 4" />
+            </>
+        ),
+        tickets: (
+            <>
+                <path d="M5 5h14v4a3 3 0 0 0 0 6v4H5v-4a3 3 0 0 0 0-6z" />
+                <path d="M12 8v8" />
+            </>
+        ),
+        items: (
+            <>
+                <path d="M4 7h16v13H4z" />
+                <path d="M8 7a4 4 0 0 1 8 0" />
+                <path d="M9 13h6" />
+            </>
+        ),
+        history: (
+            <>
+                <path d="M4 12a8 8 0 1 0 2.3-5.7" />
+                <path d="M4 5v5h5" />
+                <path d="M12 8v5l3 2" />
+            </>
+        ),
+    };
+
+    return (
+        <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+        >
+            {icons[name] ?? icons.dashboard}
+        </svg>
+    );
+}
+
+function NavItem({ href, match, icon, children, onNavigate }) {
     const active = route().current(match);
 
     return (
         <Link
             href={href}
             onClick={onNavigate}
-            className={`flex items-center gap-2.5 rounded-2xl px-3 py-2.5 text-sm text-white font-medium transition ${
+            className={`group relative flex items-center gap-3 rounded-xl border px-3 py-2.5 text-sm font-semibold transition duration-200 ${
                 active
-                    ? "bg-white/12 text-white"
-                    : "text-emerald-50/80 hover:bg-white/8 hover:text-white"
+                    ? "border-white/30 bg-white text-[#0F5132] shadow-[0_12px_26px_rgba(0,0,0,0.16)]"
+                    : "border-transparent text-emerald-50/78 hover:-translate-y-0.5 hover:border-white/15 hover:bg-white/10 hover:text-white hover:shadow-[0_10px_22px_rgba(0,0,0,0.14)]"
             }`}
         >
             <span
-                className={`h-2 w-2 rounded-full  ${
-                    active ? "bg-lime-300" : "bg-white/70"
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition duration-200 ${
+                    active
+                        ? "bg-[#0F5132] text-lime-200"
+                        : "bg-white/8 text-emerald-50/80 group-hover:bg-lime-300 group-hover:text-[#0F5132]"
                 }`}
-            />
-            <span>{children}</span>
+            >
+                <NavIcon name={icon} />
+            </span>
+            <span className="min-w-0 truncate">{children}</span>
+            {active && (
+                <span className="ml-auto h-1.5 w-1.5 rounded-full bg-lime-400" />
+            )}
         </Link>
     );
 }
@@ -153,8 +282,8 @@ function TopNavItem({ href, match, children, badge, onNavigate }) {
             onClick={onNavigate}
             className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold transition ${
                 active
-                    ? "bg-[#0e3715] text-white shadow-sm"
-                    : "bg-white text-slate-700 shadow-sm hover:bg-emerald-50 hover:text-[#0e3715]"
+                    ? "bg-[#0F5132] text-white shadow-sm"
+                    : "bg-white text-slate-700 shadow-sm hover:bg-emerald-50 hover:text-[#0F5132]"
             }`}
         >
             <span>{children}</span>
@@ -188,29 +317,20 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                         ),
                     }))
                     .filter((section) => section.items.length > 0);
-    const roleNote =
-        user?.role === "SuperAdmin"
-            ? "Pilotage des organisations, abonnements et revenus plateforme."
-            : user?.role === "Locataire"
-            ? "Annonces de l'immeuble et reclamations techniques."
-            : user?.role === "Coproprietaire"
-              ? "Solde personnel, appels de fonds, documents et incidents."
-              : "Pilotage financier, charges mensuelles et suivi des urgences.";
-
     return (
-        <div className="min-h-screen overflow-x-hidden bg-[#c8c1b0] text-slate-900">
+        <div className="min-h-screen overflow-x-hidden bg-[#f8fafc] text-slate-900">
             {mobileNavOpen && (
                 <button
                     type="button"
-                    aria-label="Fermer la navigation"
+                    aria-label="Fermér la navigation"
                     className="fixed inset-0 z-[45] bg-black/40 backdrop-blur-sm lg:hidden"
                     onClick={() => setMobileNavOpen(false)}
                 />
             )}
 
-            <div className={`min-h-screen ${isRtl ? "lg:pr-[300px]" : "lg:pl-[300px]"}`}>
+            <div className={`min-h-screen ${isRtl ? "lg:pr-[260px]" : "lg:pl-[260px]"}`}>
                 <aside
-                    className={`fixed inset-y-0 ${isRtl ? "right-0" : "left-0"} z-50 flex w-[min(86vw,19rem)] max-w-full flex-col gap-6 overflow-y-auto bg-[#0e3715] px-4 py-6 text-white shadow-2xl transition-transform duration-300 lg:w-[300px] lg:translate-x-0 lg:gap-8 lg:px-6 lg:py-8 lg:shadow-none ${
+                    className={`fixed inset-y-0 ${isRtl ? "right-0" : "left-0"} z-50 flex w-[min(86vw,19rem)] max-w-full flex-col gap-5 overflow-y-auto bg-[#0F5132] px-4 py-5 text-white shadow-2xl transition-transform duration-300 lg:w-[260px] lg:translate-x-0 lg:gap-5 lg:px-4 lg:py-6 lg:shadow-none ${
                         mobileNavOpen
                             ? "translate-x-0"
                             : isRtl
@@ -225,17 +345,17 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                             onClick={() => setMobileNavOpen(false)}
                         >
                             <div className="flex items-center gap-3 lg:block">
-                                <div className="flex h-24 w-52 shrink-0 items-center justify-center sm:h-28 sm:w-56 lg:mx-auto lg:h-32 lg:w-full lg:max-w-[14rem]">
+                                <div className="flex h-20 w-44 shrink-0 items-center justify-center sm:h-24 sm:w-48 lg:mx-auto lg:h-24 lg:w-full lg:max-w-[11rem]">
                                     <img
                                         src="/images/logo.png"
                                         alt="Logo SyndiCare"
-                                        className="max-h-full w-auto object-contain drop-shadow-[0_14px_24px_rgba(0,0,0,0.35)] transition duration-300 group-hover:scale-[1.03]"
+                                        className="max-h-full w-auto object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,0.28)] transition duration-300 group-hover:scale-[1.03]"
                                     />
                                 </div>
 
-                                <div className="min-w-0 lg:mt-3 lg:text-center">
+                                <div className="min-w-0 lg:mt-2 lg:text-center">
                                   
-                                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-lime-100/80 sm:text-xs">
+                                    <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-lime-100/80">
                                         Console de gestion
                                     </p>
                                 </div>
@@ -247,22 +367,23 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                             className="rounded-full border border-white/15 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80 lg:hidden"
                             onClick={() => setMobileNavOpen(false)}
                         >
-                            Fermer
+                            Fermér
                         </button>
                     </div>
 
-                    <nav className="space-y-6">
+                    <nav className="space-y-4">
                         {visibleNavSections.map((section) => (
-                            <div key={section.label} className="space-y-2">
-                                <p className="flex items-center rounded-xl border border-white/10 bg-white/8 px-3 py-2 text-xs font-bold uppercase tracking-[0.16em] text-lime-50 shadow-sm sm:text-[13px]">
+                            <div key={section.label} className="space-y-1.5">
+                                <p className="px-2 text-[10px] font-bold uppercase tracking-[0.18em] text-lime-100/60">
                                     {section.label}
                                 </p>
-                                <div className="space-y-1">
+                                <div className="space-y-1.5">
                                     {section.items.map((item) => (
                                         <NavItem
                                             key={item.label}
                                             href={item.href}
                                             match={item.match}
+                                            icon={item.icon}
                                             onNavigate={() =>
                                                 setMobileNavOpen(false)
                                             }
@@ -275,24 +396,28 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                         ))}
                     </nav>
 
-                    <LanguageSwitcher variant="dark" />
-
-                    <div className="mt-auto rounded-[1.25rem] bg-white/10 p-3 backdrop-blur-sm sm:rounded-[1.5rem] sm:p-4">
-                        <p className="text-sm font-semibold text-white">
-                            {user?.name}
-                        </p>
-                        <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-emerald-100/60 sm:text-xs">
-                            {user?.role}
-                        </p>
-                        <p className="mt-2 text-xs leading-5 text-emerald-100/65">
-                            {roleNote}
-                        </p>
+                    <div className="mt-auto rounded-xl border border-white/10 bg-white/8 p-3 backdrop-blur-sm">
+                        <div className="flex items-center gap-3">
+                            <UserAvatar
+                                user={user}
+                                size="md"
+                                className="ring-white/30"
+                            />
+                            <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-white">
+                                    {user?.name}
+                                </p>
+                                <p className="mt-0.5 text-[10px] uppercase tracking-[0.16em] text-emerald-100/60">
+                                    {user?.role}
+                                </p>
+                            </div>
+                        </div>
                     </div>
                 </aside>
 
                 <div className="flex min-h-screen flex-col lg:pl-0">
                     <div className="mx-auto flex w-full max-w-[1600px] flex-1 flex-col">
-                        <div className="fixed left-0 right-0 top-0 z-40 flex h-20 items-center justify-between gap-3 border-b border-black/5 bg-[#f6f2e9]/95 px-3 py-3 shadow-sm backdrop-blur lg:hidden">
+                        <div className="fixed left-0 right-0 top-0 z-40 flex h-20 items-center justify-between gap-3 border-b border-slate-200 bg-white/95 px-3 py-3 shadow-sm backdrop-blur lg:hidden">
                             <button
                                 type="button"
                                 className="rounded-xl border border-black/10 bg-white px-3 py-2 text-sm font-semibold text-[#10491d] shadow-sm"
@@ -325,10 +450,10 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                         </div>
 
                         <header
-                            className={`relative z-30 mt-20 border-b border-black/5 bg-[#f6f2e9]/95 shadow-sm backdrop-blur lg:fixed ${
+                            className={`relative z-30 mt-20 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur lg:fixed ${
                                 isRtl
-                                    ? "lg:left-0 lg:right-[300px]"
-                                    : "lg:left-[300px] lg:right-0"
+                                    ? "lg:left-0 lg:right-[260px]"
+                                    : "lg:left-[260px] lg:right-0"
                             } lg:top-0 lg:z-40 lg:mt-0`}
                         >
                             <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-3 px-3 py-4 sm:gap-4 sm:px-6 sm:py-5">
@@ -371,12 +496,18 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                         <div className="rounded-full border border-black/10 bg-white px-3 py-2 shadow-sm">
                                             <Dropdown>
                                                 <Dropdown.Trigger>
-                                                    <button>
-                                                        {
-                                                            user?.name?.split(
-                                                                " ",
-                                                            )[0]
-                                                        }
+                                                    <button className="inline-flex items-center gap-2 text-sm font-semibold text-slate-800">
+                                                        <UserAvatar
+                                                            user={user}
+                                                            size="xs"
+                                                        />
+                                                        <span>
+                                                            {
+                                                                user?.name?.split(
+                                                                    " ",
+                                                                )[0]
+                                                            }
+                                                        </span>
                                                     </button>
                                                 </Dropdown.Trigger>
 
@@ -394,7 +525,7 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                                         method="post"
                                                         as="button"
                                                     >
-                                                        Deconnexion
+                                                        Déconnexion
                                                     </Dropdown.Link>
                                                 </Dropdown.Content>
                                             </Dropdown>
@@ -420,8 +551,14 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                     <div className="rounded-full border border-black/10 bg-white px-3 py-2 shadow-sm">
                                         <Dropdown>
                                             <Dropdown.Trigger>
-                                                <button className="text-xs font-semibold text-slate-900">
-                                                    {user?.name?.split(" ")[0]}
+                                                <button className="inline-flex items-center gap-2 text-xs font-semibold text-slate-900">
+                                                    <UserAvatar
+                                                        user={user}
+                                                        size="xs"
+                                                    />
+                                                    <span>
+                                                        {user?.name?.split(" ")[0]}
+                                                    </span>
                                                 </button>
                                             </Dropdown.Trigger>
 
@@ -437,7 +574,7 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                                     method="post"
                                                     as="button"
                                                 >
-                                                    Deconnexion
+                                                    Déconnexion
                                                 </Dropdown.Link>
                                             </Dropdown.Content>
                                         </Dropdown>

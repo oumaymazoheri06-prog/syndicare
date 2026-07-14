@@ -13,7 +13,8 @@ export default function Index({ tickets }) {
             items={tickets}
             columns={config.indexColumns}
             routeKey={config.routeKey}
-            createLabel={`Nouveau ${config.singular}`}
+            createLabel="Déclarer un problème"
+            canCreate={auth?.user?.role !== 'Syndic'}
             canDelete={auth?.user?.role === 'Syndic'}
         />
     );

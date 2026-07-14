@@ -1,4 +1,4 @@
-const loi1800Articles = [
+﻿const loi1800Articles = [
     {
         number: 'Article 1',
         body: [
@@ -231,7 +231,7 @@ export const blogPosts = [
         legalContent: {
             title: 'Articles utiles pour les travaux',
             description:
-                'Ces extraits aident à distinguer les parties privatives, les parties communes et les droits accessoires pouvant concerner les travaux.',
+                'Ces extraits aident à distinguer les parties privatives, les parties communes et les droits accessoires pouvant concernér les travaux.',
             placeholder: 'Rechercher travaux, parties communes...',
             groups: [
                 {

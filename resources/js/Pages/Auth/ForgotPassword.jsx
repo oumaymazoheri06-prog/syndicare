@@ -33,7 +33,7 @@ export default function ForgotPassword({ status }) {
                 <p className={authEyebrowClass}>Syndicare</p>
                 <h1 className={authTitleClass}>Mot de passe oublié</h1>
                 <p className={authDescriptionClass}>
-                    Saisissez votre adresse email et nous vous enverrons un lien de reinitialisation.
+                    Saisissez votre adresse e-mail et nous vous enverrons un lien de réinitialisation.
                 </p>
             </div>
 
@@ -42,7 +42,7 @@ export default function ForgotPassword({ status }) {
             <form onSubmit={submit} className="space-y-5">
                 <div>
                     <label htmlFor="email" className={authLabelClass}>
-                        Email
+                        E-mail
                     </label>
 
                     <TextInput
@@ -67,7 +67,7 @@ export default function ForgotPassword({ status }) {
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        Envoyer le lien de reinitialisation
+                        Envoyer le lien de réinitialisation
                     </PrimaryButton>
                 </div>
             </form>

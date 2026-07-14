@@ -15,7 +15,6 @@ function getTone(type) {
 }
 
 const bellIcon = String.fromCodePoint(0x1f514);
-const sparkleIcon = String.fromCodePoint(0x2728);
 
 export default function NotificationDropdown({
     notifications = [],
@@ -66,7 +65,7 @@ export default function NotificationDropdown({
                 <button
                     type="button"
                     onClick={markAllAsReadWhenOpened}
-                    className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-lg shadow-sm transition hover:bg-emerald-50 hover:text-[#0e3715] focus:outline-none focus:ring-2 focus:ring-[#0e3715]/20 sm:h-11 sm:w-11 sm:text-xl ${triggerClassName}`}
+                    className={`relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/10 bg-white text-lg shadow-sm transition hover:bg-emerald-50 hover:text-[#0F5132] focus:outline-none focus:ring-2 focus:ring-[#0F5132]/20 sm:h-11 sm:w-11 sm:text-xl ${triggerClassName}`}
                     aria-label="Ouvrir les alertes"
                 >
                     <span aria-hidden="true">{bellIcon}</span>
@@ -91,12 +90,9 @@ export default function NotificationDropdown({
                         <p className="text-xs text-slate-500">
                             {visibleUnreadCount > 0
                                 ? `${visibleUnreadCount} non lue${visibleUnreadCount > 1 ? 's' : ''}`
-                                : 'Tout est a jour'}
+                                : 'Tout est à jour'}
                         </p>
                     </div>
-                    <span className="text-lg" aria-hidden="true">
-                        {sparkleIcon}
-                    </span>
                 </div>
 
                 <div className="max-h-[20rem] divide-y divide-slate-100 overflow-y-auto sm:max-h-[24rem]">
@@ -163,7 +159,7 @@ export default function NotificationDropdown({
                 <div className="flex items-center justify-between gap-2 border-t border-slate-100 bg-slate-50 px-3 py-3 sm:px-4">
                     <Link
                         href={route('notifications.index')}
-                        className="text-xs font-semibold text-[#0e3715] transition hover:text-[#153f1c] sm:text-sm"
+                        className="text-xs font-semibold text-[#0F5132] transition hover:text-[#146C43] sm:text-sm"
                     >
                         Tout voir
                     </Link>

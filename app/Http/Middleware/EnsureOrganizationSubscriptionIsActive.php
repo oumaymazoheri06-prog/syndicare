@@ -22,7 +22,7 @@ class EnsureOrganizationSubscriptionIsActive
 
         $organization = $user->organization;
 
-        abort_unless($organization, 403, 'Aucune organisation rattachee a ce compte.');
+        abort_unless($organization, 403, 'Aucune organisation rattachée à ce compte.');
 
         if (in_array($organization->subscription_status, ['suspended', 'expired'], true)) {
             abort(403, 'Votre organisation est suspendue. Veuillez contacter la plateforme SyndiCare.');

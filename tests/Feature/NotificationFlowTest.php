@@ -4,9 +4,12 @@ namespace Tests\Feature;
 
 use App\Models\Apartment;
 use App\Models\Building;
+use App\Models\Charge;
 use App\Models\Expense;
 use App\Models\Floor;
 use App\Models\Notification;
+use App\Models\Organization;
+use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -17,17 +20,38 @@ class NotificationFlowTest extends TestCase
 
     public function test_announcement_notifies_targeted_building_residents(): void
     {
-        $admin = User::factory()->create(['role' => 'Syndic']);
-        $tenant = User::factory()->create(['role' => 'Locataire']);
-        $owner = User::factory()->create(['role' => 'Coproprietaire']);
-        $otherTenant = User::factory()->create(['role' => 'Locataire']);
-        [$building, $otherBuilding] = Building::factory()->count(2)->create();
-        $floor = Floor::factory()->create(['building_id' => $building->id]);
-        $otherFloor = Floor::factory()->create(['building_id' => $otherBuilding->id]);
+        $organization = $this->createActiveOrganization('notification-building-test');
+        $admin = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Syndic']);
+        $tenant = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Locataire']);
+        $owner = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Coproprietaire']);
+        $otherTenant = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Locataire']);
+        [$building, $otherBuilding] = Building::factory()->count(2)->create([
+            'organization_id' => $organization->id,
+        ]);
+        $floor = Floor::factory()->create([
+            'organization_id' => $organization->id,
+            'building_id' => $building->id,
+        ]);
+        $otherFloor = Floor::factory()->create([
+            'organization_id' => $organization->id,
+            'building_id' => $otherBuilding->id,
+        ]);
 
-        Apartment::factory()->create(['floor_id' => $floor->id, 'user_id' => $tenant->id]);
-        Apartment::factory()->create(['floor_id' => $floor->id, 'user_id' => $owner->id]);
-        Apartment::factory()->create(['floor_id' => $otherFloor->id, 'user_id' => $otherTenant->id]);
+        Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'floor_id' => $floor->id,
+            'user_id' => $tenant->id,
+        ]);
+        Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'floor_id' => $floor->id,
+            'user_id' => $owner->id,
+        ]);
+        Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'floor_id' => $otherFloor->id,
+            'user_id' => $otherTenant->id,
+        ]);
 
         $this->actingAs($admin)
             ->post(route('announcements.store'), [
@@ -50,9 +74,10 @@ class NotificationFlowTest extends TestCase
 
     public function test_found_item_notifies_residents(): void
     {
-        $admin = User::factory()->create(['role' => 'Syndic']);
-        $tenant = User::factory()->create(['role' => 'Locataire']);
-        $owner = User::factory()->create(['role' => 'Coproprietaire']);
+        $organization = $this->createActiveOrganization('notification-item-test');
+        $admin = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Syndic']);
+        $tenant = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Locataire']);
+        $owner = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Coproprietaire']);
 
         $this->actingAs($admin)
             ->post(route('items.store'), [
@@ -68,27 +93,42 @@ class NotificationFlowTest extends TestCase
 
         $this->assertDatabaseHas('notifications', [
             'user_id' => $tenant->id,
-            'title' => 'Objet trouve declare',
+            'title' => 'Objet trouvé déclaré',
             'type' => 'info',
         ]);
         $this->assertDatabaseHas('notifications', [
             'user_id' => $owner->id,
-            'title' => 'Objet trouve declare',
+            'title' => 'Objet trouvé déclaré',
             'type' => 'info',
         ]);
     }
 
-    public function test_generated_charges_notify_apartment_users(): void
+    public function test_generated_charges_notify_only_coproprietaires(): void
     {
-        $admin = User::factory()->create(['role' => 'Syndic']);
-        $tenant = User::factory()->create(['role' => 'Locataire']);
-        $owner = User::factory()->create(['role' => 'Coproprietaire']);
-        $building = Building::factory()->create();
-        $floor = Floor::factory()->create(['building_id' => $building->id]);
+        $organization = $this->createActiveOrganization('notification-charge-test');
+        $admin = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Syndic']);
+        $tenant = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Locataire']);
+        $owner = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Coproprietaire']);
+        $building = Building::factory()->create(['organization_id' => $organization->id]);
+        $floor = Floor::factory()->create([
+            'organization_id' => $organization->id,
+            'building_id' => $building->id,
+        ]);
 
-        Apartment::factory()->create(['floor_id' => $floor->id, 'user_id' => $tenant->id, 'area' => 40]);
-        Apartment::factory()->create(['floor_id' => $floor->id, 'user_id' => $owner->id, 'area' => 60]);
+        Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'floor_id' => $floor->id,
+            'user_id' => $tenant->id,
+            'area' => 40,
+        ]);
+        Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'floor_id' => $floor->id,
+            'user_id' => $owner->id,
+            'area' => 60,
+        ]);
         Expense::factory()->create([
+            'organization_id' => $organization->id,
             'building_id' => $building->id,
             'amount' => 1000,
             'date' => '2026-05-13',
@@ -101,16 +141,110 @@ class NotificationFlowTest extends TestCase
             ])
             ->assertRedirect(route('dashboard', ['building_id' => $building->id]));
 
-        $this->assertSame(2, Notification::query()->where('title', 'Nouvelles charges')->count());
-        $this->assertDatabaseHas('notifications', [
+        $this->assertSame(1, Notification::query()->where('title', 'Nouvelles charges')->count());
+        $this->assertDatabaseMissing('notifications', [
             'user_id' => $tenant->id,
             'title' => 'Nouvelles charges',
-            'type' => 'warning',
         ]);
         $this->assertDatabaseHas('notifications', [
             'user_id' => $owner->id,
             'title' => 'Nouvelles charges',
             'type' => 'warning',
+        ]);
+    }
+
+    public function test_manual_charge_does_not_notify_locataire(): void
+    {
+        $organization = $this->createActiveOrganization('notification-manual-charge-test');
+        $admin = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Syndic']);
+        $tenant = User::factory()->create(['organization_id' => $organization->id, 'role' => 'Locataire']);
+        $building = Building::factory()->create(['organization_id' => $organization->id]);
+        $floor = Floor::factory()->create([
+            'organization_id' => $organization->id,
+            'building_id' => $building->id,
+        ]);
+        $apartment = Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'floor_id' => $floor->id,
+            'user_id' => $tenant->id,
+        ]);
+
+        $this->actingAs($admin)
+            ->post(route('charges.store'), [
+                'description' => 'Charge exceptionnelle',
+                'amount' => 250,
+                'date' => '2026-05-20',
+                'apartment_id' => $apartment->id,
+            ])
+            ->assertRedirect(route('charges.index'));
+
+        $this->assertDatabaseMissing('notifications', [
+            'user_id' => $tenant->id,
+            'title' => 'Nouvelle charge',
+        ]);
+    }
+
+    public function test_validating_payment_notifies_the_payer(): void
+    {
+        $organization = $this->createActiveOrganization('syndicare-payment-test');
+        $admin = User::factory()->create([
+            'organization_id' => $organization->id,
+            'role' => 'Syndic',
+        ]);
+        $owner = User::factory()->create([
+            'organization_id' => $organization->id,
+            'role' => 'Coproprietaire',
+        ]);
+        $building = Building::factory()->create(['organization_id' => $organization->id]);
+        $floor = Floor::factory()->create([
+            'organization_id' => $organization->id,
+            'building_id' => $building->id,
+        ]);
+        $apartment = Apartment::factory()->create([
+            'organization_id' => $organization->id,
+            'floor_id' => $floor->id,
+            'user_id' => $owner->id,
+            'number' => 'A-12',
+        ]);
+        $charge = Charge::factory()->create([
+            'organization_id' => $organization->id,
+            'apartment_id' => $apartment->id,
+            'description' => 'Charges juin',
+            'amount' => 350,
+            'status' => 'pending',
+        ]);
+        $payment = Payment::factory()->create([
+            'organization_id' => $organization->id,
+            'charge_id' => $charge->id,
+            'user_id' => $owner->id,
+            'amount' => 350,
+            'status' => 'pending',
+            'payment_date' => null,
+        ]);
+
+        $this->actingAs($admin)
+            ->patch(route('payments.status.update', $payment), ['status' => 'validated'])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $owner->id,
+            'title' => 'Paiement validé',
+            'type' => 'info',
+            'is_read' => false,
+        ]);
+        $this->assertDatabaseHas('charges', [
+            'id' => $charge->id,
+            'status' => 'paid',
+        ]);
+    }
+
+    private function createActiveOrganization(string $slug): Organization
+    {
+        return Organization::create([
+            'name' => 'Syndicare Test',
+            'slug' => $slug,
+            'plan' => 'standard',
+            'subscription_status' => 'active',
         ]);
     }
 }

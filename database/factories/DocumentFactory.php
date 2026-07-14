@@ -18,6 +18,7 @@ class DocumentFactory extends Factory
         return [
             'title' => fake()->words(3, true),
             'file_path' => 'documents/' . fake()->uuid() . '.pdf',
+            'category' => fake()->randomElement(['pv', 'reglement', 'finance', 'contrat', 'autre']),
             'uploaded_by' => User::factory(),
         ];
     }

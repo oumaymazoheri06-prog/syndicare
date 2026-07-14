@@ -1,4 +1,4 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs } from '../_shared/resources';
 
 export default function Form({ auditLog }) {
@@ -7,7 +7,7 @@ export default function Form({ auditLog }) {
 
     return (
         <CrudFormPage
-            title={auditLog ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
+            title={auditLog ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
             resource={config.route}
             fields={config.formFields}
             defaults={defaults}
@@ -17,7 +17,7 @@ export default function Form({ auditLog }) {
                     : route(`${config.route}.store`)
             }
             method={auditLog ? 'put' : 'post'}
-            submitLabel={auditLog ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+            submitLabel={auditLog ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
         />
     );
 }

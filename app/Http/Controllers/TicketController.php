@@ -19,7 +19,13 @@ class TicketController extends Controller
     {
         $this->authorize('viewAny', Ticket::class);
 
-        $query = Ticket::query()->latest();
+        $query = Ticket::query()
+            ->with([
+                'apartment.floor.building',
+                'assignedTo:id,name,role',
+                'createdBy:id,name,email,role',
+            ])
+            ->latest();
 
         if ($request->user()->role !== 'Syndic') {
             $query->where(function ($q) use ($request) {
@@ -32,7 +38,9 @@ class TicketController extends Controller
         }
 
         return Inertia::render('Tickets/Index', [
-            'tickets' => $query->paginate(10),
+            'tickets' => $query
+                ->paginate(10)
+                ->through(fn (Ticket $ticket) => $this->serializeTicket($ticket)),
         ]);
     }
 
@@ -53,16 +61,20 @@ class TicketController extends Controller
     public function store(Request $request, NotificationService $notifications): RedirectResponse
     {
         $this->authorize('create', Ticket::class);
+        $isSyndic = $request->user()?->role === 'Syndic';
 
-        $validated = $request->validate([
+        $rules = [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'apartment_id' => ['nullable', $this->tenantExists('apartments')],
-            'assigned_to' => ['nullable', $this->tenantExists('users')],
-            'status' => ['required', Rule::in(['open', 'in_progress', 'closed'])],
-        ]);
+        ];
 
-                
+        if ($isSyndic) {
+            $rules['assigned_to'] = ['nullable', $this->tenantExists('users')];
+            $rules['status'] = ['required', Rule::in(['open', 'in_progress', 'closed'])];
+        }
+
+        $validated = $request->validate($rules);
 
         if ($request->user()?->role !== 'Syndic') {
             $ownsApartment = empty($validated['apartment_id'])
@@ -73,6 +85,8 @@ class TicketController extends Controller
 
             abort_unless($ownsApartment, 403, 'Unauthorized');
 
+            $validated['apartment_id'] = $validated['apartment_id']
+                ?? $this->defaultApartmentIdFor($request->user());
             $validated['assigned_to'] = null;
             $validated['status'] = 'open';
         }
@@ -87,14 +101,14 @@ Audit_log::create([
             'Syndic',
             'Nouveau ticket',
             sprintf(
-                'Le ticket "%s" a ete cree par %s.',
+                'Le ticket "%s" a été créé par %s.',
                 $ticket->title,
                 $request->user()->name
             ),
             'warning'
         );
 
-        return redirect()->route('tickets.index')->with('success', 'Ticket created successfully.');
+        return redirect()->route('tickets.index')->with('success', 'Ticket créé avec succès.');
     }
 
     public function show(Ticket $ticket): Response
@@ -102,14 +116,14 @@ Audit_log::create([
         $this->authorize('view', $ticket);
 
         return Inertia::render('Tickets/Show', [
-            'ticket' => $ticket->load([
-                'apartment',
+            'ticket' => $this->serializeTicket($ticket->load([
+                'apartment.floor.building',
                 'assignedTo:id,name,role',
                 'createdBy:id,name,role',
                 'ticketMessages' => fn ($query) => $query
                     ->with('sender:id,name,role')
                     ->oldest(),
-            ]),
+            ]), includeMessages: true),
         ]);
     }
 
@@ -129,14 +143,20 @@ Audit_log::create([
     public function update(Request $request, Ticket $ticket): RedirectResponse
     {
         $this->authorize('update', $ticket);
+        $isSyndic = $request->user()?->role === 'Syndic';
 
-        $validated = $request->validate([
+        $rules = [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['required', 'string'],
             'apartment_id' => ['nullable', $this->tenantExists('apartments')],
-            'assigned_to' => ['nullable', $this->tenantExists('users')],
-            'status' => ['required', Rule::in(['open', 'in_progress', 'closed'])],
-        ]);
+        ];
+
+        if ($isSyndic) {
+            $rules['assigned_to'] = ['nullable', $this->tenantExists('users')];
+            $rules['status'] = ['required', Rule::in(['open', 'in_progress', 'closed'])];
+        }
+
+        $validated = $request->validate($rules);
 
         if ($request->user()?->role !== 'Syndic') {
             $ownsApartment = empty($validated['apartment_id'])
@@ -147,6 +167,9 @@ Audit_log::create([
 
             abort_unless($ownsApartment, 403, 'Unauthorized');
 
+            $validated['apartment_id'] = $validated['apartment_id']
+                ?? $ticket->apartment_id
+                ?? $this->defaultApartmentIdFor($request->user());
             $validated['assigned_to'] = $ticket->assigned_to;
             $validated['status'] = $ticket->status;
         }
@@ -159,7 +182,7 @@ Audit_log::create([
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('tickets.index')->with('success', 'Ticket updated successfully.');
+        return redirect()->route('tickets.index')->with('success', 'Ticket mis à jour avec succès.');
     }
 
     public function destroy(Ticket $ticket, Request $request): RedirectResponse
@@ -174,6 +197,65 @@ Audit_log::create([
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('tickets.index')->with('success', 'Ticket deleted successfully.');
+        return redirect()->route('tickets.index')->with('success', 'Ticket supprimé avec succès.');
+    }
+
+    private function defaultApartmentIdFor(User $user): ?int
+    {
+        return Apartment::query()
+            ->where('user_id', $user->id)
+            ->orderBy('number')
+            ->value('id');
+    }
+
+    private function serializeTicket(Ticket $ticket, bool $includeMessages = false): array
+    {
+        $apartment = $ticket->apartment;
+        $resident = $ticket->createdBy;
+
+        $payload = [
+            'id' => $ticket->id,
+            'title' => $ticket->title,
+            'description' => $ticket->description,
+            'status' => $ticket->status,
+            'apartment_id' => $ticket->apartment_id,
+            'assigned_to' => $ticket->assigned_to,
+            'assingned_by' => $ticket->assingned_by,
+            'resident_label' => $resident?->name ?? '-',
+            'resident_email' => $resident?->email,
+            'apartment_label' => $apartment
+                ? 'Lot '.$apartment->number
+                : 'Aucun lot',
+            'building_label' => $apartment?->floor?->building?->name,
+            'created_by' => $resident ? [
+                'id' => $resident->id,
+                'name' => $resident->name,
+                'role' => $resident->role,
+            ] : null,
+            'assigned_user' => $ticket->assignedTo ? [
+                'id' => $ticket->assignedTo->id,
+                'name' => $ticket->assignedTo->name,
+                'role' => $ticket->assignedTo->role,
+            ] : null,
+        ];
+
+        if ($includeMessages) {
+            $payload['ticket_messages'] = $ticket->ticketMessages
+                ->map(fn ($message) => [
+                    'id' => $message->id,
+                    'sender_id' => $message->sender_id,
+                    'message' => $message->message,
+                    'created_at' => optional($message->created_at)->format('d/m/Y H:i'),
+                    'sender' => $message->sender ? [
+                        'id' => $message->sender->id,
+                        'name' => $message->sender->name,
+                        'role' => $message->sender->role,
+                    ] : null,
+                ])
+                ->values()
+                ->all();
+        }
+
+        return $payload;
     }
 }

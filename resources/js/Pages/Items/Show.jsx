@@ -1,18 +1,18 @@
-import InputError from "@/Components/InputError";
+﻿import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, router, useForm } from "@inertiajs/react";
 
 const typeLabels = {
     Perdue: "Objet perdu",
-    Trouve: "Objet trouve",
+    Trouve: "Objet trouvé",
 };
 
 const statusLabels = {
     ouvert: "Ouvert",
     en_contact: "En contact",
     rendu: "Rendu",
-    ferme: "Ferme",
+    ferme: "Fermé",
 };
 
 const statusStyles = {
@@ -25,19 +25,19 @@ const statusStyles = {
 const statusTimeline = [
     {
         value: "ouvert",
-        helper: "Signalement publie",
+        helper: "Signalement publié",
     },
     {
         value: "en_contact",
-        helper: "Un resident a repondu",
+        helper: "Un résident a répondu",
     },
     {
         value: "rendu",
-        helper: "Objet restitue",
+        helper: "Objet restitué",
     },
     {
         value: "ferme",
-        helper: "Dossier archive",
+        helper: "Dossier archivé",
     },
 ];
 
@@ -100,7 +100,7 @@ function SuggestionCard({ suggestion }) {
                         {item.title}
                     </p>
                     <p className="mt-1 text-sm text-slate-500">
-                        {item.category} - {item.location || "Lieu non precise"}
+                        {item.category} - {item.location || "Lieu non précisé"}
                     </p>
                 </div>
                 <Badge tone="green">{suggestion.score}%</Badge>
@@ -121,7 +121,7 @@ function SectionPanel({ eyebrow, title, children, action, className = "" }) {
         <section
             className={`overflow-hidden rounded-[1.75rem] border border-white/75 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)] ${className}`}
         >
-            <div className="border-b border-emerald-100 bg-gradient-to-r from-[#f8fbf4] via-white to-[#fff7df] px-5 py-4">
+            <div className="border-b border-slate-100 bg-slate-50 px-5 py-4">
                 <div className="flex items-start justify-between gap-3">
                     <div>
                         <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-700">
@@ -167,10 +167,10 @@ export default function Show({
     const showSuggestions = item.type === "Perdue";
     const showSidebar = canManage || showSuggestions;
     const itemMeta = [
-        { label: "Categorie", value: item.category },
+        { label: "Catégorie", value: item.category },
         { label: "Lieu", value: item.location },
         { label: "Date", value: item.date },
-        { label: "Declare par", value: item.user?.name },
+        { label: "Déclaré par", value: item.user?.name },
         {
             label: "Appartement",
             value: item.apartment
@@ -186,7 +186,7 @@ export default function Show({
     return (
         <AdminLayout
             title={item.title || "Objet"}
-            subtitle="Fiche de suivi, suggestions et interactions residents."
+            subtitle="Fiche de suivi, suggestions et interactions résidents."
             toolbar={
                 <div className="flex flex-wrap gap-2">
                     {canManage && (
@@ -214,7 +214,7 @@ export default function Show({
                     )}
                     <Link
                         href={route("items.index")}
-                        className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0e3715]"
+                        className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0F5132]"
                     >
                         Liste
                     </Link>
@@ -224,10 +224,8 @@ export default function Show({
             <Head title={item.title || "Objet"} />
 
             <div className="space-y-5">
-                <section className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#0e3715] via-emerald-800 to-[#b8871d] p-5 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)] sm:p-6">
-                    <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-lime-300/20 blur-3xl" />
-                    <div className="absolute bottom-0 left-1/3 h-32 w-32 rounded-full bg-[#d4af37]/20 blur-3xl" />
-                    <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <section className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)] sm:p-6">
+                    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                         <div className="max-w-3xl">
                             <div className="flex flex-wrap gap-2">
                                 <Badge tone={item.type === "Trouve" ? "green" : "rose"}>
@@ -235,29 +233,29 @@ export default function Show({
                                 </Badge>
                                 <StatusBadge status={item.status} />
                             </div>
-                            <h2 className="mt-4 text-2xl font-black tracking-tight sm:text-3xl lg:text-4xl">
+                            <h2 className="mt-4 text-2xl font-black tracking-tight text-slate-950 sm:text-3xl lg:text-4xl">
                                 {item.title}
                             </h2>
-                            <p className="mt-3 max-w-2xl text-sm leading-6 text-emerald-50/80">
-                                Suivi du signalement, details de localisation,
-                                suggestions automatiques et messages des residents.
+                            <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                                Suivi du signalement, détails de localisation,
+                                suggestions automatiques et messages des résidents.
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 rounded-[1.5rem] border border-white/15 bg-white/10 p-3 backdrop-blur sm:min-w-[320px]">
-                            <div className="rounded-[1.1rem] bg-white/10 p-3">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-100/70">
-                                    Categorie
+                        <div className="grid grid-cols-2 gap-2 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-3 sm:min-w-[320px]">
+                            <div className="rounded-[1.1rem] bg-white p-3">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                                    Catégorie
                                 </p>
-                                <p className="mt-1 truncate text-sm font-black">
+                                <p className="mt-1 truncate text-sm font-black text-slate-900">
                                     {item.category || "-"}
                                 </p>
                             </div>
-                            <div className="rounded-[1.1rem] bg-white/10 p-3">
-                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-100/70">
+                            <div className="rounded-[1.1rem] bg-white p-3">
+                                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
                                     Messages
                                 </p>
-                                <p className="mt-1 text-sm font-black">
+                                <p className="mt-1 text-sm font-black text-slate-900">
                                     {item.claims_count || 0}
                                 </p>
                             </div>
@@ -274,7 +272,7 @@ export default function Show({
                 >
                     <section className="overflow-hidden rounded-[2rem] border border-white/75 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
                         <div className="grid gap-0 lg:grid-cols-[minmax(300px,0.8fr)_minmax(0,1.2fr)]">
-                            <div className="relative min-h-[280px] bg-gradient-to-br from-[#0e3715] via-emerald-700 to-[#d4af37] lg:min-h-[520px]">
+                            <div className="relative min-h-[280px] bg-slate-100 lg:min-h-[520px]">
                                 {item.image_url ? (
                                     <img
                                         src={item.image_url}
@@ -282,18 +280,18 @@ export default function Show({
                                         className="h-full w-full object-cover"
                                     />
                                 ) : (
-                                    <div className="flex h-full min-h-[280px] items-center justify-center p-8 text-center text-white lg:min-h-[520px]">
+                                    <div className="flex h-full min-h-[280px] items-center justify-center p-8 text-center text-slate-700 lg:min-h-[520px]">
                                         <div>
-                                            <p className="text-xs font-bold uppercase tracking-[0.32em] text-emerald-100/70">
+                                            <p className="text-xs font-bold uppercase tracking-[0.32em] text-slate-400">
                                                 SyndiCare
                                             </p>
                                             <p className="mt-4 text-5xl font-black">
                                                 {item.type === "Trouve"
-                                                    ? "Trouve"
+                                                    ? "Trouvé"
                                                     : "Perdu"}
                                             </p>
-                                            <p className="mt-3 text-sm text-emerald-50/75">
-                                                Photo non ajoutee
+                                            <p className="mt-3 text-sm text-slate-500">
+                                                Photo non ajoutée
                                             </p>
                                         </div>
                                     </div>
@@ -340,7 +338,7 @@ export default function Show({
                                                 }
                                                 className={`w-full rounded-[1.2rem] border px-4 py-3 text-left transition ${
                                                     item.status === step.value
-                                                        ? "border-[#0e3715] bg-[#0e3715] text-white shadow-sm"
+                                                        ? "border-[#0F5132] bg-[#0F5132] text-white shadow-sm"
                                                         : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50"
                                                 }`}
                                             >
@@ -349,7 +347,7 @@ export default function Show({
                                                         {statusLabels[step.value]}
                                                     </span>
                                                     {item.status === step.value && (
-                                                        <span className="h-2.5 w-2.5 rounded-full bg-[#d4af37]" />
+                                                        <span className="h-2.5 w-2.5 rounded-full bg-[#C9A227]" />
                                                     )}
                                                 </div>
                                                 <p
@@ -370,15 +368,15 @@ export default function Show({
                             {showSuggestions && (
                                 <SectionPanel
                                     eyebrow="Suggestions"
-                                    title="Objets trouves similaires"
+                                    title="Objets trouvés similaires"
                                     action={<Badge tone="amber">{suggestions.length}</Badge>}
                                 >
                                     <div className="space-y-3">
                                         {suggestions.length === 0 && (
                                             <div className="rounded-[1.25rem] border border-dashed border-emerald-200 bg-emerald-50/80 p-4 text-sm leading-6 text-emerald-800">
                                                 Aucune suggestion pour le moment.
-                                                Les prochains objets trouves seront
-                                                compares automatiquement.
+                                                Les prochains objets trouvés seront
+                                                comparés automatiquement.
                                             </div>
                                         )}
                                         {suggestions.map((suggestion) => (
@@ -416,7 +414,7 @@ export default function Show({
                                 {item.claims?.map((claim) => (
                                     <div
                                         key={claim.id}
-                                        className="rounded-[1.25rem] border border-slate-100 bg-[#fffdf8] p-4"
+                                        className="rounded-[1.25rem] border border-slate-100 bg-white p-4"
                                     >
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
@@ -440,13 +438,13 @@ export default function Show({
                         {canInteract && (
                             <form
                                 onSubmit={submitClaim}
-                                className="h-fit rounded-[1.5rem] border border-emerald-100 bg-gradient-to-br from-emerald-50 via-white to-amber-50 p-4 shadow-sm"
+                                className="h-fit rounded-[1.5rem] border border-slate-200 bg-white p-4 shadow-sm"
                             >
                                 <h4 className="text-lg font-black text-slate-950">
-                                    Contacter le declarant
+                                    Contacter le déclarant
                                 </h4>
                                 <p className="mt-1 text-sm leading-6 text-slate-500">
-                                    Envoyez un message si vous pensez reconnaitre
+                                    Envoyez un message si vous pensez reconnaître
                                     l'objet ou pouvoir aider.
                                 </p>
                                 <textarea

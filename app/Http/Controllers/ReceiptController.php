@@ -53,7 +53,7 @@ Audit_log::create([
     'details' => 'Un reçu pour le paiement ID '.$validated['payment_id'].' a été créé.',
     'performed_by' => auth()->id(),
 ]);
-        return redirect()->route('receipts.index')->with('success', 'Receipt created successfully.');
+        return redirect()->route('receipts.index')->with('success', 'Reçu créé avec succès.');
     }
 
     public function show(Receipt $receipt): Response
@@ -92,7 +92,7 @@ Audit_log::create([
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('receipts.index')->with('success', 'Receipt updated successfully.');
+        return redirect()->route('receipts.index')->with('success', 'Reçu mis à jour avec succès.');
     }
 
     public function destroy(Receipt $receipt): RedirectResponse
@@ -106,6 +106,6 @@ Audit_log::create([
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('receipts.index')->with('success', 'Receipt deleted successfully.');
+        return redirect()->route('receipts.index')->with('success', 'Reçu supprimé avec succès.');
     }
 }

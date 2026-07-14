@@ -15,7 +15,7 @@ function LegalLine({ line }) {
     if (line.startsWith('- ')) {
         return (
             <p className="flex gap-3 text-base leading-8 text-slate-600">
-                <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-[#d4af37]" />
+                <span className="mt-3 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9A227]" />
                 <span>{line.slice(2)}</span>
             </p>
         );
@@ -65,7 +65,7 @@ export default function Show({ slug }) {
                         <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
                             Blog
                         </p>
-                        <h1 className="mt-3 text-3xl font-black text-[#0b3516]">
+                        <h1 className="mt-3 text-3xl font-black text-[#0F5132]">
                             Article introuvable
                         </h1>
                         <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -73,7 +73,7 @@ export default function Show({ slug }) {
                         </p>
                         <Link
                             href="/#blog"
-                            className="mt-6 inline-flex rounded-full bg-[#0b3516] px-5 py-3 text-sm font-black text-white"
+                            className="mt-6 inline-flex rounded-full bg-[#0F5132] px-5 py-3 text-sm font-black text-white"
                         >
                             Retour au blog
                         </Link>
@@ -97,7 +97,7 @@ export default function Show({ slug }) {
                                 className="h-12 w-12 object-contain"
                             />
                             <div>
-                                <p className="text-xl font-black text-[#0b3516]">
+                                <p className="text-xl font-black text-[#0F5132]">
                                     SyndiCare
                                 </p>
                                 <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-800">
@@ -109,7 +109,7 @@ export default function Show({ slug }) {
                             <LanguageSwitcher compact />
                             <Link
                                 href="/#blog"
-                                className="rounded-full border border-emerald-900/15 px-4 py-2 text-sm font-black text-[#0b3516] transition hover:bg-emerald-50"
+                                className="rounded-full border border-emerald-900/15 px-4 py-2 text-sm font-black text-[#0F5132] transition hover:bg-emerald-50"
                             >
                                 Tous les articles
                             </Link>
@@ -127,7 +127,7 @@ export default function Show({ slug }) {
                                 {article.readTime}
                             </span>
                         </div>
-                        <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight text-[#0b3516] sm:text-5xl">
+                        <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight text-[#0F5132] sm:text-5xl">
                             {article.title}
                         </h1>
                         <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
@@ -148,7 +148,7 @@ export default function Show({ slug }) {
                     <article className="rounded-[2rem] bg-white p-6 shadow-sm sm:p-8">
                         {article.sections.map((section) => (
                             <section key={section.heading} className="border-b border-emerald-100 py-6 first:pt-0 last:border-b-0 last:pb-0">
-                                <h2 className="text-2xl font-black text-[#0b3516]">
+                                <h2 className="text-2xl font-black text-[#0F5132]">
                                     {section.heading}
                                 </h2>
                                 <div className="mt-4 space-y-4">
@@ -171,7 +171,7 @@ export default function Show({ slug }) {
                                         <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
                                             Référence juridique
                                         </p>
-                                        <h2 className="mt-3 text-2xl font-black text-[#0b3516]">
+                                        <h2 className="mt-3 text-2xl font-black text-[#0F5132]">
                                             {article.legalContent.title}
                                         </h2>
                                         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
@@ -197,7 +197,7 @@ export default function Show({ slug }) {
                                     {hasLegalResults ? (
                                         filteredLegalGroups.map((group) => (
                                             <div key={group.title}>
-                                                <h3 className="rounded-2xl bg-[#0b3516] px-5 py-4 text-lg font-black text-white">
+                                                <h3 className="rounded-2xl bg-[#0F5132] px-5 py-4 text-lg font-black text-white">
                                                     {group.title}
                                                 </h3>
                                                 <div className="mt-4 space-y-4">
@@ -206,7 +206,7 @@ export default function Show({ slug }) {
                                                             key={legalArticle.number}
                                                             className="rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm"
                                                         >
-                                                            <h4 className="text-xl font-black text-[#0b3516]">
+                                                            <h4 className="text-xl font-black text-[#0F5132]">
                                                                 {legalArticle.number}
                                                             </h4>
                                                             <div className="mt-4 space-y-3">
@@ -237,8 +237,8 @@ export default function Show({ slug }) {
                         )}
                     </article>
 
-                    <aside className="h-fit rounded-[2rem] bg-[#0b3516] p-6 text-white shadow-sm">
-                        <p className="text-xs font-black uppercase tracking-[0.24em] text-[#d4af37]">
+                    <aside className="h-fit rounded-[2rem] bg-[#0F5132] p-6 text-white shadow-sm">
+                        <p className="text-xs font-black uppercase tracking-[0.24em] text-[#C9A227]">
                             SyndiCare
                         </p>
                         <h2 className="mt-3 text-2xl font-black">
@@ -250,7 +250,7 @@ export default function Show({ slug }) {
                         </p>
                         <Link
                             href="/#tarifs"
-                            className="mt-6 inline-flex w-full justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-[#0b3516]"
+                            className="mt-6 inline-flex w-full justify-center rounded-full bg-white px-5 py-3 text-sm font-black text-[#0F5132]"
                         >
                             Demander une demo
                         </Link>

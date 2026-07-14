@@ -296,15 +296,15 @@ class ChargeGenerationService
         }
 
         if ($expenses <= 0) {
-            return 'Aucune depense';
+            return 'Aucune dépense';
         }
 
         if ($willCreate === 0 && $existingCharges > 0) {
-            return 'Deja genere';
+            return 'Déjà généré';
         }
 
         if ($willCreate > 0 && $existingCharges > 0) {
-            return 'Ajustement a generer';
+            return 'Ajustement à générer';
         }
 
         return 'Pret';

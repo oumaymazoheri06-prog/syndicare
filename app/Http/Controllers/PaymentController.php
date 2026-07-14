@@ -122,12 +122,12 @@ class PaymentController extends Controller
                 'payment_proof.max' => 'حجم إثبات الدفع يجب ألا يتجاوز 4 ميغابايت.',
             ]
             : [
-                'method.required' => 'La methode de paiement est obligatoire.',
-                'method.in' => 'La methode de paiement selectionnee est invalide.',
+                'method.required' => 'La méthode de paiement est obligatoire.',
+                'method.in' => 'La méthode de paiement sélectionnée est invalide.',
                 'payment_proof.required' => 'La preuve de paiement est obligatoire sauf pour le paiement direct au syndic.',
-                'payment_proof.file' => 'La preuve de paiement doit etre un fichier.',
-                'payment_proof.mimes' => 'La preuve de paiement doit etre une image JPG/PNG ou un fichier PDF.',
-                'payment_proof.max' => 'La preuve de paiement ne doit pas depasser 4 Mo.',
+                'payment_proof.file' => 'La preuve de paiement doit être un fichier.',
+                'payment_proof.mimes' => 'La preuve de paiement doit être une image JPG/PNG ou un fichier PDF.',
+                'payment_proof.max' => 'La preuve de paiement ne doit pas dépasser 4 Mo.',
             ];
 
         $validated = $request->validate([
@@ -152,17 +152,17 @@ class PaymentController extends Controller
         $lock = Cache::lock($lockName, 300);
 
         if (! $lock->get()) {
-            return back()->with('error', 'Cette action est deja en cours.');
+            return back()->with('error', 'Cette action est déjà en cours.');
         }
 
         try {
             if (! $isSyndic) {
                 if ($charge->status === 'paid') {
-                    return back()->with('error', 'Cette charge est deja payee.');
+                    return back()->with('error', 'Cette charge est déjà payée.');
                 }
 
                 if ($charge->payments()->whereIn('status', ['pending', 'validated'])->exists()) {
-                    return back()->with('error', 'Un paiement est deja en attente ou valide pour cette charge.');
+                    return back()->with('error', 'Un paiement est déjà en attente ou validé pour cette charge.');
                 }
             }
 
@@ -193,10 +193,11 @@ class PaymentController extends Controller
             $payment = Payment::create($paymentData);
 
             $payment->load(['charge.apartment.floor.building', 'charge.apartment.user', 'user']);
+            $this->syncChargeStatus($payment->charge);
 
             Audit_log::create([
-                'action' => 'Creation de paiement',
-                'details' => 'Un paiement de '.$payment->amount.' DH a ete enregistre pour la charge "'.$payment->charge->description.'" de l\'appartement '.$payment->charge->apartment->number.'.',
+                'action' => 'Création de paiement',
+                'details' => 'Un paiement de '.$payment->amount.' DH a été enregistré pour la charge "'.$payment->charge->description.'" de l\'appartement '.$payment->charge->apartment->number.'.',
                 'performed_by' => auth()->id(),
             ]);
 
@@ -204,16 +205,20 @@ class PaymentController extends Controller
                 'Syndic',
                 'Nouveau paiement',
                 sprintf(
-                    'Un paiement de %s MAD a ete envoye pour la charge "%s".',
+                    'Un paiement de %s MAD a été envoyé pour la charge "%s".',
                     number_format((float) $payment->amount, 2, ',', ' '),
                     $payment->charge?->description ?? 'Charge'
                 ),
                 'info'
             );
 
+            if ($payment->status === 'validated') {
+                $this->notifyPaymentValidated($payment, $notifications);
+            }
+
             return redirect()
                 ->route($isSyndic ? 'payments.index' : 'charges.index')
-                ->with('success', $isSyndic ? 'Payment created successfully.' : 'Votre preuve de paiement a ete envoyee au syndic.');
+                ->with('success', $isSyndic ? 'Paiement créé avec succès.' : 'Votre preuve de paiement a été envoyée au syndic.');
         } finally {
             $lock->release();
         }
@@ -238,9 +243,10 @@ class PaymentController extends Controller
         ]);
     }
 
-    public function update(Request $request, Payment $payment): RedirectResponse
+    public function update(Request $request, Payment $payment, NotificationService $notifications): RedirectResponse
     {
         $this->authorize('update', $payment);
+        $wasValidated = $payment->status === 'validated';
 
         $validated = $request->validate([
             'amount' => ['required', 'numeric', 'min:0'],
@@ -258,9 +264,15 @@ class PaymentController extends Controller
             $paymentData['payment_proof'] = $request->file('payment_proof')->store('payment-proofs', 'public');
         }
 
+        $previousCharge = $payment->charge;
+
         $payment->update($paymentData);
-        if ($payment->wasChanged('status') && $payment->status === 'validated') {
-            $payment->charge->update(['status' => 'paid']);
+        $payment->refresh()->load(['charge.apartment.user', 'user']);
+
+        $this->syncChargeStatus($payment->charge);
+
+        if ($previousCharge && $previousCharge->getKey() !== $payment->charge?->getKey()) {
+            $this->syncChargeStatus($previousCharge);
         }
 
         Audit_log::create([
@@ -269,21 +281,105 @@ class PaymentController extends Controller
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('payments.index')->with('success', 'Payment updated successfully.');
+        if (! $wasValidated && $payment->status === 'validated') {
+            $this->notifyPaymentValidated($payment, $notifications);
+        }
+
+        return redirect()->route('payments.index')->with('success', 'Paiement mis à jour avec succès.');
+    }
+
+    public function updateStatus(Request $request, Payment $payment, NotificationService $notifications): RedirectResponse
+    {
+        $this->authorize('update', $payment);
+        $wasValidated = $payment->status === 'validated';
+
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['pending', 'validated'])],
+        ]);
+
+        $payment->update([
+            'status' => $validated['status'],
+            'payment_date' => $validated['status'] === 'validated'
+                ? ($payment->payment_date ?? now()->toDateString())
+                : $payment->payment_date,
+        ]);
+
+        $payment->refresh()->load(['charge.apartment.user', 'user']);
+
+        $this->syncChargeStatus($payment->charge);
+
+        Audit_log::create([
+            'action' => 'Validation de paiement',
+            'details' => 'Le statut du paiement de '.$payment->amount.' DH a été changé en '.$payment->status.'.',
+            'performed_by' => auth()->id(),
+        ]);
+
+        if (! $wasValidated && $payment->status === 'validated') {
+            $this->notifyPaymentValidated($payment, $notifications);
+        }
+
+        return back()->with('success', $payment->status === 'validated'
+            ? 'Paiement validé.'
+            : 'Paiement remis en attente.');
+    }
+
+    private function syncChargeStatus(?Charge $charge): void
+    {
+        if (! $charge) {
+            return;
+        }
+
+        $previousStatus = $charge->status;
+        $nextStatus = $charge->payments()->where('status', 'validated')->exists()
+            ? 'paid'
+            : ($charge->date && $charge->date->lt(today()) ? 'overdue' : 'pending');
+
+        if ($previousStatus === $nextStatus) {
+            return;
+        }
+
+        $charge->update(['status' => $nextStatus]);
+
+        Audit_log::create([
+            'action' => 'Mise à jour du statut de charge',
+            'details' => 'La charge "'.$charge->description.'" est passée de '.$previousStatus.' à '.$nextStatus.' suite à une action sur paiement.',
+            'performed_by' => auth()->id(),
+        ]);
     }
 
     public function destroy(Payment $payment): RedirectResponse
     {
         $this->authorize('delete', $payment);
 
+        $charge = $payment->charge;
         $payment->delete();
+        $this->syncChargeStatus($charge);
 
         Audit_log::create([
             'action' => 'Suppression de paiement',
-            'details' => 'Le paiement de '.$payment->amount.' DH a été supprimé pour la charge "'.$payment->charge->description.'" de l\'appartement '.$payment->charge->apartment->number.'.',
+            'details' => 'Le paiement de '.$payment->amount.' DH a été supprimé pour la charge "'.$charge?->description.'" de l\'appartement '.$charge?->apartment?->number.'.',
             'performed_by' => auth()->id(),
         ]);
                                                  
-        return redirect()->route('payments.index')->with('success', 'Payment deleted successfully.');
+        return redirect()->route('payments.index')->with('success', 'Paiement supprimé avec succès.');
+    }
+
+    private function notifyPaymentValidated(Payment $payment, NotificationService $notifications): void
+    {
+        $payment->loadMissing(['charge.apartment.user', 'user']);
+
+        $user = $payment->user ?? $payment->charge?->apartment?->user;
+
+        $notifications->createForUser(
+            $user,
+            'Paiement validé',
+            sprintf(
+                'Votre paiement de %s MAD pour la charge "%s" du lot %s a été validé.',
+                number_format((float) $payment->amount, 2, ',', ' '),
+                $payment->charge?->description ?? 'Charge',
+                $payment->charge?->apartment?->number ?? 'n/a'
+            ),
+            'info'
+        );
     }
 }

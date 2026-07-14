@@ -1,4 +1,4 @@
-import { CrudFormPage } from "@/Components/CrudScaffold";
+﻿import { CrudFormPage } from "@/Components/CrudScaffold";
 import { resourceConfigs } from "../_shared/resources";
 
 export default function Form({ announcement, buildings = [] }) {
@@ -23,7 +23,7 @@ export default function Form({ announcement, buildings = [] }) {
             title={
                 announcement
                     ? `Modifier ${config.singular}`
-                    : `Creer ${config.singular}`
+                    : `Créer ${config.singular}`
             }
             resource={config.route}
             fields={fields}
@@ -36,8 +36,8 @@ export default function Form({ announcement, buildings = [] }) {
             method={announcement ? "put" : "post"}
             submitLabel={
                 announcement
-                    ? `Mettre a jour ${config.singular}`
-                    : `Creer ${config.singular}`
+                    ? `Mettre à jour ${config.singular}`
+                    : `Créer ${config.singular}`
             }
         />
     );

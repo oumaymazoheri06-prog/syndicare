@@ -1,6 +1,6 @@
-import GenerateChargesButton from "@/Components/GenerateChargesButton";
-import AdminLayout from "@/Layouts/AdminLayout";
+﻿import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
+import { useState } from "react";
 
 function formatCurrency(value) {
     return new Intl.NumberFormat("fr-MA", {
@@ -8,6 +8,13 @@ function formatCurrency(value) {
         currency: "MAD",
         maximumFractionDigits: 0,
     }).format(Number(value || 0));
+}
+
+function formatCompactCurrency(value) {
+    return `${new Intl.NumberFormat("fr-MA", {
+        notation: "compact",
+        maximumFractionDigits: 1,
+    }).format(Number(value || 0))} MAD`;
 }
 
 function formatNumber(value) {
@@ -31,40 +38,6 @@ function badgeToneClass(tone = "slate") {
     return tones[tone] ?? tones.slate;
 }
 
-function toneAccentClass(tone = "slate") {
-    const tones = {
-        slate: "bg-slate-500",
-        green: "bg-emerald-600",
-        amber: "bg-amber-500",
-        red: "bg-rose-500",
-        rose: "bg-rose-500",
-        blue: "bg-sky-500",
-        violet: "bg-violet-500",
-        indigo: "bg-indigo-500",
-        pink: "bg-pink-500",
-        lime: "bg-lime-500",
-    };
-
-    return tones[tone] ?? tones.slate;
-}
-
-function toneSurfaceClass(tone = "slate") {
-    const tones = {
-        slate: "border-slate-200 bg-slate-50/80",
-        green: "border-emerald-200 bg-emerald-50/80",
-        amber: "border-amber-200 bg-amber-50/80",
-        red: "border-rose-200 bg-rose-50/80",
-        rose: "border-rose-200 bg-rose-50/80",
-        blue: "border-sky-200 bg-sky-50/80",
-        violet: "border-violet-200 bg-violet-50/80",
-        indigo: "border-indigo-200 bg-indigo-50/80",
-        pink: "border-pink-200 bg-pink-50/80",
-        lime: "border-lime-200 bg-lime-50/80",
-    };
-
-    return tones[tone] ?? tones.slate;
-}
-
 function statusTone(status) {
     if (["paid", "validated", "closed", "ferme"].includes(status)) {
         return "green";
@@ -83,6 +56,29 @@ function statusTone(status) {
     }
 
     return "slate";
+}
+
+function statusLabel(status) {
+    const labels = {
+        paid: "Payée",
+        validated: "Validé",
+        closed: "Fermé",
+        ferme: "Fermé",
+        overdue: "En retard",
+        pending: "En attente",
+        open: "Ouvert",
+        ouvert: "Ouvert",
+        in_progress: "En cours",
+        en_contact: "En contact",
+    };
+
+    return labels[status] ?? status ?? "-";
+}
+
+function shortText(value, limit = 220) {
+    const text = String(value || "");
+
+    return text.length > limit ? `${text.slice(0, limit)}...` : text;
 }
 
 function Badge({ tone = "slate", children }) {
@@ -118,21 +114,107 @@ function Panel({ title, subtitle, action, children, className = "" }) {
     );
 }
 
-function MetricCard({ label, value, helper, tone = "green" }) {
+function metricIconSurfaceClass(tone = "green") {
+    const tones = {
+        slate: "border-slate-200 bg-slate-100 text-slate-700",
+        green: "border-emerald-200 bg-emerald-50 text-emerald-700",
+        amber: "border-amber-200 bg-amber-50 text-amber-700",
+        red: "border-rose-200 bg-rose-50 text-rose-700",
+        rose: "border-rose-200 bg-rose-50 text-rose-700",
+        blue: "border-sky-200 bg-sky-50 text-sky-700",
+        violet: "border-violet-200 bg-violet-50 text-violet-700",
+        lime: "border-lime-200 bg-lime-50 text-lime-700",
+    };
+
+    return tones[tone] ?? tones.green;
+}
+
+function MetricIcon({ type = "chart" }) {
+    const paths = {
+        users: (
+            <>
+                <path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                <path d="M2.5 19a5.5 5.5 0 0 1 11 0" />
+                <path d="M16 11a2.5 2.5 0 1 0 0-5" />
+                <path d="M17.5 14.5A4.5 4.5 0 0 1 21 19" />
+            </>
+        ),
+        building: (
+            <>
+                <path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16" />
+                <path d="M16 8h2a2 2 0 0 1 2 2v11" />
+                <path d="M8 7h4M8 11h4M8 15h4M9 21v-3h2v3" />
+            </>
+        ),
+        expense: (
+            <>
+                <path d="M4 7h16v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z" />
+                <path d="M4 7l2-4h12l2 4" />
+                <path d="M9 12h6" />
+            </>
+        ),
+        alert: (
+            <>
+                <path d="M12 3 2.8 19h18.4L12 3Z" />
+                <path d="M12 9v4M12 17h.01" />
+            </>
+        ),
+        charge: (
+            <>
+                <path d="M7 3h10v18H7z" />
+                <path d="M9.5 8h5M9.5 12h5M9.5 16h3" />
+            </>
+        ),
+        rate: (
+            <>
+                <path d="m5 19 14-14" />
+                <path d="M7.5 9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+                <path d="M16.5 19.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" />
+            </>
+        ),
+    };
+
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+            aria-hidden="true"
+        >
+            {paths[type] ?? paths.charge}
+        </svg>
+    );
+}
+
+function MetricCard({ label, value, helper, tone = "green", icon = "chart" }) {
     return (
         <div
-            className={`dashboard-appear dashboard-card overflow-hidden rounded-lg border p-3.5 shadow-sm ${toneSurfaceClass(tone)}`}
+            className="dashboard-appear dashboard-card group rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-[0_14px_28px_rgba(15,23,42,0.08)]"
         >
-            <div
-                className={`dashboard-accent-pulse mb-3 h-1.5 w-24 rounded-full ${toneAccentClass(tone)}`}
-            />
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                {label}
-            </p>
-            <p className="mt-1.5 text-xl font-bold text-slate-950 xl:text-2xl">
-                {value}
-            </p>
-            {helper && <p className="mt-1.5 text-xs text-slate-500">{helper}</p>}
+            <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                    <p className="truncate text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                        {label}
+                    </p>
+                    <p className="mt-1 break-words text-sm font-bold leading-tight text-slate-950 xl:text-base">
+                        {value}
+                    </p>
+                </div>
+                <div
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition group-hover:scale-105 ${metricIconSurfaceClass(tone)}`}
+                >
+                    <MetricIcon type={icon} />
+                </div>
+            </div>
+            {helper && (
+                <p className="mt-2 truncate text-[11px] font-medium leading-4 text-slate-500">
+                    {helper}
+                </p>
+            )}
         </div>
     );
 }
@@ -158,7 +240,7 @@ function ProgressBar({ value, tone = "green" }) {
     );
 }
 
-function EmptyState({ children = "Aucune donnee pour le moment." }) {
+function EmptyState({ children = "Aucune donnée pour le moment." }) {
     return (
         <div className="rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
             {children}
@@ -171,13 +253,13 @@ function LineChart({ data = [] }) {
     const height = 260;
     const padding = 30;
     const series = [
-        { key: "expenses", color: "#0f766e", label: "Depenses" },
-        { key: "charges", color: "#14532d", label: "Charges" },
+        { key: "expenses", color: "#0f766e", label: "Dépenses" },
+        { key: "charges", color: "#146C43", label: "Charges" },
         { key: "payments", color: "#b45309", label: "Paiements" },
     ];
 
     if (!data.length) {
-        return <EmptyState>Aucune evolution mensuelle disponible.</EmptyState>;
+        return <EmptyState>Aucune évolution mensuelle disponible.</EmptyState>;
     }
 
     const max = Math.max(
@@ -221,7 +303,7 @@ function LineChart({ data = [] }) {
                 ))}
             </div>
 
-            <div className="overflow-hidden rounded-lg bg-[#f7f4ee] p-3">
+            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-3">
                 <svg
                     viewBox={`0 0 ${width} ${height}`}
                     className="h-[220px] w-full sm:h-[260px]"
@@ -272,6 +354,239 @@ function LineChart({ data = [] }) {
     );
 }
 
+function RevenueChart({ series = {} }) {
+    const [period, setPeriod] = useState("month");
+    const options = [
+        { key: "day", label: "Jour" },
+        { key: "month", label: "Mois" },
+        { key: "year", label: "Année" },
+    ];
+    const data = Array.isArray(series?.[period]) ? series[period] : [];
+    const values = data.map((item) => Number(item.value || 0));
+    const total = data.reduce(
+        (sum, item) => sum + Number(item.value || 0),
+        0,
+    );
+    const maxValue = Math.max(1, ...values);
+    const yMax = Math.ceil(maxValue / 100) * 100 || 1;
+    const width = 640;
+    const height = 300;
+    const padding = {
+        top: 24,
+        right: 28,
+        bottom: 44,
+        left: 76,
+    };
+    const chartHeight = height - padding.top - padding.bottom;
+    const chartWidth = width - padding.left - padding.right;
+    const xStep = data.length > 1 ? chartWidth / (data.length - 1) : 0;
+    const labelStep = Math.max(1, Math.ceil(data.length / 5));
+    const activeLabel =
+        options.find((option) => option.key === period)?.label || "Mois";
+    const points = data.map((item, index) => {
+        const x =
+            data.length > 1
+                ? padding.left + index * xStep
+                : padding.left + chartWidth / 2;
+        const y =
+            padding.top +
+            (1 - Number(item.value || 0) / yMax) * chartHeight;
+
+        return { ...item, x, y, value: Number(item.value || 0) };
+    });
+    const linePath = points.reduce((path, point, index) => {
+        if (index === 0) {
+            return `M ${point.x} ${point.y}`;
+        }
+
+        const previous = points[index - 1];
+        const controlX = (previous.x + point.x) / 2;
+
+        return `${path} C ${controlX} ${previous.y}, ${controlX} ${point.y}, ${point.x} ${point.y}`;
+    }, "");
+    const areaPath =
+        points.length > 1
+            ? `${linePath} L ${points[points.length - 1].x} ${height - padding.bottom} L ${points[0].x} ${height - padding.bottom} Z`
+            : "";
+    const yTicks = [0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+        const value = yMax * ratio;
+        const y = padding.top + (1 - ratio) * chartHeight;
+
+        return { value, y };
+    });
+
+    return (
+        <Panel
+            title="Aperçu des revenus"
+            subtitle="Courbe des paiements validés selon la période choisie."
+            className="h-full"
+            action={
+                <div className="inline-flex rounded-md border border-slate-200 bg-slate-50 p-1">
+                    {options.map((option) => (
+                        <button
+                            key={option.key}
+                            type="button"
+                            onClick={() => setPeriod(option.key)}
+                            className={`rounded px-3 py-1.5 text-xs font-semibold transition ${
+                                period === option.key
+                                    ? "bg-emerald-700 text-white shadow-sm"
+                                    : "text-slate-600 hover:bg-white hover:text-slate-950"
+                            }`}
+                        >
+                            {option.label}
+                        </button>
+                    ))}
+                </div>
+            }
+        >
+            <div className="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                        Total {activeLabel.toLowerCase()}
+                    </p>
+                    <p className="mt-1 text-xl font-bold text-slate-950 sm:text-2xl">
+                        {formatCurrency(total)}
+                    </p>
+                </div>
+                <p className="text-sm text-slate-500">
+                    {data.length} points affichés
+                </p>
+            </div>
+
+            {data.length ? (
+                <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-3">
+                    <svg
+                        viewBox={`0 0 ${width} ${height}`}
+                        className="h-[260px] w-full sm:h-[300px]"
+                        role="img"
+                        aria-label="Courbe des revenus validés"
+                    >
+                        <defs>
+                            <linearGradient
+                                id="revenueAreaGradient"
+                                x1="0"
+                                x2="0"
+                                y1="0"
+                                y2="1"
+                            >
+                                <stop
+                                    offset="0%"
+                                    stopColor="#059669"
+                                    stopOpacity="0.22"
+                                />
+                                <stop
+                                    offset="100%"
+                                    stopColor="#059669"
+                                    stopOpacity="0"
+                                />
+                            </linearGradient>
+                        </defs>
+
+                        {yTicks.map((tick) => (
+                            <g key={tick.value}>
+                                <line
+                                    x1={padding.left}
+                                    x2={width - padding.right}
+                                    y1={tick.y}
+                                    y2={tick.y}
+                                    stroke="#e2e8f0"
+                                    strokeDasharray="4 7"
+                                />
+                                <text
+                                    x={padding.left - 12}
+                                    y={tick.y + 4}
+                                    textAnchor="end"
+                                    className="fill-slate-500 text-[11px]"
+                                >
+                                    {formatCompactCurrency(tick.value)}
+                                </text>
+                            </g>
+                        ))}
+
+                        <line
+                            x1={padding.left}
+                            x2={padding.left}
+                            y1={padding.top}
+                            y2={height - padding.bottom}
+                            stroke="#cbd5e1"
+                        />
+                        <line
+                            x1={padding.left}
+                            x2={width - padding.right}
+                            y1={height - padding.bottom}
+                            y2={height - padding.bottom}
+                            stroke="#cbd5e1"
+                        />
+
+                        {areaPath && (
+                            <path
+                                d={areaPath}
+                                fill="url(#revenueAreaGradient)"
+                            />
+                        )}
+                        {linePath && (
+                            <path
+                                d={linePath}
+                                fill="none"
+                                stroke="#047857"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        )}
+
+                        {points.map((point, index) => (
+                            <g key={`${point.label}-${index}`}>
+                                <circle
+                                    cx={point.x}
+                                    cy={point.y}
+                                    r="5"
+                                    className="fill-white stroke-emerald-700"
+                                    strokeWidth="3"
+                                >
+                                    <title>
+                                        {point.label} -{" "}
+                                        {formatCurrency(point.value)}
+                                    </title>
+                                </circle>
+                                {point.value > 0 &&
+                                    (data.length <= 8 ||
+                                        index === points.length - 1 ||
+                                        point.value === maxValue) && (
+                                    <text
+                                        x={point.x}
+                                        y={Math.max(14, point.y - 12)}
+                                        textAnchor="middle"
+                                        className="fill-emerald-800 text-[11px] font-semibold"
+                                    >
+                                        {formatCompactCurrency(point.value)}
+                                    </text>
+                                )}
+                                {index % labelStep === 0 && (
+                                    <text
+                                        x={point.x}
+                                        y={height - 12}
+                                        textAnchor="middle"
+                                        className="fill-slate-500 text-[11px]"
+                                    >
+                                        {point.label}
+                                    </text>
+                                )}
+                            </g>
+                        ))}
+                    </svg>
+                    <div className="mt-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+                        <span className="h-2 w-6 rounded-full bg-emerald-700" />
+                        Paiements validés
+                    </div>
+                </div>
+            ) : (
+                <EmptyState>Aucun revenu validé pour cette période.</EmptyState>
+            )}
+        </Panel>
+    );
+}
+
 function StatusRows({ rows = [] }) {
     const total = Math.max(
         1,
@@ -309,89 +624,168 @@ function CompactList({ items, empty, children }) {
     return <div className="dashboard-list space-y-3">{items.map(children)}</div>;
 }
 
-function QuickActions({
-    isGlobal,
-    buildingId = null,
-    buildingName = null,
-    canGenerateCharges = false,
-    className = "",
-}) {
-    const actions = [
-        {
-            label: "Inviter un utilisateur",
-            href: route("users.create"),
-            tone: "green",
-        },
-        {
-            label: "Nouvelle annonce",
-            href: route("announcements.create"),
-            tone: "blue",
-        },
-        {
-            label: "Ajouter une depense",
-            href: route("expenses.create"),
-            tone: "amber",
-        },
-        {
-            label: "Ajouter un document",
-            href: route("documents.create"),
-            tone: "slate",
-        },
-        {
-            label: "Paiements a traiter",
-            href: route("payments.index"),
-            tone: "indigo",
-        },
-        {
-            label: "Tickets urgents",
-            href: route("tickets.index"),
-            tone: "red",
-        },
-        {
-            label: "Objets perdus",
-            href: route("items.index"),
-            tone: "pink",
-        },
-        {
-            label: "Appartements",
-            href: route("apartments.index"),
-            tone: "lime",
-        },
-    ];
+function RecentTicketsPanel({ tickets = [] }) {
+    const visibleTickets = tickets.slice(0, 3);
 
     return (
         <Panel
-            title="Actions rapides"
-            subtitle="Acces direct aux operations frequentes."
+            title="Derniers tickets"
+            subtitle="Les demandes les plus récentes avec le résident et le problème."
+            className="h-full"
             action={
-                canGenerateCharges ? (
-                    <GenerateChargesButton
-                        buildingId={isGlobal ? null : buildingId}
-                        buildingName={buildingName}
-                    />
-                ) : null
+                <Link
+                    href={route("tickets.index")}
+                    className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-100"
+                >
+                    Voir tickets
+                </Link>
             }
-            className={`h-full ${className}`}
         >
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                {actions.map((action) => (
-                    <Link
-                        key={action.label}
-                        href={action.href}
-                        className={`dashboard-card group flex min-h-20 items-center justify-between rounded-lg border px-4 py-3.5 text-sm font-semibold shadow-sm ${badgeToneClass(action.tone)}`}
+            <CompactList items={visibleTickets} empty="Aucun ticket récent.">
+                {(ticket) => (
+                    <div
+                        key={ticket.id}
+                        className="rounded-lg border border-slate-100 bg-white p-4 shadow-sm"
                     >
-                        <span className="flex min-w-0 items-center gap-2">
-                            <span
-                                className={`h-2.5 w-2.5 shrink-0 rounded-full ${toneAccentClass(action.tone)}`}
-                            />
-                            <span className="truncate">{action.label}</span>
-                        </span>
-                        <span className="shrink-0 text-lg leading-none transition group-hover:translate-x-1">
-                            &gt;
-                        </span>
-                    </Link>
-                ))}
-            </div>
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                                    {ticket.created_by || "Résident"}
+                                </p>
+                                <p className="mt-1 font-semibold text-slate-950">
+                                    {ticket.title || "Ticket"}
+                                </p>
+                            </div>
+                            <Badge tone={statusTone(ticket.status)}>
+                                {statusLabel(ticket.status)}
+                            </Badge>
+                        </div>
+                        <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                            {shortText(
+                                ticket.description ||
+                                    "Aucune description renseignée.",
+                                180,
+                            )}
+                        </p>
+                        <p className="mt-3 text-xs font-medium text-slate-500">
+                            {ticket.building || "-"} - Appartement{" "}
+                            {ticket.apartment || "-"} -{" "}
+                            {ticket.created_at || "-"}
+                        </p>
+                    </div>
+                )}
+            </CompactList>
+        </Panel>
+    );
+}
+
+function UnpaidChargesPanel({ charges = [] }) {
+    const visibleCharges = charges.slice(0, 3);
+
+    return (
+        <Panel
+            title="Charges impayées"
+            subtitle="Charges en attente ou en retard à suivre."
+            className="h-full"
+            action={
+                <Link
+                    href={route("charges.index")}
+                    className="inline-flex items-center rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-800 transition hover:bg-rose-100"
+                >
+                    Voir charges
+                </Link>
+            }
+        >
+            <CompactList items={visibleCharges} empty="Aucune charge impayée.">
+                {(charge) => (
+                    <div
+                        key={charge.id}
+                        className="rounded-lg border border-slate-100 bg-white p-4 shadow-sm"
+                    >
+                        <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <p className="font-semibold text-slate-950">
+                                    {charge.description || "Charge"}
+                                </p>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    {charge.resident || "Résident non associé"}{" "}
+                                    - Appartement {charge.apartment || "-"}
+                                </p>
+                            </div>
+                            <Badge tone={statusTone(charge.status)}>
+                                {statusLabel(charge.status)}
+                            </Badge>
+                        </div>
+                        <div className="mt-3 flex items-end justify-between gap-3">
+                            <p className="text-xs font-medium text-slate-500">
+                                {charge.building || "-"}
+                            </p>
+                            <p className="text-lg font-bold text-rose-700">
+                                {formatCurrency(charge.amount)}
+                            </p>
+                        </div>
+                    </div>
+                )}
+            </CompactList>
+        </Panel>
+    );
+}
+
+function AnnouncementsPanel({
+    announcements = [],
+    isBuildingView = false,
+    buildingName = "",
+}) {
+    const visibleAnnouncements = announcements.slice(0, 3);
+    const subtitle = isBuildingView
+        ? `Annonces globales et annonces de ${buildingName || "l'immeuble sélectionné"}.`
+        : "Annonces globales destinées à tous les immeubles.";
+
+    return (
+        <Panel
+            title="Mur des annonces"
+            subtitle={subtitle}
+            className="h-full"
+            action={
+                <Link
+                    href={route("announcements.index")}
+                    className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
+                >
+                    Voir annonces
+                </Link>
+            }
+        >
+            {visibleAnnouncements.length ? (
+                <div className="grid gap-4">
+                    {visibleAnnouncements.map((announcement) => (
+                        <div
+                            key={announcement.id}
+                            className="rounded-lg border border-slate-100 bg-white p-4 shadow-sm"
+                        >
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <div className="min-w-0">
+                                    <p className="break-words font-semibold text-slate-950">
+                                        {announcement.title}
+                                    </p>
+                                    <p className="mt-2 break-words text-sm leading-6 text-slate-600">
+                                        {shortText(announcement.content, 220)}
+                                    </p>
+                                </div>
+                                <Badge tone="green">
+                                    {announcement.building}
+                                </Badge>
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2 text-xs font-medium text-slate-500">
+                                <span>{announcement.creator || "Syndic"}</span>
+                                <span>-</span>
+                                <span>{announcement.created_at || "-"}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : (
+                <EmptyState>Aucune annonce publiée.</EmptyState>
+            )}
         </Panel>
     );
 }
@@ -463,7 +857,7 @@ function IncidentForm({ apartments = [] }) {
                         htmlFor="incident-apartment"
                         className="text-sm font-semibold text-slate-700"
                     >
-                        Lot concerne
+                        Lot concerné
                     </label>
                     <select
                         id="incident-apartment"
@@ -473,7 +867,7 @@ function IncidentForm({ apartments = [] }) {
                         }
                         className="mt-1.5 min-h-11 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-900 shadow-sm focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-100"
                     >
-                        <option value="">Non precise</option>
+                        <option value="">Non précisé</option>
                         {apartments.map((apartment) => (
                             <option key={apartment.id} value={apartment.id}>
                                 {apartment.building || "Immeuble"} -{" "}
@@ -494,7 +888,7 @@ function IncidentForm({ apartments = [] }) {
                     htmlFor="incident-description"
                     className="text-sm font-semibold text-slate-700"
                 >
-                    Details
+                    Détails
                 </label>
                 <textarea
                     id="incident-description"
@@ -516,13 +910,13 @@ function IncidentForm({ apartments = [] }) {
                 <button
                     type="submit"
                     disabled={processing}
-                    className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#0e3715] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#14532d] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center rounded-md bg-[#0F5132] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-[#146C43] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                     {processing ? "Envoi..." : "Soumettre"}
                 </button>
                 {recentlySuccessful && (
                     <span className="text-sm font-semibold text-emerald-700">
-                        Reclamation envoyee.
+                        Réclamation envoyée.
                     </span>
                 )}
             </div>
@@ -532,7 +926,7 @@ function IncidentForm({ apartments = [] }) {
 
 function RoleHero({ badge, title, description, children }) {
     return (
-        <section className="dashboard-appear dashboard-card rounded-lg bg-[#0f3c1d] p-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.16)] sm:p-6 lg:p-7">
+        <section className="dashboard-appear dashboard-card rounded-lg bg-[#0F5132] p-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.16)] sm:p-6 lg:p-7">
             <div className="grid gap-5 xl:grid-cols-[1.2fr_0.8fr] xl:items-end">
                 <div>
                     <div className="mb-4 flex flex-wrap gap-2">
@@ -562,12 +956,12 @@ function OwnerLineChart({ data = [] }) {
     const height = 240;
     const padding = 30;
     const series = [
-        { key: "charges", color: "#aa7e16", label: "Appels de fonds" },
+        { key: "charges", color: "#C9A227", label: "Appels de fonds" },
         { key: "payments", color: "#0f766e", label: "Paiements" },
     ];
 
     if (!data.length) {
-        return <EmptyState>Aucune evolution personnelle disponible.</EmptyState>;
+        return <EmptyState>Aucune évolution personnelle disponible.</EmptyState>;
     }
 
     const max = Math.max(
@@ -597,7 +991,7 @@ function OwnerLineChart({ data = [] }) {
                 <Badge tone="amber">Appels de fonds</Badge>
                 <Badge tone="green">Paiements</Badge>
             </div>
-            <div className="overflow-hidden rounded-lg bg-[#f7f4ee] p-3">
+            <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-3">
                 <svg
                     viewBox={`0 0 ${width} ${height}`}
                     className="h-[220px] w-full"
@@ -650,7 +1044,7 @@ function OwnerLineChart({ data = [] }) {
 
 function AnnouncementCard({ announcement }) {
     return (
-        <div className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4">
+        <div className="rounded-lg border border-slate-100 bg-white p-4">
             <div className="flex items-start justify-between gap-3">
                 <p className="font-semibold text-slate-950">
                     {announcement.title}
@@ -671,10 +1065,12 @@ function AnnouncementCard({ announcement }) {
 
 function TicketCard({ ticket }) {
     return (
-        <div className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4">
+        <div className="rounded-lg border border-slate-100 bg-white p-4">
             <div className="flex items-start justify-between gap-3">
                 <p className="font-semibold text-slate-950">{ticket.title}</p>
-                <Badge tone={statusTone(ticket.status)}>{ticket.status}</Badge>
+                <Badge tone={statusTone(ticket.status)}>
+                    {statusLabel(ticket.status)}
+                </Badge>
             </div>
             {ticket.description && (
                 <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -698,88 +1094,139 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
     const announcements = data.announcements || [];
     const documents = data.documents || [];
     const monthlySeries = data.monthlySeries || [];
+    const balanceDue = Number(summary.balance || 0) > 0;
+    const financeCards = [
+        {
+            label: "Solde à régulariser",
+            value: formatCurrency(summary.balance),
+            helper: "Charges en attente ou en retard",
+            className: balanceDue
+                ? "border-amber-200 bg-amber-50 text-amber-900"
+                : "border-emerald-200 bg-emerald-50 text-emerald-900",
+        },
+        {
+            label: "Appels du mois",
+            value: formatCurrency(summary.monthlyCharges),
+            helper: "Montant appelé ce mois",
+            className: "border-sky-200 bg-sky-50 text-sky-900",
+        },
+        {
+            label: "Paiements validés",
+            value: formatCurrency(summary.validatedPayments),
+            helper: "Historique personnel",
+            className: "border-emerald-200 bg-emerald-50 text-emerald-900",
+        },
+        {
+            label: "Documents",
+            value: formatNumber(summary.documents),
+            helper: "PV d'AG et fichiers",
+            className: "border-slate-200 bg-slate-50 text-slate-800",
+        },
+    ];
 
     return (
         <AdminLayout
-            title="Tableau de bord coproprietaire"
+            title="Tableau de bord copropriétaire"
             subtitle="Solde personnel, appels de fonds, PV d'AG et incidents."
         >
-            <Head title="Tableau de bord coproprietaire" />
+            <Head title="Tableau de bord copropriétaire" />
 
             <div className="space-y-5 sm:space-y-6">
-                <RoleHero
-                    badge="Coproprietaire"
-                    title={`Bonjour ${firstName(auth.user)}`}
-                    description="Vue personnelle des lots detenus, du solde a regulariser, des appels de fonds et des documents d'assemblee generale."
-                >
-                    <div className="grid gap-2 sm:grid-cols-3">
-                        <div className="rounded-lg border border-emerald-300/30 bg-emerald-900/35 px-3 py-2">
-                            <p className="text-[11px] font-semibold uppercase text-emerald-100/70">
-                                Lots
-                            </p>
-                            <p className="mt-1 text-lg font-bold text-white">
-                                {formatNumber(summary.lots)}
-                            </p>
+                <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.9fr)] xl:items-stretch">
+                    <div className="dashboard-appear dashboard-card rounded-lg bg-[#0F5132] p-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.16)] sm:p-5">
+                        <div className="flex flex-wrap gap-2">
+                            <Badge tone="green">Copropriétaire</Badge>
+                            <Badge tone={balanceDue ? "amber" : "green"}>
+                                {balanceDue ? "À régulariser" : "À jour"}
+                            </Badge>
                         </div>
-                        <div className="rounded-lg border border-amber-300/30 bg-amber-900/25 px-3 py-2">
-                            <p className="text-[11px] font-semibold uppercase text-amber-100/75">
-                                Solde
-                            </p>
-                            <p className="mt-1 text-lg font-bold text-white">
-                                {formatCurrency(summary.balance)}
-                            </p>
+                        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                            <div>
+                                <h2 className="text-2xl font-semibold sm:text-3xl">
+                                    Bonjour {firstName(auth.user)}
+                                </h2>
+                                <p className="mt-2 max-w-2xl text-sm leading-6 text-emerald-50/80">
+                                    Suivez vos lots, vos appels de fonds, vos
+                                    paiements et les communications du syndic
+                                    depuis une seule vue.
+                                </p>
+                            </div>
+                            <div className="grid min-w-[220px] grid-cols-3 gap-2 rounded-lg border border-white/15 bg-white/10 p-2">
+                                <div>
+                                    <p className="text-[11px] font-semibold uppercase text-emerald-100/70">
+                                        Lots
+                                    </p>
+                                    <p className="mt-1 text-lg font-bold">
+                                        {formatNumber(summary.lots)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-semibold uppercase text-emerald-100/70">
+                                        Bâtiments
+                                    </p>
+                                    <p className="mt-1 text-lg font-bold">
+                                        {formatNumber(summary.buildings)}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-semibold uppercase text-emerald-100/70">
+                                        Tickets
+                                    </p>
+                                    <p className="mt-1 text-lg font-bold">
+                                        {formatNumber(summary.openTickets)}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                        <div className="rounded-lg border border-sky-300/30 bg-sky-900/25 px-3 py-2">
-                            <p className="text-[11px] font-semibold uppercase text-sky-100/75">
-                                Incidents
-                            </p>
-                            <p className="mt-1 text-lg font-bold text-white">
-                                {formatNumber(summary.openTickets)}
-                            </p>
+                        <div className="mt-5 flex flex-wrap gap-2">
+                            <Link
+                                href={route("payments.create")}
+                                className="inline-flex min-h-10 items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
+                            >
+                                Régler une charge
+                            </Link>
+                            <Link
+                                href={route("tickets.create")}
+                                className="inline-flex min-h-10 items-center rounded-md border border-white/25 px-3 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+                            >
+                                Déclarer un incident
+                            </Link>
                         </div>
                     </div>
-                </RoleHero>
 
-                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <MetricCard
-                        label="Solde personnel"
-                        value={formatCurrency(summary.balance)}
-                        helper="Charges en attente ou en retard"
-                        tone={Number(summary.balance || 0) > 0 ? "amber" : "green"}
-                    />
-                    <MetricCard
-                        label="Appels du mois"
-                        value={formatCurrency(summary.monthlyCharges)}
-                        helper="Montant appele ce mois"
-                        tone="blue"
-                    />
-                    <MetricCard
-                        label="Paiements valides"
-                        value={formatCurrency(summary.validatedPayments)}
-                        helper="Historique personnel"
-                        tone="green"
-                    />
-                    <MetricCard
-                        label="Documents"
-                        value={formatNumber(summary.documents)}
-                        helper="PV d'AG et fichiers disponibles"
-                        tone="slate"
-                    />
+                    <div className="grid gap-3 sm:grid-cols-2">
+                        {financeCards.map((card) => (
+                            <div
+                                key={card.label}
+                                className={`dashboard-appear dashboard-card rounded-lg border p-3 shadow-sm ${card.className}`}
+                            >
+                                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-75">
+                                    {card.label}
+                                </p>
+                                <p className="mt-2 text-xl font-bold leading-tight">
+                                    {card.value}
+                                </p>
+                                <p className="mt-1 text-xs font-medium opacity-75">
+                                    {card.helper}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
                 </section>
 
-                <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-start">
+                <section className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] xl:items-start">
                     <Panel
                         title="Mes lots"
-                        subtitle="Situation par appartement detenu."
+                        subtitle="Situation par appartement détenu."
                     >
                         <CompactList
                             items={apartments}
-                            empty="Aucun lot rattache a votre compte."
+                            empty="Aucun lot rattaché à votre compte."
                         >
                             {(apartment) => (
                                 <div
                                     key={apartment.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
+                                    className="rounded-lg border border-slate-100 bg-white p-3 shadow-sm"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -787,7 +1234,7 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                                 Lot {apartment.number}
                                             </p>
                                             <p className="mt-1 text-sm text-slate-500">
-                                                {apartment.building || "-"} - Etage{" "}
+                                                {apartment.building || "-"} - Étage{" "}
                                                 {apartment.floor || "-"}
                                             </p>
                                         </div>
@@ -798,31 +1245,31 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                                     : "green"
                                             }
                                         >
-                                            {apartment.status}
+                                            {statusLabel(apartment.status)}
                                         </Badge>
                                     </div>
-                                    <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                                        <div>
-                                            <p className="text-sm text-slate-500">
+                                    <div className="mt-3 grid grid-cols-3 gap-2 rounded-md bg-slate-50 p-2">
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-medium text-slate-500">
                                                 Surface
                                             </p>
-                                            <p className="font-semibold text-slate-950">
-                                                {formatNumber(apartment.area)} m2
+                                            <p className="truncate text-sm font-semibold text-slate-950">
+                                                {formatNumber(apartment.area)} m²
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-sm text-slate-500">
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-medium text-slate-500">
                                                 Solde
                                             </p>
-                                            <p className="font-semibold text-slate-950">
+                                            <p className="truncate text-sm font-semibold text-slate-950">
                                                 {formatCurrency(apartment.balance)}
                                             </p>
                                         </div>
-                                        <div>
-                                            <p className="text-sm text-slate-500">
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-medium text-slate-500">
                                                 Incidents
                                             </p>
-                                            <p className="font-semibold text-slate-950">
+                                            <p className="truncate text-sm font-semibold text-slate-950">
                                                 {formatNumber(
                                                     apartment.open_tickets,
                                                 )}
@@ -835,26 +1282,26 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                     </Panel>
 
                     <Panel
-                        title="Declarer un incident"
+                        title="Déclarer un incident"
                         subtitle="Maintenance, panne ou anomalie technique."
                     >
                         <IncidentForm apartments={apartments} />
                     </Panel>
                 </section>
 
-                <section className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr] xl:items-start">
+                <section className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] xl:items-start">
                     <Panel
-                        title="Historique des appels de fonds"
-                        subtitle="Charges rattachees a vos lots."
+                        title="Appels de fonds"
+                        subtitle="Charges rattachées à vos lots."
                     >
                         <CompactList
                             items={charges}
-                            empty="Aucun appel de fonds trouve."
+                            empty="Aucun appel de fonds trouvé."
                         >
                             {(charge) => (
                                 <div
                                     key={charge.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
+                                    className="rounded-lg border border-slate-100 bg-white p-3 shadow-sm"
                                 >
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
@@ -868,11 +1315,14 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                             </p>
                                         </div>
                                         <Badge tone={statusTone(charge.status)}>
-                                            {charge.status}
+                                            {statusLabel(charge.status)}
                                         </Badge>
                                     </div>
-                                    <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                                        <p className="text-lg font-bold text-slate-950">
+                                    <div className="mt-3 flex items-center justify-between rounded-md bg-slate-50 px-3 py-2">
+                                        <p className="text-sm font-medium text-slate-500">
+                                            Montant
+                                        </p>
+                                        <p className="text-base font-bold text-slate-950">
                                             {formatCurrency(charge.amount)}
                                         </p>
                                     </div>
@@ -883,24 +1333,24 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
 
                     <div className="space-y-6">
                         <Panel
-                            title="Evolution personnelle"
-                            subtitle="Appels de fonds et paiements valides."
+                            title="Évolution personnelle"
+                            subtitle="Appels de fonds et paiements validés."
                         >
                             <OwnerLineChart data={monthlySeries} />
                         </Panel>
 
                         <Panel
                             title="Paiements"
-                            subtitle="Dernieres operations enregistrees."
+                            subtitle="Dernières opérations enregistrées."
                         >
                             <CompactList
                                 items={payments}
-                                empty="Aucun paiement trouve."
+                                empty="Aucun paiement trouvé."
                             >
                                 {(payment) => (
                                     <div
                                         key={payment.id}
-                                        className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
+                                        className="rounded-lg border border-slate-100 bg-white p-4"
                                     >
                                         <div className="flex items-start justify-between gap-3">
                                             <div>
@@ -917,7 +1367,7 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                             <Badge
                                                 tone={statusTone(payment.status)}
                                             >
-                                                {payment.status}
+                                                {statusLabel(payment.status)}
                                             </Badge>
                                         </div>
                                     </div>
@@ -927,10 +1377,10 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                     </div>
                 </section>
 
-                <section className="grid gap-6 xl:grid-cols-3 xl:items-start">
+                <section className="grid gap-5 xl:grid-cols-3 xl:items-start">
                     <Panel
                         title="PV d'AG et documents"
-                        subtitle="Fichiers disponibles au telechargement."
+                        subtitle="Fichiers disponibles au téléchargement."
                     >
                         <CompactList
                             items={documents}
@@ -939,7 +1389,7 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                             {(document) => (
                                 <div
                                     key={document.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
+                                    className="rounded-lg border border-slate-100 bg-white p-4"
                                 >
                                     <p className="font-semibold text-slate-950">
                                         {document.title}
@@ -955,7 +1405,7 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                             target="_blank"
                                             rel="noreferrer"
                                         >
-                                            Telecharger
+                                            Télécharger
                                         </a>
                                     )}
                                 </div>
@@ -964,12 +1414,12 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                     </Panel>
 
                     <Panel
-                        title="Annonces recentes"
-                        subtitle="Communications liees a vos immeubles."
+                        title="Annonces récentes"
+                        subtitle="Communications liées à vos immeubles."
                     >
                         <CompactList
                             items={announcements}
-                            empty="Aucune annonce recente."
+                            empty="Aucune annonce récente."
                         >
                             {(announcement) => (
                                 <AnnouncementCard
@@ -982,11 +1432,11 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
 
                     <Panel
                         title="Mes incidents"
-                        subtitle="Suivi de vos declarations techniques."
+                        subtitle="Suivi de vos déclarations techniques."
                     >
                         <CompactList
                             items={tickets}
-                            empty="Aucun incident declare."
+                            empty="Aucun incident déclaré."
                         >
                             {(ticket) => (
                                 <TicketCard key={ticket.id} ticket={ticket} />
@@ -1008,7 +1458,7 @@ function TenantDashboard({ auth = {}, data = {} }) {
     return (
         <AdminLayout
             title="Tableau de bord locataire"
-            subtitle="Mur d'annonces et reclamations techniques."
+            subtitle="Mur d'annonces et réclamations techniques."
         >
             <Head title="Tableau de bord locataire" />
 
@@ -1016,7 +1466,7 @@ function TenantDashboard({ auth = {}, data = {} }) {
                 <RoleHero
                     badge="Locataire"
                     title={`Bonjour ${firstName(auth.user)}`}
-                    description="Acces restreint aux communications de l'immeuble et au suivi des reclamations techniques."
+                    description="Accès restreint aux communications de l'immeuble et au suivi des réclamations techniques."
                 >
                     <div className="grid gap-2 sm:grid-cols-3">
                         <div className="rounded-lg border border-emerald-300/30 bg-emerald-900/35 px-3 py-2">
@@ -1037,7 +1487,7 @@ function TenantDashboard({ auth = {}, data = {} }) {
                         </div>
                         <div className="rounded-lg border border-lime-300/30 bg-lime-900/25 px-3 py-2">
                             <p className="text-[11px] font-semibold uppercase text-lime-100/75">
-                                Cloturees
+                                Clôturées
                             </p>
                             <p className="mt-1 text-lg font-bold text-white">
                                 {formatNumber(summary.closedTickets)}
@@ -1050,7 +1500,7 @@ function TenantDashboard({ auth = {}, data = {} }) {
                     <MetricCard
                         label="Appartement"
                         value={formatNumber(summary.apartments)}
-                        helper="Logement rattache au compte"
+                        helper="Logement rattaché au compte"
                         tone="green"
                     />
                     <MetricCard
@@ -1066,9 +1516,9 @@ function TenantDashboard({ auth = {}, data = {} }) {
                         tone="amber"
                     />
                     <MetricCard
-                        label="Reclamations traitees"
+                        label="Réclamations traitées"
                         value={formatNumber(summary.closedTickets)}
-                        helper="Historique cloture"
+                        helper="Historique clôturé"
                         tone="green"
                     />
                 </section>
@@ -1076,7 +1526,7 @@ function TenantDashboard({ auth = {}, data = {} }) {
                 <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr] xl:items-start">
                     <Panel
                         title="Mur d'annonces"
-                        subtitle="Informations partagees avec les residents."
+                        subtitle="Informations partagées avec les résidents."
                     >
                         <CompactList
                             items={announcements}
@@ -1093,30 +1543,30 @@ function TenantDashboard({ auth = {}, data = {} }) {
 
                     <div className="space-y-6">
                         <Panel
-                            title="Nouvelle reclamation"
-                            subtitle="Declaration technique uniquement."
+                            title="Nouvelle réclamation"
+                            subtitle="Déclaration technique uniquement."
                         >
                             <IncidentForm apartments={apartments} />
                         </Panel>
 
                         <Panel
-                            title="Appartement occupe"
-                            subtitle="Logement associe a votre compte."
+                            title="Appartement occupé"
+                            subtitle="Logement associé à votre compte."
                         >
                             <CompactList
                                 items={apartments}
-                                empty="Aucun appartement rattache."
+                                empty="Aucun appartement rattaché."
                             >
                                 {(apartment) => (
                                     <div
                                         key={apartment.id}
-                                        className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
+                                        className="rounded-lg border border-slate-100 bg-white p-4"
                                     >
                                         <p className="font-semibold text-slate-950">
                                             Appartement {apartment.number}
                                         </p>
                                         <p className="mt-2 text-sm text-slate-500">
-                                            {apartment.building || "-"} - Etage{" "}
+                                            {apartment.building || "-"} - Étage{" "}
                                             {apartment.floor || "-"}
                                         </p>
                                     </div>
@@ -1127,12 +1577,12 @@ function TenantDashboard({ auth = {}, data = {} }) {
                 </section>
 
                 <Panel
-                    title="Mes reclamations techniques"
-                    subtitle="Etat des demandes envoyees au syndic."
+                    title="Mes réclamations techniques"
+                    subtitle="État des demandes envoyées au syndic."
                 >
                     <CompactList
                         items={tickets}
-                        empty="Aucune reclamation technique envoyee."
+                        empty="Aucune réclamation technique envoyée."
                     >
                         {(ticket) => <TicketCard key={ticket.id} ticket={ticket} />}
                     </CompactList>
@@ -1147,18 +1597,11 @@ export default function Dashboard({
     roleDashboard = null,
     isGlobal = true,
     summary = {},
-    monthlySeries = [],
-    chargeStatuses = {},
-    ticketStatuses = {},
+    revenueSeries = {},
     buildings = [],
-    recentCharges = [],
-    recentExpenses = [],
-    priorityCharges = [],
-    pendingPayments = [],
-    urgentTickets = [],
+    recentTickets = [],
     recentAnnouncements = [],
-    recentDocuments = [],
-    recentItems = [],
+    unpaidCharges = [],
     health = {},
 }) {
     if (roleDashboard?.role === "Coproprietaire") {
@@ -1178,93 +1621,21 @@ export default function Dashboard({
         (building) => String(building.id) === String(selectedBuildingId),
     );
     const isBuildingView = Boolean(selectedBuildingId);
-    const canGenerateCharges = auth?.user?.role === "Syndic";
-
     const changeBuilding = (buildingId) => {
         window.location.href = buildingId
             ? `/dashboard?building_id=${buildingId}`
             : "/dashboard";
     };
 
-    const chargeStatusRows = [
-        {
-            label: "Payees",
-            value: chargeStatuses.paid || 0,
-            tone: "green",
-        },
-        {
-            label: "En attente",
-            value: chargeStatuses.pending || 0,
-            tone: "amber",
-        },
-        {
-            label: "En retard",
-            value: chargeStatuses.overdue || 0,
-            tone: "red",
-        },
-    ];
-
-    const ticketStatusRows = [
-        {
-            label: "Ouverts",
-            value: ticketStatuses.open || 0,
-            tone: "amber",
-        },
-        {
-            label: "En cours",
-            value: ticketStatuses.in_progress || 0,
-            tone: "blue",
-        },
-        {
-            label: "Fermes",
-            value: ticketStatuses.closed || 0,
-            tone: "green",
-        },
-    ];
-
-    const healthCards = [
-        {
-            label: "Taux de recouvrement",
-            value: `${health.collectionRate ?? 0}%`,
-            tone: "green",
-            progress: health.collectionRate ?? 0,
-        },
-        {
-            label: "Paiements a valider",
-            value: health.pendingPayments ?? 0,
-            tone: "amber",
-        },
-        {
-            label: "Charges en retard",
-            value: health.overdueCharges ?? 0,
-            tone: "red",
-        },
-        {
-            label: "Tickets ouverts",
-            value: health.openTickets ?? 0,
-            tone: "blue",
-        },
-        {
-            label: "Objets ouverts",
-            value: health.openItems ?? 0,
-            tone: "violet",
-        },
-        {
-            label: "Documents",
-            value: health.documents ?? 0,
-            tone: "slate",
-        },
-    ];
-
     return (
         <AdminLayout
             title="Tableau de bord"
-            subtitle="Pilotage financier, suivi des residents, incidents, documents et communications."
+            subtitle="Vue claire des finances, des lots et des incidents prioritaires."
         >
             <Head title="Tableau de bord" />
 
             <div className="space-y-5 sm:space-y-6">
-                <section className="dashboard-appear dashboard-card rounded-lg bg-[#0f3c1d] p-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.16)] sm:p-6 lg:p-7">
+                <section className="dashboard-appear dashboard-card rounded-lg bg-[#0F5132] p-4 text-white shadow-[0_18px_42px_rgba(15,23,42,0.16)] sm:p-6 lg:p-7">
                     <div className="grid gap-5 xl:grid-cols-[1.35fr_0.85fr] xl:items-end">
                         <div>
                             <div className="mb-4 flex flex-wrap gap-2">
@@ -1272,7 +1643,7 @@ export default function Dashboard({
                                     {isGlobal
                                         ? "Vue globale"
                                         : selectedBuilding?.name ||
-                                          "Vue batiment"}
+                                          "Vue bâtiment"}
                                 </Badge>
                                 <Badge tone="blue">
                                     {new Intl.DateTimeFormat("fr-FR", {
@@ -1286,8 +1657,8 @@ export default function Dashboard({
                                 Tableau de bord Syndicare
                             </h2>
                             <p className="mt-3 max-w-3xl text-sm leading-6 text-emerald-50/80">
-                                Vue consolidee des charges, paiements,
-                                depenses, tickets, objets perdus et documents.
+                                Vue consolidée pour suivre la trésorerie, les
+                                lots, les charges et les incidents à traiter.
                             </p>
 
                             <div className="mt-4 grid gap-2 sm:grid-cols-3">
@@ -1301,18 +1672,18 @@ export default function Dashboard({
                                 </div>
                                 <div className="rounded-lg border border-amber-300/30 bg-amber-900/25 px-3 py-2">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-100/75">
-                                        Paiements à valider
+                                        Charges du mois
                                     </p>
                                     <p className="mt-1 text-lg font-bold text-white">
-                                        {health.pendingPayments ?? 0}
+                                        {formatCurrency(summary.chargesThisMonth)}
                                     </p>
                                 </div>
                                 <div className="rounded-lg border border-sky-300/30 bg-sky-900/25 px-3 py-2">
                                     <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-100/75">
-                                        Tickets actifs
+                                        Impayés
                                     </p>
                                     <p className="mt-1 text-lg font-bold text-white">
-                                        {health.openTickets ?? 0}
+                                        {formatCurrency(summary.unpaidCharges)}
                                     </p>
                                 </div>
                             </div>
@@ -1334,7 +1705,7 @@ export default function Dashboard({
                                     }
                                     className="min-h-11 w-full rounded-md border border-white/20 bg-white px-3 py-2 text-sm font-semibold text-slate-800 shadow-sm focus:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-200"
                                 >
-                                    <option value="">Tous les batiments</option>
+                                    <option value="">Tous les bâtiments</option>
                                     {buildings.map((building) => (
                                         <option
                                             key={building.id}
@@ -1349,504 +1720,82 @@ export default function Dashboard({
                     </div>
                 </section>
 
-                <QuickActions
-                    isGlobal={!selectedBuildingId}
-                    buildingId={selectedBuildingId || null}
-                    buildingName={selectedBuilding?.name}
-                    canGenerateCharges={canGenerateCharges}
-                />
-
-                <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
                     <MetricCard
                         label={
                             isBuildingView
-                                ? "Residents du batiment"
+                                ? "Résidents"
                                 : "Utilisateurs"
                         }
                         value={formatNumber(summary.users)}
                         helper={
                             isBuildingView
-                                ? "Coproprietaires et locataires lies au batiment"
-                                : "Syndic, coproprietaires et locataires"
+                                ? "Immeuble actif"
+                                : "Tous les membres"
                         }
                         tone="green"
+                        icon="users"
                     />
                     <MetricCard
                         label={
                             isBuildingView
-                                ? "Batiment selectionne"
-                                : "Batiments"
+                                ? "Bâtiment"
+                                : "Bâtiments"
                         }
                         value={
                             isBuildingView
-                                ? selectedBuilding?.name || "Batiment"
+                                ? selectedBuilding?.name || "Bâtiment"
                                 : formatNumber(summary.buildings)
                         }
-                        helper={`${formatNumber(summary.apartments)} appartements`}
+                        helper={`${formatNumber(summary.apartments)} lots`}
                         tone="slate"
+                        icon="building"
                     />
                     <MetricCard
-                        label="Depenses du mois"
+                        label="Dépenses"
                         value={formatCurrency(summary.expensesThisMonth)}
-                        helper="Budget engage"
+                        helper="Ce mois"
                         tone="amber"
+                        icon="expense"
                     />
                     <MetricCard
-                        label="Impayes"
+                        label="Impayés"
                         value={formatCurrency(summary.unpaidCharges)}
-                        helper="Charges en attente et en retard"
+                        helper="A suivre"
                         tone="rose"
+                        icon="alert"
                     />
                     <MetricCard
-                        label="Charges du mois"
+                        label="Charges"
                         value={formatCurrency(summary.chargesThisMonth)}
-                        helper={`${formatNumber(summary.charges)} charges au total`}
+                        helper={`${formatNumber(summary.charges)} total`}
                         tone="blue"
+                        icon="charge"
                     />
                     <MetricCard
-                        label="Paiements valides"
-                        value={formatCurrency(
-                            summary.validatedPaymentsThisMonth,
-                        )}
-                        helper={`${formatNumber(summary.payments)} paiements suivis`}
-                        tone="green"
-                    />
-                    <MetricCard
-                        label="Tickets"
-                        value={formatNumber(summary.tickets)}
-                        helper="Maintenance et demandes residents"
-                        tone="violet"
-                    />
-                    <MetricCard
-                        label="Objets perdus"
-                        value={formatNumber(summary.items)}
-                        helper="Declarations et reclamations"
-                        tone="slate"
+                        label="Recouvrement"
+                        value={`${health.collectionRate ?? 0}%`}
+                        helper="Taux global"
+                        tone="lime"
+                        icon="rate"
                     />
                 </section>
 
-                <Panel
-                    title="Sante operationnelle"
-                    subtitle="Indicateurs prioritaires pour le suivi du syndic."
-                >
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-                        {healthCards.map((item) => (
-                            <div
-                                key={item.label}
-                                className={`dashboard-card rounded-lg border p-3.5 ${toneSurfaceClass(item.tone)}`}
-                            >
-                                <div
-                                    className={`mb-3 h-1.5 w-16 rounded-full ${toneAccentClass(item.tone)}`}
-                                />
-                                <div className="flex items-start justify-between gap-2">
-                                    <p className="text-sm font-medium text-slate-600">
-                                        {item.label}
-                                    </p>
-                                    <Badge tone={item.tone}>{item.value}</Badge>
-                                </div>
-                                {item.progress !== undefined && (
-                                    <div className="mt-4">
-                                        <ProgressBar
-                                            value={item.progress}
-                                            tone={item.tone}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                </Panel>
+                <section className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.85fr)] xl:items-stretch">
+                    <RevenueChart series={revenueSeries} />
 
-                <section className="grid gap-6 xl:grid-cols-3 xl:items-start">
-                    <Panel
-                        title="Tickets urgents"
-                        subtitle="Maintenance et incidents actifs a traiter en priorite."
-                        action={
-                            <Link
-                                href={route("tickets.index")}
-                                className="inline-flex items-center rounded-md border border-sky-200 bg-sky-50 px-3 py-2 text-xs font-semibold text-sky-800 transition hover:bg-sky-100"
-                            >
-                                Voir tickets
-                            </Link>
-                        }
-                    >
-                        <CompactList
-                            items={urgentTickets}
-                            empty="Aucun ticket urgent."
-                        >
-                            {(ticket) => (
-                                <div
-                                    key={ticket.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <p className="font-semibold text-slate-950">
-                                            {ticket.title}
-                                        </p>
-                                        <Badge tone={statusTone(ticket.status)}>
-                                            {ticket.status}
-                                        </Badge>
-                                    </div>
-                                    <p className="mt-2 text-sm text-slate-500">
-                                        {ticket.building || "-"} -{" "}
-                                        {ticket.apartment || "-"}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        {ticket.created_by || "Resident"} -{" "}
-                                        {ticket.created_at || "-"}
-                                    </p>
-                                </div>
-                            )}
-                        </CompactList>
-                    </Panel>
-
-                    <Panel
-                        title="Paiements a valider"
-                        subtitle="Preuves de paiement en attente de controle."
-                    >
-                        <CompactList
-                            items={pendingPayments}
-                            empty="Aucun paiement en attente."
-                        >
-                            {(payment) => (
-                                <div
-                                    key={payment.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="font-semibold text-slate-950">
-                                                {formatCurrency(payment.amount)}
-                                            </p>
-                                            <p className="mt-1 text-sm text-slate-500">
-                                                {payment.resident || "Resident"}
-                                            </p>
-                                        </div>
-                                        <Badge tone={statusTone(payment.status)}>
-                                            {payment.status}
-                                        </Badge>
-                                    </div>
-                                    <p className="mt-3 text-sm text-slate-700">
-                                        {payment.charge || "Charge"}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        {payment.building || "-"} -{" "}
-                                        {payment.apartment || "-"}
-                                    </p>
-                                </div>
-                            )}
-                        </CompactList>
-                    </Panel>
-
-                    <Panel
-                        title="Charges prioritaires"
-                        subtitle="Relance et recouvrement des encours."
-                    >
-                        <CompactList
-                            items={priorityCharges}
-                            empty="Aucune charge prioritaire."
-                        >
-                            {(charge) => (
-                                <div
-                                    key={charge.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <div className="min-w-0">
-                                            <p className="font-semibold text-slate-950">
-                                                {charge.description}
-                                            </p>
-                                            <p className="mt-1 text-sm text-slate-500">
-                                                {charge.building || "-"} -{" "}
-                                                {charge.apartment || "-"}
-                                            </p>
-                                        </div>
-                                        <Badge tone={statusTone(charge.status)}>
-                                            {charge.status}
-                                        </Badge>
-                                    </div>
-                                    <p className="mt-3 text-lg font-bold text-slate-950">
-                                        {formatCurrency(charge.amount)}
-                                    </p>
-                                </div>
-                            )}
-                        </CompactList>
-                    </Panel>
+                    <UnpaidChargesPanel charges={unpaidCharges} />
                 </section>
 
-                <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr] xl:items-start">
-                    <Panel
-                        title="Parc immobilier"
-                        subtitle="Occupation, surface, depenses et charges par immeuble."
-                    >
-                        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-                            {buildings.map((building) => {
-                                const expenses =
-                                    building.currentMonthExpenses ??
-                                    building.expenses ??
-                                    0;
-                                const charges =
-                                    building.currentMonthCharges ??
-                                    building.charges ??
-                                    0;
-
-                                return (
-                                    <div
-                                        key={building.id}
-                                        className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                    >
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <p className="truncate text-base font-semibold text-slate-950">
-                                                    {building.name}
-                                                </p>
-                                                <p className="mt-1 truncate text-sm text-slate-500">
-                                                    {building.address}
-                                                </p>
-                                            </div>
-                                            <Badge tone="green">
-                                                {building.occupancyRate ?? 0}%
-                                            </Badge>
-                                        </div>
-
-                                        <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                                            <div>
-                                                <p className="text-slate-500">
-                                                    Appartements
-                                                </p>
-                                                <p className="font-semibold text-slate-950">
-                                                    {formatNumber(
-                                                        building.apartments,
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-500">
-                                                    Occupes
-                                                </p>
-                                                <p className="font-semibold text-slate-950">
-                                                    {formatNumber(
-                                                        building.occupied,
-                                                    )}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-500">
-                                                    Depenses
-                                                </p>
-                                                <p className="font-semibold text-slate-950">
-                                                    {formatCurrency(expenses)}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-500">
-                                                    Charges
-                                                </p>
-                                                <p className="font-semibold text-slate-950">
-                                                    {formatCurrency(charges)}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-4">
-                                            <ProgressBar
-                                                value={
-                                                    building.occupancyRate ?? 0
-                                                }
-                                                tone="green"
-                                            />
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </Panel>
-
-                    <div className="space-y-6">
-                        <Panel
-                            title="Depenses recentes"
-                            subtitle="Dernieres sorties budgetaires."
-                        >
-                            <CompactList
-                                items={recentExpenses}
-                                empty="Aucune depense recente."
-                            >
-                                {(expense) => (
-                                    <div
-                                        key={expense.id}
-                                        className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                    >
-                                        <p className="font-semibold text-slate-950">
-                                            {expense.title ||
-                                                expense.description}
-                                        </p>
-                                        <p className="mt-1 text-sm text-slate-500">
-                                            {expense.building || "-"} -{" "}
-                                            {expense.date || "-"}
-                                        </p>
-                                        <p className="mt-2 font-bold text-slate-950">
-                                            {formatCurrency(expense.amount)}
-                                        </p>
-                                    </div>
-                                )}
-                            </CompactList>
-                        </Panel>
-
-                        <Panel
-                            title="Charges recentes"
-                            subtitle="Dernieres charges creees."
-                        >
-                            <CompactList
-                                items={recentCharges}
-                                empty="Aucune charge recente."
-                            >
-                                {(charge) => (
-                                    <div
-                                        key={charge.id}
-                                        className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                    >
-                                        <div className="flex items-start justify-between gap-3">
-                                            <p className="font-semibold text-slate-950">
-                                                {charge.description}
-                                            </p>
-                                            <Badge
-                                                tone={statusTone(
-                                                    charge.status,
-                                                )}
-                                            >
-                                                {charge.status}
-                                            </Badge>
-                                        </div>
-                                        <p className="mt-1 text-sm text-slate-500">
-                                            {charge.building || "-"} -{" "}
-                                            {charge.apartment || "-"} -{" "}
-                                            {charge.date || "-"}
-                                        </p>
-                                        <p className="mt-2 font-bold text-slate-950">
-                                            {formatCurrency(charge.amount)}
-                                        </p>
-                                    </div>
-                                )}
-                            </CompactList>
-                        </Panel>
-                    </div>
+                <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)] xl:items-stretch">
+                    <AnnouncementsPanel
+                        announcements={recentAnnouncements}
+                        isBuildingView={isBuildingView}
+                        buildingName={selectedBuilding?.name}
+                    />
+                    <RecentTicketsPanel tickets={recentTickets} />
                 </section>
 
-                <section className="grid gap-6 xl:grid-cols-[1.45fr_0.95fr] xl:items-start">
-                    <Panel
-                        title="Evolution mensuelle"
-                        subtitle="Depenses, charges generees et paiements valides sur les 6 derniers mois."
-                    >
-                        <LineChart data={monthlySeries} />
-                    </Panel>
-
-                    <div className="space-y-6">
-                        <Panel
-                            title="Statut des charges"
-                            subtitle="Recouvrement et retards a surveiller."
-                        >
-                            <StatusRows rows={chargeStatusRows} />
-                        </Panel>
-
-                        <Panel
-                            title="Statut des tickets"
-                            subtitle="Demandes ouvertes, en cours et fermees."
-                        >
-                            <StatusRows rows={ticketStatusRows} />
-                        </Panel>
-
-                    </div>
-                </section>
-
-                <section className="grid gap-6 xl:grid-cols-3 xl:items-start">
-                    <Panel
-                        title="Annonces recentes"
-                        subtitle="Communications envoyees aux residents."
-                    >
-                        <CompactList
-                            items={recentAnnouncements}
-                            empty="Aucune annonce recente."
-                        >
-                            {(announcement) => (
-                                <div
-                                    key={announcement.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <p className="font-semibold text-slate-950">
-                                            {announcement.title}
-                                        </p>
-                                        <Badge tone="blue">
-                                            {announcement.target_role}
-                                        </Badge>
-                                    </div>
-                                    <p className="mt-2 text-sm text-slate-500">
-                                        {announcement.building} -{" "}
-                                        {announcement.created_at}
-                                    </p>
-                                </div>
-                            )}
-                        </CompactList>
-                    </Panel>
-
-                    <Panel
-                        title="Documents"
-                        subtitle="Derniers fichiers ajoutes."
-                    >
-                        <CompactList
-                            items={recentDocuments}
-                            empty="Aucun document recent."
-                        >
-                            {(document) => (
-                                <div
-                                    key={document.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                >
-                                    <p className="font-semibold text-slate-950">
-                                        {document.title}
-                                    </p>
-                                    <p className="mt-2 text-sm text-slate-500">
-                                        {document.uploader || "Utilisateur"} -{" "}
-                                        {document.created_at || "-"}
-                                    </p>
-                                </div>
-                            )}
-                        </CompactList>
-                    </Panel>
-
-                    <Panel
-                        title="Objets perdus"
-                        subtitle="Declarations recentes a suivre."
-                    >
-                        <CompactList
-                            items={recentItems}
-                            empty="Aucun objet recent."
-                        >
-                            {(item) => (
-                                <div
-                                    key={item.id}
-                                    className="rounded-lg border border-slate-100 bg-[#fffdf8] p-4"
-                                >
-                                    <div className="flex items-start justify-between gap-3">
-                                        <p className="font-semibold text-slate-950">
-                                            {item.title}
-                                        </p>
-                                        <Badge tone={statusTone(item.status)}>
-                                            {item.status}
-                                        </Badge>
-                                    </div>
-                                    <p className="mt-2 text-sm text-slate-500">
-                                        {item.type} - {item.category}
-                                    </p>
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        {item.building || item.location || "-"}{" "}
-                                        - {item.created_at || "-"}
-                                    </p>
-                                </div>
-                            )}
-                        </CompactList>
-                    </Panel>
-                </section>
             </div>
         </AdminLayout>
     );

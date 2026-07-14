@@ -16,7 +16,14 @@ export default {
                 sans: ["Figtree", ...defaultTheme.fontFamily.sans],
             },
             colors: {
-                gold: "#aa7e16",
+                brand: {
+                    DEFAULT: "#0F5132",
+                    hover: "#146C43",
+                    dark: "#0B2F1F",
+                    soft: "#E8F5EE",
+                    border: "#BFE3CF",
+                },
+                gold: "#C9A227",
             },
         },
     },

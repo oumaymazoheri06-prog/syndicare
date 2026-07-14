@@ -1,4 +1,4 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
@@ -29,7 +29,7 @@ function MethodInstructions({ method, paymentInstructions, t }) {
                     {t('RIB')}
                 </p>
                 <p className="mt-1 break-all rounded-xl bg-white px-3 py-2 font-mono text-sm font-semibold text-slate-900">
-                    {paymentInstructions.rib || t('RIB non renseigne par le syndic')}
+                    {paymentInstructions.rib || t('RIB non renseigné par le syndic')}
                 </p>
             </div>
         );
@@ -42,18 +42,18 @@ function MethodInstructions({ method, paymentInstructions, t }) {
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            {t('Nom et prenom')}
+                            {t('Nom et prénom')}
                         </p>
                         <p className="mt-1 font-semibold text-slate-900">
-                            {paymentInstructions.cashplus_name || t('Nom du syndic non renseigne')}
+                            {paymentInstructions.cashplus_name || t('Nom du syndic non renseigné')}
                         </p>
                     </div>
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-                            {t('Telephone')}
+                            {t('Téléphone')}
                         </p>
                         <p className="mt-1 font-semibold text-slate-900">
-                            {paymentInstructions.cashplus_phone || t('Telephone du syndic non renseigne')}
+                            {paymentInstructions.cashplus_phone || t('Téléphone du syndic non renseigné')}
                         </p>
                     </div>
                 </div>
@@ -92,7 +92,7 @@ function CoOwnerPaymentForm({ charges, paymentDefaults, paymentInstructions = {}
             toolbar={
                 <Link
                     href={route("charges.index")}
-                    className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0e3715]"
+                    className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0F5132]"
                 >
                     {t('Retour aux charges')}
                 </Link>
@@ -111,7 +111,7 @@ function CoOwnerPaymentForm({ charges, paymentDefaults, paymentInstructions = {}
                             <div>
                                 <InputLabel
                                     htmlFor="charge_id"
-                                    value={t('Charge a payer')}
+                                    value={t('Charge à payer')}
                                 />
                                 <select
                                     id="charge_id"
@@ -123,7 +123,7 @@ function CoOwnerPaymentForm({ charges, paymentDefaults, paymentInstructions = {}
                                     required
                                 >
                                     <option value="">
-                                        {t('Selectionner une charge')}
+                                        {t('Sélectionner une charge')}
                                     </option>
                                     {charges.map((charge) => (
                                         <option
@@ -144,7 +144,7 @@ function CoOwnerPaymentForm({ charges, paymentDefaults, paymentInstructions = {}
                             <div>
                                 <InputLabel
                                     htmlFor="method"
-                                    value={t('Methode de paiement')}
+                                    value={t('Méthode de paiement')}
                                 />
                                 <select
                                     id="method"
@@ -156,7 +156,7 @@ function CoOwnerPaymentForm({ charges, paymentDefaults, paymentInstructions = {}
                                     required
                                 >
                                     <option value="">
-                                        {t('Selectionner une methode')}
+                                        {t('Sélectionner une méthode')}
                                     </option>
                                     {paymentMethods.map((method) => (
                                         <option
@@ -284,7 +284,7 @@ export default function Form({
 
     return (
         <CrudFormPage
-            title={isEditing ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
+            title={isEditing ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -294,7 +294,7 @@ export default function Form({
                     : route(`${config.route}.store`)
             }
             method={isEditing ? 'put' : 'post'}
-            submitLabel={isEditing ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+            submitLabel={isEditing ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
         />
     );
 }

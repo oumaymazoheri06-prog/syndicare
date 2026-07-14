@@ -67,7 +67,7 @@ class OrganizationController extends Controller
 
         return redirect()
             ->route('admin.organizations.index')
-            ->with('success', 'Abonnement de l organisation mis a jour.');
+            ->with('success', "Abonnement de l'organisation mis à jour.");
     }
 
     private function serializeOrganization(Organization $organization): array

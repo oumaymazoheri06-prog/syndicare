@@ -32,7 +32,7 @@ class CacheLockController extends Controller
 
         Cache_lock::create($validated);
 
-        return redirect()->route('cache-locks.index')->with('success', 'Cache lock created successfully.');
+        return redirect()->route('cache-locks.index')->with('success', 'Traitement créé avec succès.');
     }
 
     public function show(Cache_lock $cache_lock): Response
@@ -58,13 +58,13 @@ class CacheLockController extends Controller
 
         $cache_lock->update($validated);
 
-        return redirect()->route('cache-locks.index')->with('success', 'Cache lock updated successfully.');
+        return redirect()->route('cache-locks.index')->with('success', 'Traitement mis à jour avec succès.');
     }
 
     public function destroy(Cache_lock $cache_lock): RedirectResponse
     {
         $cache_lock->delete();
 
-        return redirect()->route('cache-locks.index')->with('success', 'Cache lock deleted successfully.');
+        return redirect()->route('cache-locks.index')->with('success', 'Traitement supprimé avec succès.');
     }
 }
