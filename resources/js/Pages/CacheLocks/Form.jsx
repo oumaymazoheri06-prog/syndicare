@@ -1,4 +1,4 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs } from '../_shared/resources';
 
 export default function Form({ cacheLock }) {
@@ -7,7 +7,7 @@ export default function Form({ cacheLock }) {
 
     return (
         <CrudFormPage
-            title={cacheLock ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
+            title={cacheLock ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
             resource={config.route}
             fields={config.formFields}
             defaults={defaults}
@@ -17,7 +17,7 @@ export default function Form({ cacheLock }) {
                     : route(`${config.route}.store`)
             }
             method={cacheLock ? 'put' : 'post'}
-            submitLabel={cacheLock ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+            submitLabel={cacheLock ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
         />
     );
 }

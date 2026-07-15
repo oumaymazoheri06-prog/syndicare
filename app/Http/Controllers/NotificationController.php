@@ -63,7 +63,7 @@ class NotificationController extends Controller
             $validated['type']
         );
 
-        return redirect()->route('notifications.index')->with('success', 'Alerte creee avec succes.');
+        return redirect()->route('notifications.index')->with('success', 'Alerte créée avec succès.');
     }
 
     public function show(Request $request, Notification $notification): Response
@@ -118,7 +118,7 @@ class NotificationController extends Controller
             'is_read' => $isRead,
         ]);
 
-        return redirect()->route('notifications.index')->with('success', 'Alerte mise a jour avec succes.');
+        return redirect()->route('notifications.index')->with('success', 'Alerte mise à jour avec succès.');
     }
 
     public function destroy(Request $request, Notification $notification): RedirectResponse
@@ -127,29 +127,18 @@ class NotificationController extends Controller
 
         $notification->delete();
 
-        return redirect()->route('notifications.index')->with('success', 'Alerte supprimee avec succes.');
+        return redirect()->route('notifications.index')->with('success', 'Alerte supprimée avec succès.');
     }
 
     public function markRead(Request $request, Notification $notification): RedirectResponse
     {
-        $this->authorize('update', $notification);
+        $this->authorize('markRead', $notification);
 
         $notification->update([
             'is_read' => true,
         ]);
 
-        return back()->with('success', 'Alerte marquee comme lue.');
-    }
-
-    public function markUnread(Request $request, Notification $notification): RedirectResponse
-    {
-        $this->authorize('update', $notification);
-
-        $notification->update([
-            'is_read' => false,
-        ]);
-
-        return back()->with('success', 'Alerte marquee comme non lue.');
+        return back()->with('success', 'Alerte marquée comme lue.');
     }
 
     public function markAllAsRead(Request $request): RedirectResponse
@@ -158,6 +147,6 @@ class NotificationController extends Controller
             ->where('is_read', false)
             ->update(['is_read' => true]);
 
-        return back()->with('success', 'Toutes les alertes ont ete marquees comme lues.');
+        return back()->with('success', 'Toutes les alertes ont été marquées comme lues.');
     }
 }

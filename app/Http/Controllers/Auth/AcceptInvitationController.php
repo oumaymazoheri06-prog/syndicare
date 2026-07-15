@@ -45,7 +45,7 @@ class AcceptInvitationController extends Controller
 
         if (! $invitation?->isPending()) {
             throw ValidationException::withMessages([
-                'password' => 'Cette invitation est invalide ou expiree.',
+                'password' => 'Cette invitation est invalide ou expirée.',
             ]);
         }
 

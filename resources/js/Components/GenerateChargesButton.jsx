@@ -1,4 +1,4 @@
-import Modal from "@/Components/Modal";
+﻿import Modal from "@/Components/Modal";
 import { router } from "@inertiajs/react";
 import { useState } from "react";
 
@@ -27,6 +27,7 @@ function buildPayload(month, buildingId) {
 export default function GenerateChargesButton({
     buildingId = null,
     buildingName = null,
+    redirectTo = null,
 }) {
     const [showPreview, setShowPreview] = useState(false);
     const [month, setMonth] = useState(currentMonth());
@@ -36,8 +37,8 @@ export default function GenerateChargesButton({
     const [error, setError] = useState("");
     const isBuildingScope = Boolean(buildingId);
     const buttonLabel = isBuildingScope
-        ? "Generer ce batiment"
-        : "Generer tous les batiments";
+        ? "Générer les charges de ce bâtiment"
+        : "Générer les charges de tous les bâtiments";
 
     const loadPreview = async (targetMonth = month) => {
         setLoadingPreview(true);
@@ -58,7 +59,7 @@ export default function GenerateChargesButton({
             );
 
             if (!response.ok) {
-                throw new Error("Impossible de charger l apercu.");
+                throw new Error("Impossible de charger l'aperçu.");
             }
 
             setPreview(await response.json());
@@ -81,10 +82,13 @@ export default function GenerateChargesButton({
         }
     };
 
-    const confirmGeneration = () => {
+    const confirmGénération = () => {
         setGenerating(true);
 
-        router.post(route("dashboard.generate-charges"), buildPayload(month, buildingId), {
+        router.post(route("dashboard.generate-charges"), {
+            ...buildPayload(month, buildingId),
+            ...(redirectTo ? { redirect_to: redirectTo } : {}),
+        }, {
             preserveScroll: true,
             onSuccess: () => setShowPreview(false),
             onFinish: () => setGenerating(false),
@@ -93,8 +97,8 @@ export default function GenerateChargesButton({
 
     const totals = preview?.totals;
     const canGenerate = totals && totals.will_create > 0 && !generating;
-    const showBuildingDetails = (preview?.buildings?.length || 0) > 1;
-    const singleBuildingStatus = !showBuildingDetails
+    const showBuildingDétails = (preview?.buildings?.length || 0) > 1;
+    const singleBuildingStatus = !showBuildingDétails
         ? preview?.buildings?.[0]?.status
         : null;
 
@@ -104,7 +108,7 @@ export default function GenerateChargesButton({
                 type="button"
                 onClick={openPreview}
                 disabled={loadingPreview}
-                className="inline-flex w-full items-center justify-center rounded-lg border border-emerald-700 bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-900/20 transition-all duration-200 hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-900/25 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 sm:w-auto"
+                className="inline-flex min-h-10 items-center justify-center whitespace-nowrap rounded-full border border-emerald-700 bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-150 ease-in-out hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 active:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {loadingPreview ? "Chargement..." : buttonLabel}
             </button>
@@ -118,13 +122,13 @@ export default function GenerateChargesButton({
             >
                 <div className="border-b border-slate-100 bg-white px-5 py-4">
                     <h3 className="text-lg font-semibold text-slate-950">
-                        Apercu de generation des charges
+                        Aperçu de génération des charges
                     </h3>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                         <span className="inline-flex rounded-md border border-emerald-100 bg-emerald-50/80 px-2.5 py-1 text-xs font-semibold text-emerald-800">
                             {isBuildingScope
-                                ? buildingName || "Batiment selectionne"
-                                : "Tous les batiments"}
+                                ? buildingName || "Bâtiment sélectionné"
+                                : "Tous les bâtiments"}
                         </span>
                         {singleBuildingStatus && (
                             <span className="inline-flex rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
@@ -141,7 +145,7 @@ export default function GenerateChargesButton({
                                 htmlFor="charge-generation-month"
                                 className="block text-sm font-semibold text-slate-700"
                             >
-                                Mois a generer
+                                Mois à générer
                             </label>
                             <input
                                 id="charge-generation-month"
@@ -173,7 +177,7 @@ export default function GenerateChargesButton({
 
                     {loadingPreview && (
                         <div className="rounded-lg border border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
-                            Preparation de l apercu...
+                            Préparation de l'aperçu...
                         </div>
                     )}
 
@@ -182,7 +186,7 @@ export default function GenerateChargesButton({
                             <div className="grid gap-3 md:grid-cols-3">
                                 <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                                     <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                                        Depenses du mois
+                                        Dépenses du mois
                                     </p>
                                     <p className="mt-2 text-2xl font-bold text-slate-950">
                                         {formatCurrency(totals.expenses)}
@@ -190,7 +194,7 @@ export default function GenerateChargesButton({
                                 </div>
                                 <div className="rounded-lg border border-amber-100 bg-amber-50/40 p-4 shadow-sm">
                                     <p className="text-xs font-semibold uppercase tracking-wide text-amber-700">
-                                        Deja facture
+                                        Déjà facturé
                                     </p>
                                     <p className="mt-2 text-2xl font-bold text-amber-950">
                                         {formatCurrency(totals.existing_amount)}
@@ -198,7 +202,7 @@ export default function GenerateChargesButton({
                                 </div>
                                 <div className="rounded-lg border border-emerald-100 bg-emerald-50/60 p-4 shadow-sm">
                                     <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                                        Reste a generer
+                                        Reste à générer
                                     </p>
                                     <p className="mt-2 text-2xl font-bold text-emerald-950">
                                         {formatCurrency(totals.total_amount)}
@@ -208,26 +212,26 @@ export default function GenerateChargesButton({
 
                             <div className="flex flex-wrap gap-2">
                                 <span className="inline-flex rounded-md border border-emerald-100 bg-emerald-50/70 px-3 py-1.5 text-sm font-semibold text-emerald-800">
-                                    {totals.will_create} charges a creer
+                                    {totals.will_create} charges à créer
                                 </span>
                                 <span className="inline-flex rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-600">
-                                    {totals.existing_charges} deja existantes
+                                    {totals.existing_charges} déjà existantes
                                 </span>
                             </div>
 
-                            {showBuildingDetails && (
+                            {showBuildingDétails && (
                                 <div className="max-h-72 overflow-y-auto rounded-lg border border-slate-200">
                                     <table className="min-w-full divide-y divide-slate-100 text-sm">
                                         <thead className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
                                             <tr>
                                                 <th className="px-4 py-3">
-                                                    Batiment
+                                                    Bâtiment
                                                 </th>
                                                 <th className="px-4 py-3">
-                                                    Depenses
+                                                    Dépenses
                                                 </th>
                                                 <th className="px-4 py-3">
-                                                    Deja facture
+                                                    Déjà facturé
                                                 </th>
                                                 <th className="px-4 py-3">
                                                     Reste
@@ -270,8 +274,8 @@ export default function GenerateChargesButton({
 
                             {totals.will_create === 0 && (
                                 <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-                                    Aucune nouvelle charge a generer pour ce mois.
-                                    Les montants deja factures couvrent les depenses
+                                    Aucune nouvelle charge à générer pour ce mois.
+                                    Les montants déjà facturés couvrent les dépenses
                                     actuelles.
                                 </div>
                             )}
@@ -290,11 +294,11 @@ export default function GenerateChargesButton({
                     </button>
                     <button
                         type="button"
-                        onClick={confirmGeneration}
+                        onClick={confirmGénération}
                         disabled={!canGenerate}
                         className="inline-flex justify-center rounded-lg border border-emerald-700 bg-emerald-800 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                        {generating ? "Generation..." : "Confirmer generation"}
+                        {generating ? "Génération..." : "Confirmer la génération"}
                     </button>
                 </div>
             </Modal>

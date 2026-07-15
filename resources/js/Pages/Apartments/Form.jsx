@@ -1,11 +1,11 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs, asOptions } from '../_shared/resources';
 
 export default function Form({ apartment, floors, users }) {
     const config = resourceConfigs.apartments;
     const fields = config.formFields.map((field) => {
         if (field.name === 'floor_id') {
-            return { ...field, options: asOptions(floors, 'id', 'number') };
+            return { ...field, options: asOptions(floors, 'id', 'label') };
         }
 
         if (field.name === 'user_id') {
@@ -18,7 +18,7 @@ export default function Form({ apartment, floors, users }) {
 
     return (
         <CrudFormPage
-            title={apartment ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
+            title={apartment ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -28,7 +28,7 @@ export default function Form({ apartment, floors, users }) {
                     : route(`${config.route}.store`)
             }
             method={apartment ? 'put' : 'post'}
-            submitLabel={apartment ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+            submitLabel={apartment ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
         />
     );
 }

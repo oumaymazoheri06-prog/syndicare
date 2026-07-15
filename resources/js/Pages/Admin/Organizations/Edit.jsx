@@ -40,7 +40,7 @@ export default function Edit({
 
     return (
         <AdminLayout
-            title="Modifier l organisation"
+            title="Modifier l'organisation"
             subtitle={organization.name}
             toolbar={
                 <Link
@@ -202,6 +202,7 @@ export default function Edit({
                                 className="mt-2"
                             />
                         </div>
+
                     </div>
 
                     <div className="mt-6 flex justify-end">
@@ -223,7 +224,7 @@ export default function Edit({
                             </p>
                         </div>
                         <div>
-                            <p className="text-slate-500">Email</p>
+                            <p className="text-slate-500">E-mail</p>
                             <p className="font-bold text-slate-950">
                                 {organization.email || '-'}
                             </p>

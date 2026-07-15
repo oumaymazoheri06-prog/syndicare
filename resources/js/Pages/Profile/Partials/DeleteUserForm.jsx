@@ -53,7 +53,7 @@ export default function DeleteUserForm({ className = '' }) {
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600">
-                    Une fois votre compte supprime, ses donnees seront supprimees definitivement.
+                    Une fois votre compte supprimé, ses données seront supprimées définitivement.
                 </p>
             </header>
 

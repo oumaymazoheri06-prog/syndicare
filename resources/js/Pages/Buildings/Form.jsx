@@ -1,4 +1,4 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs } from '../_shared/resources';
 
 export default function Form({ building }) {
@@ -7,7 +7,7 @@ export default function Form({ building }) {
 
     return (
         <CrudFormPage
-            title={building ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
+            title={building ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
             resource={config.route}
             fields={config.formFields}
             defaults={defaults}
@@ -17,7 +17,7 @@ export default function Form({ building }) {
                     : route(`${config.route}.store`)
             }
             method={building ? 'put' : 'post'}
-            submitLabel={building ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+            submitLabel={building ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
         />
     );
 }

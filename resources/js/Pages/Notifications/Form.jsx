@@ -1,4 +1,4 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs, asOptions } from '../_shared/resources';
 
 export default function Form({ notification, users }) {
@@ -12,7 +12,7 @@ export default function Form({ notification, users }) {
 
     return (
         <CrudFormPage
-            title={notification ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
+            title={notification ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -22,7 +22,7 @@ export default function Form({ notification, users }) {
                     : route(`${config.route}.store`)
             }
             method={notification ? 'put' : 'post'}
-            submitLabel={notification ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+            submitLabel={notification ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
         />
     );
 }

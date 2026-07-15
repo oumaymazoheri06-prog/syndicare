@@ -76,6 +76,7 @@ class DashboardController extends Controller
                     ->sum('amount'),
             ];
         });
+        $revenueSeries = $this->revenueSeries($buildingId);
 
         $chargeStatuses = Charge::query()
             ->when($buildingId, function ($query) use ($buildingId) {
@@ -204,13 +205,21 @@ class DashboardController extends Controller
 
             'validatedPaymentsThisMonth' => (clone $paymentQuery)
                 ->where('status', 'validated')
-                ->whereNotNull('payment_date')
-                ->whereYear('payment_date', $now->year)
-                ->whereMonth('payment_date', $now->month)
+                ->whereHas('charge', function ($query) use ($now) {
+                    $query
+                        ->whereYear('date', $now->year)
+                        ->whereMonth('date', $now->month);
+                })
+                ->sum('amount'),
+
+            'chargesTotalAmount' => (clone $chargeQuery)->sum('amount'),
+            'validatedPaymentsTotal' => (clone $paymentQuery)
+                ->where('status', 'validated')
                 ->sum('amount'),
 
             'unpaidCharges' => (clone $chargeQuery)
                 ->whereIn('status', ['pending', 'overdue'])
+                
                 ->sum('amount'),
         ];
 
@@ -254,8 +263,32 @@ class DashboardController extends Controller
                 ];
             });
 
+        $recentTickets = (clone $ticketQuery)
+            ->with(['apartment.floor.building', 'createdBy'])
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(function (Ticket $ticket) {
+                return [
+                    'id' => $ticket->id,
+                    'title' => $ticket->title,
+                    'description' => $ticket->description,
+                    'status' => $ticket->status,
+                    'apartment' => $ticket->apartment?->number,
+                    'building' => $ticket->apartment?->floor?->building?->name,
+                    'created_by' => $ticket->createdBy?->name,
+                    'created_at' => optional($ticket->created_at)->diffForHumans(),
+                ];
+            });
+
         $recentAnnouncements = Announcement::query()
-            ->when($buildingId, function ($query) use ($buildingId) {
+            ->where(function ($query) use ($buildingId) {
+                if (! $buildingId) {
+                    $query->whereNull('building_id');
+
+                    return;
+                }
+
                 $query->where(function ($q) use ($buildingId) {
                     $q->whereNull('building_id')->orWhere('building_id', $buildingId);
                 });
@@ -268,6 +301,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $announcement->id,
                     'title' => $announcement->title,
+                    'content' => $announcement->content,
                     'target_role' => $announcement->target_role,
                     'building' => $announcement->building?->name ?? 'Tous les immeubles',
                     'creator' => $announcement->creator?->name,
@@ -289,8 +323,8 @@ class DashboardController extends Controller
                 ];
             });
 
-        $collectionRate = (float) $summary['chargesThisMonth'] > 0
-            ? round(((float) $summary['validatedPaymentsThisMonth'] / (float) $summary['chargesThisMonth']) * 100)
+        $collectionRate = (float) $summary['chargesTotalAmount'] > 0
+            ? round(((float) $summary['validatedPaymentsTotal'] / (float) $summary['chargesTotalAmount']) * 100)
             : 0;
 
         $health = [
@@ -301,7 +335,13 @@ class DashboardController extends Controller
             'openItems' => (clone $itemQuery)->whereIn('status', ['ouvert', 'en_contact'])->count(),
             'documents' => Document::count(),
             'announcementsThisMonth' => Announcement::query()
-                ->when($buildingId, function ($query) use ($buildingId) {
+                ->where(function ($query) use ($buildingId) {
+                    if (! $buildingId) {
+                        $query->whereNull('building_id');
+
+                        return;
+                    }
+
                     $query->where(function ($q) use ($buildingId) {
                         $q->whereNull('building_id')->orWhere('building_id', $buildingId);
                     });
@@ -355,7 +395,7 @@ class DashboardController extends Controller
                 $q->whereHas('apartment.floor.building', fn ($q2) => $q2->where('id', $buildingId)
                 );
             })
-            ->with(['apartment.floor.building'])
+            ->with(['apartment.floor.building', 'apartment.user'])
             ->whereIn('status', ['pending', 'overdue']);
         $priorityCharges = $priorityChargesQuery
             ->orderByRaw("CASE WHEN status = 'overdue' THEN 0 ELSE 1 END")
@@ -370,6 +410,7 @@ class DashboardController extends Controller
                     'status' => $charge->status,
                     'apartment' => $charge->apartment?->number,
                     'building' => $charge->apartment?->floor?->building?->name,
+                    'resident' => $charge->apartment?->user?->name,
                 ];
             });
         $recentItems = (clone $itemQuery)
@@ -396,19 +437,95 @@ class DashboardController extends Controller
             'isGlobal' => $isGlobal,
             'summary' => $summary,
             'monthlySeries' => $monthlySeries,
+            'revenueSeries' => $revenueSeries,
             'chargeStatuses' => $chargeStatuses,
             'ticketStatuses' => $ticketStatuses,
             'buildings' => $buildings,
             'recentCharges' => $recentCharges,
             'recentExpenses' => $recentExpenses,
             'priorityCharges' => $priorityCharges,
+            'unpaidCharges' => $priorityCharges,
             'pendingPayments' => $pendingPayments,
             'urgentTickets' => $urgentTickets,
+            'recentTickets' => $recentTickets,
             'recentAnnouncements' => $recentAnnouncements,
             'recentDocuments' => $recentDocuments,
             'recentItems' => $recentItems,
             'health' => $health,
         ]);
+    }
+
+    private function revenueSeries($buildingId = null): array
+    {
+        return [
+            'day' => $this->validatedPaymentSeries($buildingId, 'day'),
+            'month' => $this->validatedPaymentSeries($buildingId, 'month'),
+            'year' => $this->validatedPaymentSeries($buildingId, 'year'),
+        ];
+    }
+
+    private function validatedPaymentSeries($buildingId, string $period): array
+    {
+        $now = now();
+
+        if ($period === 'day') {
+            $points = collect(range(13, 0))->map(
+                fn (int $offset) => $now->copy()->startOfDay()->subDays($offset)
+            );
+            $keyFormat = 'Y-m-d';
+            $labelFormat = 'd/m';
+        } elseif ($period === 'year') {
+            $points = collect(range(4, 0))->map(
+                fn (int $offset) => $now->copy()->startOfYear()->subYears($offset)
+            );
+            $keyFormat = 'Y';
+            $labelFormat = 'Y';
+        } else {
+            $points = collect(range(11, 0))->map(
+                fn (int $offset) => $now->copy()->startOfMonth()->subMonthsNoOverflow($offset)
+            );
+            $keyFormat = 'Y-m';
+            $labelFormat = 'm/Y';
+        }
+
+        $start = $points->first();
+
+        $payments = Payment::query()
+            ->when($buildingId, function ($query) use ($buildingId) {
+                $query->whereHas('charge.apartment.floor.building', fn ($q) => $q->where('id', $buildingId));
+            })
+            ->where('status', 'validated')
+            ->where(function ($query) use ($start) {
+                $query
+                    ->whereDate('payment_date', '>=', $start)
+                    ->orWhere(function ($fallback) use ($start) {
+                        $fallback
+                            ->whereNull('payment_date')
+                            ->whereDate('created_at', '>=', $start);
+                    });
+            })
+            ->get(['amount', 'payment_date', 'created_at']);
+
+        $totals = $payments->reduce(function (array $totals, Payment $payment) use ($keyFormat) {
+            $date = $payment->payment_date ?: $payment->created_at;
+
+            if (! $date) {
+                return $totals;
+            }
+
+            $key = ($date instanceof Carbon ? $date : Carbon::parse($date))->format($keyFormat);
+            $totals[$key] = ($totals[$key] ?? 0) + (float) $payment->amount;
+
+            return $totals;
+        }, []);
+
+        return $points
+            ->map(fn (Carbon $point) => [
+                'label' => $point->format($labelFormat),
+                'value' => round((float) ($totals[$point->format($keyFormat)] ?? 0), 2),
+            ])
+            ->values()
+            ->all();
     }
 
     private function coOwnerDashboard(User $user): Response
@@ -420,7 +537,7 @@ class DashboardController extends Controller
 
         $apartments = Apartment::query()
             ->where('user_id', $user->id)
-            ->with(['floor.building', 'charges.payments.receipt', 'tickets'])
+            ->with(['floor.building', 'charges.payments', 'tickets'])
             ->orderBy('number')
             ->get();
 
@@ -445,6 +562,9 @@ class DashboardController extends Controller
 
         $unpaidCharges = (clone $chargeQuery)
             ->whereIn('status', ['pending', 'overdue'])
+            ->whereDoesntHave('payments', function ($q) {
+                $q->whereIn('status', ['pending', 'validated']);
+            })
             ->sum('amount');
         $validatedPayments = (clone $paymentQuery)
             ->where('status', 'validated')
@@ -498,17 +618,12 @@ class DashboardController extends Controller
         });
 
         $recentCharges = (clone $chargeQuery)
-            ->with(['apartment.floor.building', 'payments.receipt'])
+            ->with(['apartment.floor.building', 'payments'])
             ->latest('date')
             ->limit(8)
             ->get()
             ->map(function (Charge $charge) {
                 $latestPayment = $charge->payments->sortByDesc('created_at')->first();
-                $receipt = $charge->payments
-                    ->where('status', 'validated')
-                    ->map(fn (Payment $payment) => $payment->receipt)
-                    ->filter()
-                    ->first();
 
                 return [
                     'id' => $charge->id,
@@ -519,12 +634,11 @@ class DashboardController extends Controller
                     'apartment' => $charge->apartment?->number,
                     'building' => $charge->apartment?->floor?->building?->name,
                     'payment_status' => $latestPayment?->status,
-                    'receipt_path' => $receipt?->file_path,
                 ];
             });
 
         $payments = (clone $paymentQuery)
-            ->with(['charge.apartment.floor.building', 'receipt'])
+            ->with(['charge.apartment.floor.building'])
             ->latest('payment_date')
             ->latest()
             ->limit(6)
@@ -538,7 +652,6 @@ class DashboardController extends Controller
                     'charge' => $payment->charge?->description,
                     'apartment' => $payment->charge?->apartment?->number,
                     'building' => $payment->charge?->apartment?->floor?->building?->name,
-                    'receipt_path' => $payment->receipt?->file_path,
                 ];
             });
 
@@ -719,16 +832,26 @@ class DashboardController extends Controller
         $validated = $request->validate([
             'month' => ['nullable', 'date_format:Y-m'],
             'building_id' => ['nullable', 'integer', $this->tenantExists('buildings')],
+            'redirect_to' => ['nullable', 'string', 'in:dashboard,charges.index,buildings.show'],
         ]);
 
         $period = $this->chargePeriod($validated['month'] ?? null);
         $buildingId = $validated['building_id'] ?? null;
+        $redirectRoute = $validated['redirect_to'] ?? 'dashboard';
+        if ($redirectRoute === 'buildings.show' && ! $buildingId) {
+            $redirectRoute = 'charges.index';
+        }
+        $redirectParams = match ($redirectRoute) {
+            'dashboard' => $buildingId ? ['building_id' => $buildingId] : [],
+            'buildings.show' => $buildingId ? ['building' => $buildingId] : [],
+            default => [],
+        };
         $lockName = 'generate-charge:'.$period->format('Y-m').':building:'.($buildingId ?? 'all');
         $lock  = Cache::lock($lockName , 300);
         if(! $lock->get()){
 
         return redirect()
-        ->route('dashboard',$buildingId ? ['building_id'=>$buildingId] :[])
+        ->route($redirectRoute, $redirectParams)
         ->with('error','La génération des charges est déjà en cours. Veuillez patienter . ');
         }
         try {
@@ -737,11 +860,11 @@ class DashboardController extends Controller
     $this->notifyGeneratedCharges($result['created_charge_ids'] ?? [], $period, $notifications);
 
     return redirect()
-        ->route('dashboard', $buildingId ? ['building_id' => $buildingId] : [])
+        ->route($redirectRoute, $redirectParams)
         ->with(
             'success',
-            $result['created'].' charges generees pour '.$result['period_label'].
-            ' ('.$result['skipped'].' deja existantes).'
+            $result['created'].' charges générées pour '.$result['period_label'].
+            ' ('.$result['skipped'].' déjà existantes).'
         );
 } finally {
     $lock->release();
@@ -766,7 +889,7 @@ class DashboardController extends Controller
             ->with('apartment.user')
             ->whereIn('id', $chargeIds)
             ->get()
-            ->filter(fn (Charge $charge) => $charge->apartment?->user)
+            ->filter(fn (Charge $charge) => $charge->apartment?->user?->role === 'Coproprietaire')
             ->groupBy(fn (Charge $charge) => $charge->apartment->user->id)
             ->each(function ($charges) use ($period, $notifications): void {
                 $firstCharge = $charges->first();
@@ -782,7 +905,7 @@ class DashboardController extends Controller
                     $user,
                     'Nouvelles charges',
                     sprintf(
-                        '%d charge(s) generee(s) pour %s%s. Total: %s MAD.',
+                        '%d charge(s) générée(s) pour %s%s. Total: %s MAD.',
                         $charges->count(),
                         $period->format('m/Y'),
                         $apartments ? ' - appartement(s) '.$apartments : '',

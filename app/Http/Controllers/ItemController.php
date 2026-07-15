@@ -103,9 +103,10 @@ class ItemController extends Controller
             'user_id' => $request->user()->id,
             'image_path' => $imagePath,
         ]);
+        $typeLabel = $item->type === 'Perdue' ? 'perdu' : 'trouvé';
  Audit_log:: create([
-    'action'=> 'Creation de declaration d\'objet',      
-    'details'=>'Un objet a ete declare comme '.$item->type.' : "'.$item->title.'" par '.$request->user()->name.'.',
+    'action'=> "Création de déclaration d'objet",
+    'details'=>'Un objet '.$typeLabel.' a été déclaré : "'.$item->title.'" par '.$request->user()->name.'.',
 'performed_by' =>auth()->id(),
  ]);
         $this->notifyResidents($item, $notifications, $request->user()->name);
@@ -119,8 +120,8 @@ class ItemController extends Controller
             ->with(
                 'success',
                 $item->type === 'Perdue'
-                    ? 'Objet perdu declare. Les objets trouves similaires sont affiches dans la fiche.'
-                    : 'Objet trouve declare. Les residents ont ete notifies.'
+                    ? 'Objet perdu déclaré. Les objets trouvés similaires sont affichés dans la fiche.'
+                    : 'Objet trouvé déclaré. Les résidents ont été notifiés.'
             );
     }
 
@@ -176,13 +177,13 @@ class ItemController extends Controller
 
         $item->update($validated);
 Audit_log::create([
-    'action' => 'Mise à jour de déclaration d\'objet',
-    'details' => 'La declaration de l\'objet "'.$item->title.'" a   été mise à jour par '.$request->user()->name.'.',
+    'action' => "Mise à jour de déclaration d'objet",
+    'details' => 'La déclaration de l\'objet "'.$item->title.'" a été mise à jour par '.$request->user()->name.'.',
     'performed_by' => auth()->id(),
 ]);
         return redirect()
             ->route('items.show', $item)
-            ->with('success', 'Objet mis a jour avec succes.');
+            ->with('success', 'Objet mis à jour avec succès.');
     }
 
     public function updateStatus(Request $request, Item $item, NotificationService $notifications): RedirectResponse
@@ -197,19 +198,25 @@ Audit_log::create([
             'status' => $validated['status'],
             'resolved_at' => in_array($validated['status'], ['rendu', 'ferme'], true) ? now() : null,
         ]);
+        $statusLabel = match ($validated['status']) {
+            'en_contact' => 'en contact',
+            'rendu' => 'rendu',
+            'ferme' => 'fermé',
+            default => 'ouvert',
+        };
 Audit_log::create([
-    'action' => 'Mise à jour de statut d\'objet',
-    'details' => 'Le statut de l\'objet "'.$item->title.'" a été mis à jour en "'.$validated['status'].'" par '.$request->user()->name.'.',
+    'action' => "Mise à jour de statut d'objet",
+    'details' => 'Le statut de l\'objet "'.$item->title.'" a été mis à jour en "'.$statusLabel.'" par '.$request->user()->name.'.',
     'performed_by' => auth()->id(),
 ]);
         $notifications->createForUser(
             $item->user,
-            'Statut objet mis a jour',
-            sprintf('Le statut de "%s" est maintenant "%s".', $item->title, $validated['status']),
+            "Statut de l'objet mis à jour",
+            sprintf('Le statut de "%s" est maintenant "%s".', $item->title, $statusLabel),
             'info'
         );
 
-        return back()->with('success', 'Statut mis a jour.');
+        return back()->with('success', 'Statut mis à jour.');
     }
 
     public function claim(Request $request, Item $item, NotificationService $notifications): RedirectResponse
@@ -238,11 +245,11 @@ Audit_log::create([
         $notifications->createForUser(
             $item->user,
             'Nouvelle interaction objet',
-            sprintf('%s a envoye un message concernant "%s".', $request->user()->name, $item->title),
+            sprintf('%s a envoyé un message concernant "%s".', $request->user()->name, $item->title),
             'warning'
         );
 
-        return back()->with('success', 'Message envoye au declarant.');
+        return back()->with('success', 'Message envoyé au déclarant.');
     }
 
     public function destroy(Item $item): RedirectResponse
@@ -256,12 +263,12 @@ Audit_log::create([
         $item->delete();
 
         Audit_log::create([
-            'action' => 'Suppression de déclaration d\'objet',
-            'details' => 'La declaration de l\'objet "'.$item->title.'" a été supprimée par '.$request->user()->name.'.',
+            'action' => "Suppression de déclaration d'objet",
+            'details' => 'La déclaration de l\'objet "'.$item->title.'" a été supprimée par '.(auth()->user()?->name ?? 'Système').'.',
             'performed_by' => auth()->id(),
         ]);
 
-        return redirect()->route('items.index')->with('success', 'Objet supprime.');
+        return redirect()->route('items.index')->with('success', 'Objet supprimé.');
     }
 
     private function validateItem(Request $request, bool $includeStatus = false): array
@@ -286,17 +293,17 @@ Audit_log::create([
 
     private function notifyResidents(Item $item, NotificationService $notifications, string $creatorName): void
     {
-        $label = $item->type === 'Perdue' ? 'perdu' : 'trouve';
+        $label = $item->type === 'Perdue' ? 'perdu' : 'trouvé';
 
         $notifications->createForRole(
             ['Locataire', 'Coproprietaire'],
-            $item->type === 'Perdue' ? 'Objet perdu declare' : 'Objet trouve declare',
+            $item->type === 'Perdue' ? 'Objet perdu déclaré' : 'Objet trouvé déclaré',
             sprintf(
-                '%s a declare un objet %s: "%s"%s.',
+                '%s a déclaré un objet %s: "%s"%s.',
                 $creatorName,
                 $label,
                 $item->title,
-                $item->location ? " a {$item->location}" : ''
+                $item->location ? " à {$item->location}" : ''
             ),
             $item->type === 'Perdue' ? 'warning' : 'info'
         );
@@ -315,8 +322,8 @@ Audit_log::create([
 
             $notifications->createForUser(
                 $lostItem->user,
-                'Objet trouve similaire',
-                sprintf('Un objet trouve ressemble a votre declaration "%s": "%s".', $lostItem->title, $foundItem->title),
+                'Objet trouvé similaire',
+                sprintf('Un objet trouvé ressemble à votre déclaration "%s": "%s".', $lostItem->title, $foundItem->title),
                 'info'
             );
         }

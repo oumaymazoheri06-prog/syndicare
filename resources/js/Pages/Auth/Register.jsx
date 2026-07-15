@@ -1,4 +1,4 @@
-import InputError from '@/Components/InputError';
+﻿import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
@@ -36,7 +36,7 @@ export default function Register() {
 
             <div className="mb-6">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Creer votre compte</h1>
+                <h1 className={authTitleClass}>Créer votre compte</h1>
                 <p className={authDescriptionClass}>
                     Rejoignez la plateforme pour gérer votre résidence et rester informé.
                 </p>
@@ -67,7 +67,7 @@ export default function Register() {
                 <div>
                     <InputLabel
                         htmlFor="email"
-                        value="Email"
+                        value="E-mail"
                         className={authLabelClass}
                     />
 
@@ -135,14 +135,14 @@ export default function Register() {
 
                 <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
                     <Link href={route("login")} className={authLinkClass}>
-                        Deja inscrit ?
+                        Déjà inscrit ?
                     </Link>
 
                     <PrimaryButton
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        S inscrire
+                        S’inscrire
                     </PrimaryButton>
                 </div>
             </form>

@@ -14,12 +14,28 @@ import {
 } from '@/Layouts/authStyles';
 import { Head, Link, useForm } from '@inertiajs/react';
 
+const DEMO_PASSWORD = 'Demo@2026';
+const demoAccounts = [
+    { role: 'Syndic', email: 'demo@syndicare.ma' },
+    { role: 'Coproprietaire', email: 'copro.demo@syndicare.ma' },
+    { role: 'Locataire', email: 'locataire.demo@syndicare.ma' },
+];
+
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
         remember: false,
     });
+
+    const fillDemoAccount = (account) => {
+        setData({
+            ...data,
+            email: account.email,
+            password: DEMO_PASSWORD,
+            remember: false,
+        });
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -43,10 +59,44 @@ export default function Login({ status, canResetPassword }) {
 
             {status && <div className={authStatusClass}>{status}</div>}
 
+            <div className="mb-5 rounded-xl border border-emerald-100 bg-emerald-50/70 p-3">
+                <div className="flex flex-col gap-1">
+                    <p className="text-sm font-black text-emerald-950">
+                        Compte demo public
+                    </p>
+                    <p className="text-xs font-medium leading-5 text-emerald-900">
+                        Selectionnez un profil pour remplir le formulaire.
+                    </p>
+                </div>
+
+                <div className="mt-3 grid gap-2">
+                    {demoAccounts.map((account) => (
+                        <button
+                            key={account.email}
+                            type="button"
+                            onClick={() => fillDemoAccount(account)}
+                            className="flex min-w-0 items-center justify-between gap-3 rounded-lg border border-emerald-100 bg-white px-3 py-2 text-left text-xs font-bold text-slate-700 shadow-sm transition hover:border-emerald-300 hover:text-emerald-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
+                        >
+                            <span className="shrink-0 text-emerald-800">
+                                {account.role}
+                            </span>
+                            <span className="min-w-0 break-all font-mono text-[11px] font-semibold text-slate-500">
+                                {account.email}
+                            </span>
+                        </button>
+                    ))}
+                </div>
+
+                <p className="mt-3 text-xs font-semibold text-emerald-950">
+                    Mot de passe:{' '}
+                    <span className="font-mono">{DEMO_PASSWORD}</span>
+                </p>
+            </div>
+
             <form onSubmit={submit} className="space-y-4">
                 <div>
                     <label htmlFor="email" className={authLabelClass}>
-                        Email
+                        E-mail
                     </label>
 
                     <input

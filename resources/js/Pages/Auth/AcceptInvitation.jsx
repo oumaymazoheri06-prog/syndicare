@@ -9,6 +9,7 @@ import {
     authEyebrowClass,
     authInputClass,
     authLabelClass,
+    authLinkClass,
     authStatusClass,
     authTitleClass,
 } from '@/Layouts/authStyles';
@@ -47,21 +48,21 @@ export default function AcceptInvitation({
                 <h1 className={authTitleClass}>Activer votre compte</h1>
                 <p className={authDescriptionClass}>
                     {canAccept
-                        ? `Bonjour ${name ?? ''}, choisissez votre mot de passe pour acceder a votre espace.`
-                        : 'Cette invitation est invalide ou expiree.'}
+                        ? `Bonjour ${name ?? ''}, choisissez votre mot de passe pour accéder à votre espace.`
+                        : 'Cette invitation est invalide ou expirée.'}
                 </p>
             </div>
 
             {canAccept && (
                 <div className={authStatusClass}>
-                    Login : {email}
+                    Identifiant : {email}
                     {expiresAt ? ` - expire le ${expiresAt}` : ''}
                 </div>
             )}
 
             {!canAccept && (
                 <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm font-medium text-rose-700">
-                    Demandez une nouvelle invitation a votre syndic.
+                    Demandez une nouvelle invitation à votre syndic.
                 </div>
             )}
 
@@ -122,7 +123,7 @@ export default function AcceptInvitation({
                 <div className="flex items-center justify-between gap-3">
                     <Link
                         href={route('login')}
-                        className="text-sm font-semibold text-sky-700 transition hover:text-sky-800 hover:underline"
+                        className={authLinkClass}
                     >
                         Connexion
                     </Link>

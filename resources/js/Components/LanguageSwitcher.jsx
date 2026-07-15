@@ -3,12 +3,12 @@ import { useI18n } from '@/i18n/I18nProvider';
 const variantClasses = {
     light: {
         shell: 'border-black/10 bg-white text-slate-700 shadow-sm',
-        active: 'bg-[#0e3715] text-white',
-        idle: 'hover:bg-emerald-50 hover:text-[#0e3715]',
+        active: 'bg-[#0F5132] text-white',
+        idle: 'hover:bg-emerald-50 hover:text-[#0F5132]',
     },
     dark: {
         shell: 'border-white/15 bg-white/10 text-white shadow-sm',
-        active: 'bg-white text-[#0e3715]',
+        active: 'bg-white text-[#0F5132]',
         idle: 'text-white/80 hover:bg-white/15 hover:text-white',
     },
 };

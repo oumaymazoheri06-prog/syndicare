@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -59,6 +61,52 @@ class ProfileTest extends TestCase
             ->assertRedirect('/profile');
 
         $this->assertNotNull($user->refresh()->email_verified_at);
+    }
+
+    public function test_profile_photo_can_be_uploaded(): void
+    {
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('profile.photo.update'), [
+                'profile_photo' => UploadedFile::fake()->image('avatar.jpg', 200, 200),
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertNotNull($user->profile_photo_path);
+        $this->assertNotNull($user->profile_photo_url);
+        Storage::disk('public')->assertExists($user->profile_photo_path);
+    }
+
+    public function test_profile_photo_can_be_removed(): void
+    {
+        Storage::fake('public');
+
+        $path = UploadedFile::fake()
+            ->image('avatar.png', 200, 200)
+            ->store('profile-photos', 'public');
+        $user = User::factory()->create([
+            'profile_photo_path' => $path,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->delete(route('profile.photo.destroy'));
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $this->assertNull($user->refresh()->profile_photo_path);
+        Storage::disk('public')->assertMissing($path);
     }
 
     public function test_user_can_delete_their_account(): void

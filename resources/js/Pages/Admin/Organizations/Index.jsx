@@ -40,7 +40,7 @@ function StatCard({ label, value }) {
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
                 {label}
             </p>
-            <p className="mt-2 text-2xl font-black text-[#0e3715]">
+            <p className="mt-2 text-2xl font-black text-[#0F5132]">
                 {value}
             </p>
         </div>
@@ -67,18 +67,18 @@ export default function Index({ organizations = [], summary = {} }) {
                 </section>
 
                 <section className="overflow-hidden rounded-lg border border-white/80 bg-white/90 shadow-sm">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-200 text-sm">
-                            <thead className="bg-slate-50 text-left text-xs font-bold uppercase tracking-[0.16em] text-slate-500">
+                    <div className="overflow-hidden">
+                        <table className="w-full table-fixed divide-y divide-slate-200 text-xs">
+                            <thead className="bg-slate-50 text-left text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
                                 <tr>
-                                    <th className="px-4 py-3">Organisation</th>
-                                    <th className="px-4 py-3">Plan</th>
-                                    <th className="px-4 py-3">Statut</th>
-                                    <th className="px-4 py-3">Prix</th>
-                                    <th className="px-4 py-3">Fin</th>
-                                    <th className="px-4 py-3">Utilisateurs</th>
-                                    <th className="px-4 py-3">Immeubles</th>
-                                    <th className="px-4 py-3"></th>
+                                    <th className="px-3 py-2.5">Organisation</th>
+                                    <th className="px-3 py-2.5">Plan</th>
+                                    <th className="px-3 py-2.5">Statut</th>
+                                    <th className="hidden px-3 py-2.5 md:table-cell">Prix</th>
+                                    <th className="hidden px-3 py-2.5 xl:table-cell">Fin</th>
+                                    <th className="hidden px-3 py-2.5 xl:table-cell">Users</th>
+                                    <th className="hidden px-3 py-2.5 xl:table-cell">Immeubles</th>
+                                    <th className="w-20 px-3 py-2.5"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100">
@@ -88,7 +88,7 @@ export default function Index({ organizations = [], summary = {} }) {
                                             colSpan="8"
                                             className="px-4 py-10 text-center text-slate-500"
                                         >
-                                            Aucune organisation trouvee.
+                                            Aucune organisation trouvée.
                                         </td>
                                     </tr>
                                 )}
@@ -98,20 +98,22 @@ export default function Index({ organizations = [], summary = {} }) {
                                         key={organization.id}
                                         className="bg-white transition hover:bg-emerald-50/40"
                                     >
-                                        <td className="px-4 py-3">
-                                            <p className="font-bold text-slate-950">
+                                        <td className="min-w-0 px-3 py-2.5">
+                                            <p className="truncate font-bold text-slate-950">
                                                 {organization.name}
                                             </p>
-                                            <p className="mt-1 text-xs text-slate-500">
+                                            <p className="mt-0.5 truncate text-[11px] text-slate-500">
                                                 {organization.email || organization.slug}
                                             </p>
                                         </td>
-                                        <td className="px-4 py-3 text-slate-700">
-                                            {planLabels[organization.plan] || '-'}
+                                        <td className="px-3 py-2.5 text-slate-700">
+                                            <span className="block truncate">
+                                                {planLabels[organization.plan] || '-'}
+                                            </span>
                                         </td>
-                                        <td className="px-4 py-3">
+                                        <td className="px-3 py-2.5">
                                             <span
-                                                className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${
+                                                className={`inline-flex rounded-md border px-2 py-1 text-[11px] font-bold ${
                                                     statusClasses[
                                                         organization.subscription_status
                                                     ] ||
@@ -123,7 +125,7 @@ export default function Index({ organizations = [], summary = {} }) {
                                                 ] || '-'}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-slate-700">
+                                        <td className="hidden px-3 py-2.5 text-slate-700 md:table-cell">
                                             <p className="font-semibold">
                                                 {organization.subscription_price !== null
                                                     ? formatMoney(
@@ -131,30 +133,30 @@ export default function Index({ organizations = [], summary = {} }) {
                                                       )
                                                     : '-'}
                                             </p>
-                                            <p className="mt-1 text-xs text-slate-500">
+                                            <p className="mt-0.5 truncate text-[11px] text-slate-500">
                                                 {cycleLabels[
                                                     organization.billing_cycle
                                                 ] || ''}
                                             </p>
                                         </td>
-                                        <td className="px-4 py-3 text-slate-700">
+                                        <td className="hidden px-3 py-2.5 text-slate-700 xl:table-cell">
                                             {organization.subscription_ends_at || '-'}
                                         </td>
-                                        <td className="px-4 py-3 text-slate-700">
+                                        <td className="hidden px-3 py-2.5 text-slate-700 xl:table-cell">
                                             {organization.users_count ?? 0}
                                         </td>
-                                        <td className="px-4 py-3 text-slate-700">
+                                        <td className="hidden px-3 py-2.5 text-slate-700 xl:table-cell">
                                             {organization.buildings_count ?? 0}
                                         </td>
-                                        <td className="px-4 py-3 text-right">
+                                        <td className="w-20 px-3 py-2.5 text-right">
                                             <Link
                                                 href={route(
                                                     'admin.organizations.edit',
                                                     organization.id,
                                                 )}
-                                                className="inline-flex rounded-lg bg-[#0e3715] px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#14532d]"
+                                                className="inline-flex rounded-lg bg-[#0F5132] px-2.5 py-1.5 text-[11px] font-bold text-white shadow-sm transition hover:bg-[#146C43]"
                                             >
-                                                Modifier
+                                                Edit
                                             </Link>
                                         </td>
                                     </tr>

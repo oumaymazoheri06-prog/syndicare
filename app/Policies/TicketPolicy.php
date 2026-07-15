@@ -25,7 +25,7 @@ class TicketPolicy
 
     public function create(User $user): bool
     {
-        return in_array($user->role, ['Syndic', 'Coproprietaire', 'Locataire'], true);
+        return in_array($user->role, ['Coproprietaire', 'Locataire'], true);
     }
 
     public function update(User $user, Ticket $ticket): bool

@@ -80,8 +80,8 @@ class AnnouncementController extends Controller
             'building_id' => $validated['building_id'] ?? null,
         ]);
   Audit_log::create([
-            'action' => 'Creation d annonce',
-            'details' => 'Une annonce intitulee "' . $validated['title'] . '" a ete creee par ' . $request->user()->name . '.',
+            'action' => "Création d'annonce",
+            'details' => 'Une annonce intitulée "' . $validated['title'] . '" a été créée par ' . $request->user()->name . '.',
             'performed_by' => auth()->id(),
         ]);
         $notifications->createForAudience(
@@ -94,7 +94,7 @@ class AnnouncementController extends Controller
 
         broadcast(new AnnouncementCreated($announcement->load('creator', 'building')));
 
-        return redirect()->back()->with('success', 'Annonce publiee avec succes.');
+        return redirect()->back()->with('success', 'Annonce publiée avec succès.');
     }
 
     public function show(Announcement $announcement): Response
@@ -126,11 +126,11 @@ class AnnouncementController extends Controller
 
         $announcement->update($validated);
 Audit_log::create([
-            'action' => 'Mise a jour d annonce',
-            'details' => 'L\'annonce ID '.$announcement->id.' a ete mise a jour en "' . $validated['title'] . '" par ' . $request->user()->name . '.',
+            'action' => "Mise à jour d'annonce",
+            'details' => 'L\'annonce ID '.$announcement->id.' a été mise à jour en "' . $validated['title'] . '" par ' . $request->user()->name . '.',
             'performed_by' => auth()->id(),
         ]);
-        return redirect()->route('announcements.index')->with('success', 'Announcement updated successfully.');
+        return redirect()->route('announcements.index')->with('success', 'Annonce mise à jour avec succès.');
     }
 
     public function destroy(Announcement $announcement, Request $request): RedirectResponse
@@ -139,11 +139,11 @@ Audit_log::create([
 
         $announcement->delete();
 Audit_log::create([
-            'action' => 'Suppression d annonce',
-            'details' => 'L\'annonce ID '.$announcement->id.' a ete supprimee par ' . $request->user()->name . '.',
+            'action' => "Suppression d'annonce",
+            'details' => 'L\'annonce ID '.$announcement->id.' a été supprimée par ' . $request->user()->name . '.',
             'performed_by' => auth()->id(),
         ]);
-        return redirect()->route('announcements.index')->with('success', 'Announcement deleted successfully.');
+        return redirect()->route('announcements.index')->with('success', 'Annonce supprimée avec succès.');
     }
 
     private function notificationRolesForTarget(string $targetRole): array

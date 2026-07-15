@@ -1,4 +1,4 @@
-import InputError from '@/Components/InputError';
+﻿import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
@@ -52,7 +52,7 @@ export default function UpdatePasswordForm({ className = '' }) {
                 </h2>
 
                 <p className="mt-1 text-sm text-gray-600">
-                    Utilisez un mot de passe long et difficile a deviner pour proteger votre compte.
+                    Utilisez un mot de passe long et difficile à deviner pour protéger votre compte.
                 </p>
             </header>
 

@@ -31,7 +31,7 @@ class AuditLogController extends Controller
 
         Audit_log::create($validated + ['performed_by' => $request->user()->id]);
 
-        return redirect()->route('audit-logs.index')->with('success', 'Audit log created successfully.');
+        return redirect()->route('audit-logs.index')->with('success', 'Action ajoutée au journal avec succès.');
     }
 
     public function show(Audit_log $audit_log): Response
@@ -57,13 +57,13 @@ class AuditLogController extends Controller
 
         $audit_log->update($validated);
 
-        return redirect()->route('audit-logs.index')->with('success', 'Audit log updated successfully.');
+        return redirect()->route('audit-logs.index')->with('success', 'Action du journal mise à jour avec succès.');
     }
 
     public function destroy(Audit_log $audit_log): RedirectResponse
     {
         $audit_log->delete();
 
-        return redirect()->route('audit-logs.index')->with('success', 'Audit log deleted successfully.');
+        return redirect()->route('audit-logs.index')->with('success', 'Action du journal supprimée avec succès.');
     }
 }

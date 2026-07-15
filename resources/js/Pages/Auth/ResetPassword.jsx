@@ -31,11 +31,11 @@ export default function ResetPassword({ token, email }) {
 
     return (
         <GuestLayout>
-            <Head title="Reinitialiser le mot de passe" />
+            <Head title="Réinitialiser le mot de passe" />
 
             <div className="mb-8">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Reinitialiser votre mot de passe</h1>
+                <h1 className={authTitleClass}>Réinitialiser votre mot de passe</h1>
                 <p className={authDescriptionClass}>
                     Choisissez un nouveau mot de passe pour votre compte.
                 </p>
@@ -45,7 +45,7 @@ export default function ResetPassword({ token, email }) {
                 <div>
                     <InputLabel
                         htmlFor="email"
-                        value="Email"
+                        value="E-mail"
                         className={authLabelClass}
                     />
 
@@ -113,7 +113,7 @@ export default function ResetPassword({ token, email }) {
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        Reinitialiser
+                        Réinitialiser
                     </PrimaryButton>
                 </div>
             </form>

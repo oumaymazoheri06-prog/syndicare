@@ -9,7 +9,7 @@ class PaymentPolicy
 {
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['Syndic', 'Coproprietaire', 'Locataire'], true);
+        return in_array($user->role, ['Syndic', 'Coproprietaire'], true);
     }
 
     public function view(User $user, Payment $payment): bool
@@ -23,7 +23,7 @@ class PaymentPolicy
 
     public function create(User $user): bool
     {
-        return in_array($user->role, ['Syndic', 'Coproprietaire', 'Locataire'], true);
+        return in_array($user->role, ['Syndic', 'Coproprietaire'], true);
     }
 
     public function update(User $user, Payment $payment): bool

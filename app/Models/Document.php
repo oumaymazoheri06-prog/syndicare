@@ -14,11 +14,17 @@ class Document extends Model
         'organization_id',
         'title',
         'file_path',
+        'category',
         'target_type',
         'building_id',
+        'building_ids',
         'apartment_id',
         'target_role',
         'uploaded_by',
+    ];
+
+    protected $casts = [
+        'building_ids' => 'array',
     ];
 
     public function uploader()

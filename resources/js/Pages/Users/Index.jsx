@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { CrudIndexPage } from '@/Components/CrudScaffold';
 import { resourceConfigs } from '../_shared/resources';
 
@@ -29,7 +29,7 @@ export default function Index({ users }) {
                 >
                     <option value="all">Tous les membres</option>
                     <option value="Locataire">Locataires</option>
-                    <option value="Coproprietaire">Coproprietaires</option>
+                    <option value="Coproprietaire">Copropriétaires</option>
                 </select>
             }
         />

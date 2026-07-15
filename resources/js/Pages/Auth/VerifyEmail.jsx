@@ -1,4 +1,4 @@
-import PrimaryButton from '@/Components/PrimaryButton';
+﻿import PrimaryButton from '@/Components/PrimaryButton';
 import GuestLayout from '@/Layouts/GuestLayout';
 import {
     authButtonInlineClass,
@@ -21,19 +21,19 @@ export default function VerifyEmail({ status }) {
 
     return (
         <GuestLayout>
-            <Head title="Verification email" />
+            <Head title="Vérification e-mail" />
 
             <div className="mb-8">
                 <p className={authEyebrowClass}>Syndicare</p>
-                <h1 className={authTitleClass}>Verifiez votre email</h1>
+                <h1 className={authTitleClass}>Vérifiez votre e-mail</h1>
                 <p className={authDescriptionClass}>
-                    Merci pour votre inscription. Verifiez votre adresse email pour continuer.
+                    Merci pour votre inscription. Vérifiez votre adresse e-mail pour continuer.
                 </p>
             </div>
 
             {status === 'verification-link-sent' && (
                 <div className={authStatusClass}>
-                    Un nouveau lien de verification a ete envoye a l adresse email fournie.
+                    Un nouveau lien de vérification a été envoyé à l'adresse e-mail fournie.
                 </div>
             )}
 
@@ -43,7 +43,7 @@ export default function VerifyEmail({ status }) {
                         className={authButtonInlineClass}
                         disabled={processing}
                     >
-                        Renvoyer l email de verification
+                        Renvoyer l'e-mail de vérification
                     </PrimaryButton>
 
                     <Link
@@ -52,7 +52,7 @@ export default function VerifyEmail({ status }) {
                         as="button"
                         className={authLinkClass}
                     >
-                        Deconnexion
+                        Déconnexion
                     </Link>
                 </div>
             </form>

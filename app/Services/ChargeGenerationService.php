@@ -60,14 +60,13 @@ class ChargeGenerationService
 
             foreach ($buildings as $building) {
                 $expenses = $this->expensesFor($building, $period);
+                $expenseTotal = $this->expenseTotal($expenses);
                 $apartments = $building->apartments;
                 $existingCharges = $this->existingChargesFor($apartments, $period);
-                $existingAmount = $this->existingAmount($existingCharges);
-                $remainingAmount = round(max(0, $expenses - $existingAmount), 2);
-                $targetApartments = $this->targetApartments($apartments, $existingCharges, $remainingAmount);
-                $allocations = $this->allocationsFor($targetApartments, $remainingAmount);
+                $targetAllocations = $this->targetAllocationsFor($apartments, $expenses);
+                $allocations = $this->remainingAllocationsFor($targetAllocations, $existingCharges);
 
-                if ($apartments->isEmpty() || $expenses <= 0 || empty($allocations)) {
+                if ($apartments->isEmpty() || $expenseTotal <= 0 || empty($allocations)) {
                     $skipped += $apartments->count();
 
                     continue;
@@ -113,12 +112,12 @@ class ChargeGenerationService
     private function previewBuilding(Building $building, Carbon $period): array
     {
         $expenses = $this->expensesFor($building, $period);
+        $expenseTotal = $this->expenseTotal($expenses);
         $apartments = $building->apartments;
         $existingCharges = $this->existingChargesFor($apartments, $period);
         $existingAmount = $this->existingAmount($existingCharges);
-        $remainingAmount = round(max(0, $expenses - $existingAmount), 2);
-        $targetApartments = $this->targetApartments($apartments, $existingCharges, $remainingAmount);
-        $allocations = $this->allocationsFor($targetApartments, $remainingAmount);
+        $targetAllocations = $this->targetAllocationsFor($apartments, $expenses);
+        $allocations = $this->remainingAllocationsFor($targetAllocations, $existingCharges);
         $willCreate = count($allocations);
         $skipped = $apartments->count() - $willCreate;
         $totalAmount = array_sum($allocations);
@@ -127,7 +126,7 @@ class ChargeGenerationService
         return [
             'id' => $building->id,
             'name' => $building->name,
-            'expenses' => round($expenses, 2),
+            'expenses' => round($expenseTotal, 2),
             'existing_amount' => round($existingAmount, 2),
             'apartments' => $apartments->count(),
             'total_area' => round($areaTotal, 2),
@@ -135,7 +134,7 @@ class ChargeGenerationService
             'will_create' => $willCreate,
             'skipped' => $skipped,
             'total_amount' => round($totalAmount, 2),
-            'status' => $this->previewStatus($expenses, $apartments->count(), $willCreate, $existingCharges->flatten(1)->count()),
+            'status' => $this->previewStatus($expenseTotal, $apartments->count(), $willCreate, $existingCharges->flatten(1)->count()),
         ];
     }
 
@@ -162,34 +161,88 @@ class ChargeGenerationService
             ->sum(fn (Charge $charge) => (float) $charge->amount);
     }
 
-    private function targetApartments($apartments, $existingCharges, float $remainingAmount)
+    private function expensesFor(Building $building, Carbon $period)
     {
-        if ($remainingAmount <= 0 || $apartments->isEmpty()) {
-            return collect();
-        }
-
-        $existingApartmentIds = $existingCharges->keys();
-
-        if ($existingApartmentIds->isEmpty()) {
-            return $apartments->values();
-        }
-
-        if ($existingApartmentIds->count() < $apartments->count()) {
-            return $apartments
-                ->reject(fn ($apartment) => $existingApartmentIds->contains($apartment->id))
-                ->values();
-        }
-
-        return $apartments->values();
-    }
-
-    private function expensesFor(Building $building, Carbon $period): float
-    {
-        return (float) Expense::query()
+        return Expense::query()
             ->where('building_id', $building->id)
             ->whereYear('date', $period->year)
             ->whereMonth('date', $period->month)
-            ->sum('amount');
+            ->get(['id', 'amount', 'apartment_id']);
+    }
+
+    private function expenseTotal($expenses): float
+    {
+        return (float) $expenses->sum(fn (Expense $expense) => (float) $expense->amount);
+    }
+
+    private function targetAllocationsFor($apartments, $expenses): array
+    {
+        if ($apartments->isEmpty() || $expenses->isEmpty()) {
+            return [];
+        }
+
+        $allocations = [];
+        $apartmentIds = $apartments->pluck('id');
+        $sharedExpenses = (float) $expenses
+            ->filter(fn (Expense $expense) => $expense->apartment_id === null)
+            ->sum(fn (Expense $expense) => (float) $expense->amount);
+
+        foreach ($this->allocationsFor($apartments, $sharedExpenses) as $apartmentId => $amount) {
+            $this->addAllocation($allocations, $apartmentId, $amount);
+        }
+
+        $expenses
+            ->filter(fn (Expense $expense) => $expense->apartment_id !== null)
+            ->filter(fn (Expense $expense) => $apartmentIds->contains($expense->apartment_id))
+            ->groupBy('apartment_id')
+            ->each(function ($apartmentExpenses, $apartmentId) use (&$allocations) {
+                $this->addAllocation(
+                    $allocations,
+                    $apartmentId,
+                    (float) $apartmentExpenses->sum(fn (Expense $expense) => (float) $expense->amount),
+                );
+            });
+
+        return array_filter(
+            array_map(fn (float $amount) => round($amount, 2), $allocations),
+            fn (float $amount) => $amount > 0,
+        );
+    }
+
+    private function remainingAllocationsFor(array $targetAllocations, $existingCharges): array
+    {
+        $allocations = [];
+
+        foreach ($targetAllocations as $apartmentId => $targetAmount) {
+            $remaining = round(
+                max(0, (float) $targetAmount - $this->existingAmountForApartment($existingCharges, $apartmentId)),
+                2,
+            );
+
+            if ($remaining > 0) {
+                $allocations[$apartmentId] = $remaining;
+            }
+        }
+
+        return $allocations;
+    }
+
+    private function existingAmountForApartment($existingCharges, int|string $apartmentId): float
+    {
+        $charges = $existingCharges->get($apartmentId)
+            ?? $existingCharges->get((string) $apartmentId)
+            ?? collect();
+
+        return (float) collect($charges)->sum(fn (Charge $charge) => (float) $charge->amount);
+    }
+
+    private function addAllocation(array &$allocations, int|string $apartmentId, float $amount): void
+    {
+        if ($amount <= 0) {
+            return;
+        }
+
+        $allocations[$apartmentId] = round(($allocations[$apartmentId] ?? 0) + $amount, 2);
     }
 
     private function amountForApartment(float $expenses, float $apartmentArea, float $areaTotal, int $apartmentCount): float
@@ -243,15 +296,15 @@ class ChargeGenerationService
         }
 
         if ($expenses <= 0) {
-            return 'Aucune depense';
+            return 'Aucune dépense';
         }
 
         if ($willCreate === 0 && $existingCharges > 0) {
-            return 'Deja genere';
+            return 'Déjà généré';
         }
 
         if ($willCreate > 0 && $existingCharges > 0) {
-            return 'Ajustement a generer';
+            return 'Ajustement à générer';
         }
 
         return 'Pret';

@@ -24,7 +24,7 @@ class NotificationPolicy
 
     public function update(User $user, Notification $notification): bool
     {
-        return $user->role === 'Syndic' || $notification->user_id === $user->id;
+        return false;
     }
 
     public function delete(User $user, Notification $notification): bool

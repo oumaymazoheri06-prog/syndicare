@@ -1,16 +1,16 @@
-import InputError from "@/Components/InputError";
+﻿import InputError from "@/Components/InputError";
 import InputLabel from "@/Components/InputLabel";
 import PrimaryButton from "@/Components/PrimaryButton";
 import AdminLayout from "@/Layouts/AdminLayout";
 import { Head, Link, useForm } from "@inertiajs/react";
 
 const categories = [
-    "Cle",
-    "Telephone",
+    "Clé",
+    "Téléphone",
     "Portefeuille",
     "Sac",
     "Document",
-    "Vetement",
+    "Vêtement",
     "Bijou",
     "Autre",
 ];
@@ -19,7 +19,7 @@ const statuses = [
     { value: "ouvert", label: "Ouvert" },
     { value: "en_contact", label: "En contact" },
     { value: "rendu", label: "Rendu" },
-    { value: "ferme", label: "Ferme" },
+    { value: "ferme", label: "Fermé" },
 ];
 
 function Field({ label, error, children, className = "" }) {
@@ -66,25 +66,25 @@ export default function Form({ item, apartments = [] }) {
 
     return (
         <AdminLayout
-            title={editing ? "Modifier l'objet" : "Declarer un objet"}
-            subtitle="Un signalement clair aide les residents a identifier rapidement les objets similaires."
+            title={editing ? "Modifier l'objet" : "Déclarer un objet"}
+            subtitle="Un signalement clair aide les résidents à identifier rapidement les objets similaires."
             toolbar={
                 <Link
                     href={editing ? route("items.show", item.id) : route("items.index")}
-                    className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0e3715]"
+                    className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-emerald-50 hover:text-[#0F5132]"
                 >
                     Retour
                 </Link>
             }
         >
-            <Head title={editing ? "Modifier l'objet" : "Declarer un objet"} />
+            <Head title={editing ? "Modifier l'objet" : "Déclarer un objet"} />
 
             <form
                 onSubmit={submit}
                 className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]"
             >
                 <section className="overflow-hidden rounded-[2rem] border border-white/75 bg-white/95 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
-                    <div className="border-b border-emerald-100 bg-[#f7f4ee] px-5 py-4">
+                    <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
                         <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-[#386146]">
                             Fiche objet
                         </p>
@@ -103,19 +103,19 @@ export default function Form({ item, apartments = [] }) {
                                         onClick={() => setData("type", type)}
                                         className={`rounded-2xl border px-4 py-3 text-left text-sm font-black transition ${
                                             data.type === type
-                                                ? "border-[#0e3715] bg-[#0e3715] text-white shadow-sm"
+                                                ? "border-[#0F5132] bg-[#0F5132] text-white shadow-sm"
                                                 : "border-slate-200 bg-white text-slate-700 hover:bg-emerald-50"
                                         }`}
                                     >
                                         {type === "Perdue"
                                             ? "Objet perdu"
-                                            : "Objet trouve"}
+                                            : "Objet trouvé"}
                                     </button>
                                 ))}
                             </div>
                         </Field>
 
-                        <Field label="Categorie" error={errors.category}>
+                        <Field label="Catégorie" error={errors.category}>
                             <select
                                 value={data.category}
                                 onChange={(event) =>
@@ -123,7 +123,7 @@ export default function Form({ item, apartments = [] }) {
                                 }
                                 className={inputClass}
                             >
-                                <option value="">Choisir une categorie</option>
+                                <option value="">Choisir une catégorie</option>
                                 {categories.map((category) => (
                                     <option key={category} value={category}>
                                         {category}
@@ -138,7 +138,7 @@ export default function Form({ item, apartments = [] }) {
                                 onChange={(event) =>
                                     setData("title", event.target.value)
                                 }
-                                placeholder="Ex: Trousseau de cles avec badge"
+                                placeholder="Ex: Trousseau de clés avec badge"
                                 className={inputClass}
                             />
                         </Field>
@@ -173,7 +173,7 @@ export default function Form({ item, apartments = [] }) {
                                 }
                                 className={inputClass}
                             >
-                                <option value="">Non precise</option>
+                                <option value="">Non précisé</option>
                                 {apartments.map((apartment) => (
                                     <option key={apartment.id} value={apartment.id}>
                                         {apartment.label}
@@ -223,31 +223,31 @@ export default function Form({ item, apartments = [] }) {
                                 onChange={(event) =>
                                     setData("image", event.target.files[0])
                                 }
-                                className="block w-full rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/70 px-4 py-4 text-sm text-slate-700 file:mr-4 file:rounded-full file:border-0 file:bg-[#0e3715] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
+                                className="block w-full rounded-2xl border border-dashed border-emerald-200 bg-emerald-50/70 px-4 py-4 text-sm text-slate-700 file:mr-4 file:rounded-full file:border-0 file:bg-[#0F5132] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white"
                             />
                         </Field>
                     </div>
                 </section>
 
-                <aside className="h-fit rounded-[2rem] border border-white/75 bg-gradient-to-br from-white via-emerald-50 to-amber-50 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
+                <aside className="h-fit rounded-[2rem] border border-white/75 bg-white/95 p-5 shadow-[0_18px_45px_rgba(15,23,42,0.08)]">
                     <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-emerald-700">
                         Workflow
                     </p>
                     <h3 className="mt-2 text-xl font-black text-slate-950">
-                        Ce qui se passe apres
+                        Ce qui se passe après
                     </h3>
                     <div className="mt-5 space-y-3">
                         {[
-                            "Notification aux locataires et coproprietaires.",
-                            "Si l'objet est perdu, suggestions depuis les objets trouves.",
-                            "Les residents peuvent contacter le declarant depuis la fiche.",
+                            "Notification aux locataires et copropriétaires.",
+                            "Si l'objet est perdu, suggestions depuis les objets trouvés.",
+                            "Les résidents peuvent contacter le déclarant depuis la fiche.",
                         ].map((text, index) => (
                             <div
                                 key={text}
                                 className="rounded-[1.2rem] border border-white/80 bg-white/80 p-4"
                             >
-                                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#0e3715]">
-                                    Etape {index + 1}
+                                <p className="text-xs font-black uppercase tracking-[0.22em] text-[#0F5132]">
+                                    Étape {index + 1}
                                 </p>
                                 <p className="mt-2 text-sm leading-6 text-slate-600">
                                     {text}

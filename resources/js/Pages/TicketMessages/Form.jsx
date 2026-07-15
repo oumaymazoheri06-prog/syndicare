@@ -1,4 +1,4 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs, asOptions } from '../_shared/resources';
 
 export default function Form({ ticketMessage, tickets }) {
@@ -15,7 +15,7 @@ export default function Form({ ticketMessage, tickets }) {
             title={
                 ticketMessage
                     ? `Modifier ${config.singular}`
-                    : `Creer ${config.singular}`
+                    : `Créer ${config.singular}`
             }
             resource={config.route}
             fields={fields}
@@ -27,7 +27,7 @@ export default function Form({ ticketMessage, tickets }) {
             }
             method={ticketMessage ? 'put' : 'post'}
             submitLabel={
-                ticketMessage ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`
+                ticketMessage ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`
             }
         />
     );

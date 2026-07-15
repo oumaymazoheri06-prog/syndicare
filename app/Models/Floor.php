@@ -17,8 +17,8 @@ class Floor extends Model
         return $this->belongsTo(Building::class);
     }
 
-   public function apartments()
+    public function apartments()
     {
-        return $this->hasManyThrough(Apartment::class, Floor::class);
+        return $this->hasMany(Apartment::class);
     }
 }

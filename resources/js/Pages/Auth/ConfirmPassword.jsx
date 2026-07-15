@@ -34,7 +34,7 @@ export default function ConfirmPassword() {
                 <p className={authEyebrowClass}>Syndicare</p>
                 <h1 className={authTitleClass}>Confirmer le mot de passe</h1>
                 <p className={authDescriptionClass}>
-                    Cette zone est securisee. Confirmez votre mot de passe pour continuer.
+                    Cette zone est sécurisée. Confirmez votre mot de passe pour continuer.
                 </p>
             </div>
 

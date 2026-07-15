@@ -1,6 +1,6 @@
 import { translateText } from './translations';
 
-const originalTextNodes = new WeakMap();
+const textNodeStates = new WeakMap();
 const translatableAttributes = ['placeholder', 'aria-label', 'title', 'alt'];
 const ignoredTags = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA']);
 let originalDocumentTitle = '';
@@ -17,14 +17,25 @@ function translateTextNode(node, locale) {
         return;
     }
 
-    if (!originalTextNodes.has(node)) {
-        originalTextNodes.set(node, node.nodeValue);
+    const current = node.nodeValue;
+    let state = textNodeStates.get(node);
+
+    if (!state) {
+        state = {
+            original: current,
+            rendered: current,
+        };
+        textNodeStates.set(node, state);
+    } else if (current !== state.rendered) {
+        // React changed this text after the previous translation. Keep the
+        // new value as the source instead of restoring a stale counter/value.
+        state.original = current;
     }
 
-    const original = originalTextNodes.get(node);
-    const translated = translateText(original, locale);
+    const translated = translateText(state.original, locale);
+    state.rendered = translated;
 
-    if (node.nodeValue !== translated) {
+    if (current !== translated) {
         node.nodeValue = translated;
     }
 }

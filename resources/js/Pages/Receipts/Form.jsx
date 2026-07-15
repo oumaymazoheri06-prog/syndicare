@@ -1,4 +1,4 @@
-import { CrudFormPage } from '@/Components/CrudScaffold';
+﻿import { CrudFormPage } from '@/Components/CrudScaffold';
 import { resourceConfigs, asOptions } from '../_shared/resources';
 
 export default function Form({ receipt, payments }) {
@@ -12,7 +12,7 @@ export default function Form({ receipt, payments }) {
 
     return (
         <CrudFormPage
-            title={receipt ? `Modifier ${config.singular}` : `Creer ${config.singular}`}
+            title={receipt ? `Modifier ${config.singular}` : `Créer ${config.singular}`}
             resource={config.route}
             fields={fields}
             defaults={defaults}
@@ -22,7 +22,7 @@ export default function Form({ receipt, payments }) {
                     : route(`${config.route}.store`)
             }
             method={receipt ? 'put' : 'post'}
-            submitLabel={receipt ? `Mettre a jour ${config.singular}` : `Creer ${config.singular}`}
+            submitLabel={receipt ? `Mettre à jour ${config.singular}` : `Créer ${config.singular}`}
         />
     );
 }
