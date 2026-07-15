@@ -81,6 +81,26 @@ tests/Feature
 ### charge generation form 
 <img width="2150" height="1420" alt="Screenshot 2026-05-20 203159" src="https://github.com/user-attachments/assets/49154d12-4f7d-4be3-b353-6a85f72170eb" />
 
+### co-owner dashboard
+<img width="2507" height="1337" alt="Screenshot 2026-07-15 192144" src="https://github.com/user-attachments/assets/e67656ee-0ad5-49a7-b515-68e66a5e5233" />
+
+### tenant dashboard
+<img width="2502" height="1356" alt="Screenshot 2026-07-15 192226" src="https://github.com/user-attachments/assets/ba8473c5-f499-4b71-9a23-da85bd3d143d" />
+
+### Report a Lost or Found Item
+<img width="2070" height="1347" alt="objet" src="https://github.com/user-attachments/assets/14aef09b-96b0-4ffb-a3bb-d72a4bf33a8d" />
+
+### Building Overview
+<img width="2145" height="1366" alt="Screenshot 2026-07-15 192609" src="https://github.com/user-attachments/assets/d8ed9d54-a8bd-4650-8bb3-7946bea7281b" />
+### Payments overview
+<img width="2147" height="1333" alt="Screenshot 2026-07-15 192656" src="https://github.com/user-attachments/assets/d5045ab9-32e7-491c-8a98-22978d99bd4e" />
+
+
+
+
+
+
+
  
 
 
