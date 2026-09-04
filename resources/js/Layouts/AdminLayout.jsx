@@ -328,7 +328,9 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                 />
             )}
 
-            <div className={`min-h-screen ${isRtl ? "lg:pr-[260px]" : "lg:pl-[260px]"}`}>
+            <div
+                className={`min-h-screen ${isRtl ? "lg:pr-[260px]" : "lg:pl-[260px]"}`}
+            >
                 <aside
                     className={`fixed inset-y-0 ${isRtl ? "right-0" : "left-0"} z-50 flex w-[min(86vw,19rem)] max-w-full flex-col gap-5 overflow-y-auto bg-[#0F5132] px-4 py-5 text-white shadow-2xl transition-transform duration-300 lg:w-[260px] lg:translate-x-0 lg:gap-5 lg:px-4 lg:py-6 lg:shadow-none ${
                         mobileNavOpen
@@ -354,7 +356,6 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                 </div>
 
                                 <div className="min-w-0 lg:mt-2 lg:text-center">
-                                  
                                     <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-lime-100/80">
                                         Console de gestion
                                     </p>
@@ -364,10 +365,24 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
 
                         <button
                             type="button"
-                            className="rounded-full border border-white/15 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/80 lg:hidden"
+                            aria-label="Fermer la navigation"
                             onClick={() => setMobileNavOpen(false)}
+                            className={`absolute top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:bg-white/20 lg:hidden ${
+                                isRtl ? "left-4" : "right-4"
+                            }`}
                         >
-                            Fermér
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                className="h-5 w-5"
+                            >
+                                <path
+                                    d="M6 6l12 12M18 6L6 18"
+                                    strokeLinecap="round"
+                                />
+                            </svg>
                         </button>
                     </div>
 
@@ -413,6 +428,14 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                             </div>
                         </div>
                     </div>
+                    <Link
+                        href={route("logout")}
+                        method="post"
+                        as="button"
+                        className="flex w-full items-center justify-center rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20 lg:hidden"
+                    >
+                        Déconnexion
+                    </Link>
                 </aside>
 
                 <div className="flex min-h-screen flex-col lg:pl-0">
@@ -557,7 +580,11 @@ export default function AdminLayout({ title, subtitle, toolbar, children }) {
                                                         size="xs"
                                                     />
                                                     <span>
-                                                        {user?.name?.split(" ")[0]}
+                                                        {
+                                                            user?.name?.split(
+                                                                " ",
+                                                            )[0]
+                                                        }
                                                     </span>
                                                 </button>
                                             </Dropdown.Trigger>

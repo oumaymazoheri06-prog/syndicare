@@ -1,136 +1,136 @@
 ﻿const loi1800Articles = [
     {
-        number: 'Article 1',
+        number: "Article 1",
         body: [
             "Les dispositions de la présente loi s'appliquent à la propriété des immeubles bâtis divisés par appartements ou étages ou locaux et dont la propriété appartenant à plusieurs personnes est répartie par lots comprenant chacun une partie privative et une quote-part des parties communes.",
             "Elles sont applicables également aux ensembles immobiliers bâtis constitués d'immeubles, villas ou locaux, contigus ou séparés, répartis en parties privatives et parties communes appartenant dans l'indivision à l'ensemble des copropriétaires.",
             "Les présentes dispositions s'appliquent aux immeubles immatriculés ou en cours d'immatriculation ou non immatriculés.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 2',
+        number: "Article 2",
         body: [
             "Sont considérées comme parties privatives des immeubles, les parties bâties ou non bâties appartenant à chaque copropriétaire dans le but d'en jouir individuellement et personnellement.",
-            'Elles sont la propriété exclusive de chaque copropriétaire.',
+            "Elles sont la propriété exclusive de chaque copropriétaire.",
             "Sont également considérés comme parties privatives le sol sur lequel est édifié le bâtiment et les jardins qui lui sont annexés le cas échéant, réservé aux villas ou aux locaux.",
             "Disposant d'un titre foncier unique lorsqu'un ensemble de villas ou de locaux est soumis à la présente loi.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 3',
+        number: "Article 3",
         body: [
             "Sont considérées comme parties communes des immeubles, les parties bâties ou non bâties destinées à l'usage et à la jouissance de l'ensemble des copropriétaires ou de certains d'entre eux.",
         ],
     },
     {
-        number: 'Article 4',
+        number: "Article 4",
         body: [
-            'Sont réputées parties communes :',
-            '- le sol sous réserve de l’alinéa 2 de l’article 2 ci-dessus;',
+            "Sont réputées parties communes :",
+            "- le sol sous réserve de l’alinéa 2 de l’article 2 ci-dessus;",
             "- les gros oeuvres de l'immeuble, les fondations et les murs porteurs;",
             "- les caves quelle que soit leur profondeur si elles sont destinées à l'usage commun;",
             "- la façade de l'immeuble;",
             "- les toits destinés à l'usage commun;",
             "- les escaliers, les passages et les corridors destinés à l'usage commun;",
             "- les entrées, les sous-sols et les ascenseurs destinés à l'usage commun;",
-            '- les murs et cloisons séparant deux parties privatives;',
-            '- les équipements communs, y compris les parties y afférentes qui traversent les parties privatives;',
+            "- les murs et cloisons séparant deux parties privatives;",
+            "- les équipements communs, y compris les parties y afférentes qui traversent les parties privatives;",
             "- les coffres, les têtes de cheminée et les bouches d'aération destinés à l'usage commun;",
-            '- les lieux destinés au dépôt des ordures ménagères.',
-            'Sont considérées également comme parties communes, sauf stipulation dans les titres de propriété ou en cas de contradiction entre ces titres:',
-            '- les cours et les jardins;',
+            "- les lieux destinés au dépôt des ordures ménagères.",
+            "Sont considérées également comme parties communes, sauf stipulation dans les titres de propriété ou en cas de contradiction entre ces titres:",
+            "- les cours et les jardins;",
             "- les locaux destinés à l'usage commun.",
             "Et, d'une manière générale, toute partie considérée comme telle ou que la nature de l'immeuble exige qu'elle soit destinée à l'usage commun.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 4 bis',
+        number: "Article 4 bis",
         body: [
-            'Les murs et les cloisons, non porteurs de bâtiment, séparant deux fractions divisées ou plus, sont considérés comme parties communes entre lesdites fractions uniquement.',
+            "Les murs et les cloisons, non porteurs de bâtiment, séparant deux fractions divisées ou plus, sont considérés comme parties communes entre lesdites fractions uniquement.",
         ],
-        note: 'Institué par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Institué par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 5',
+        number: "Article 5",
         body: [
-            'Sous réserve des dispositions des articles 22, 44 et 45 bis ci-dessous, sont considérés comme droits accessoires aux parties communes :',
+            "Sous réserve des dispositions des articles 22, 44 et 45 bis ci-dessous, sont considérés comme droits accessoires aux parties communes :",
             "- le droit de surélévation de l'immeuble destiné à l'usage commun;",
             "- le droit d'édifier de nouvelles constructions dans les cours ou dans les jardins et dans leurs sous-sols;",
             "- le droit d'excavation.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 6',
+        number: "Article 6",
         body: [
             "Sauf disposition contraire des titres de propriété ou que l'assemblée générale en décide autrement, la quote-part de chaque copropriétaire dans les parties communes est fixée en fonction de l'étendue de sa partie individuelle par rapport à l'étendue de l'ensemble des parties individuelles de l'immeuble au moment de l'établissement de la copropriété.",
             "S'il s'agit d'un projet immobilier réalisé en étapes consécutives, la quote-part de chaque propriétaire dans les parties communes peut être fixée de manière provisoire, dans le règlement de copropriété, pour la partie dont les travaux sont achevés, à charge de la fixer définitivement à l'achèvement du projet immobilier.",
             "Mention en est faite dans le règlement de copropriété, dans le titre foncier originel et dans les titres fonciers partiels lorsque l'immeuble est immatriculé ou en cours d'immatriculation.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 7',
+        number: "Article 7",
         body: [
             "Les parties communes et les droits y afférents ne doivent faire l'objet ni d'une répartition, d'une saisie ou d'une cession entre l'ensemble des copropriétaires ou certains d'entre eux, ni d'une vente forcée indépendamment des parties individuelles.",
-            'Aucun copropriétaire ne peut ni user de sa fraction divise ni la louer ou l’hypothéquer indépendamment de sa fraction indivise.',
+            "Aucun copropriétaire ne peut ni user de sa fraction divise ni la louer ou l’hypothéquer indépendamment de sa fraction indivise.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 8',
+        number: "Article 8",
         body: [
-            'Tout immeuble en copropriété soumis aux dispositions de la présente loi est régi par un règlement de copropriété.',
+            "Tout immeuble en copropriété soumis aux dispositions de la présente loi est régi par un règlement de copropriété.",
             "Le propriétaire initial ou les copropriétaires d'un commun accord sont tenus d'élaborer un règlement de copropriété dans le respect des dispositions de la présente loi et notamment de ses articles 9 et 51. Une copie doit en être remise à tout copropriétaire.",
             "En cas d'absence du règlement de copropriété, un règlement de copropriété type leur est applicable.",
-            'Ce règlement est élaboré par voie réglementaire.',
+            "Ce règlement est élaboré par voie réglementaire.",
             "Les copropriétaires peuvent prescrire des conditions spéciales ou des obligations déterminées dans le règlement de copropriété sous réserve des dispositions de l'alinéa 2 ci-dessus.",
         ],
     },
     {
-        number: 'Article 9',
+        number: "Article 9",
         body: [
-            'Le règlement de copropriété comporte obligatoirement les éléments suivants :',
-            '- la destination des parties privatives et communes et les conditions de leur usage;',
+            "Le règlement de copropriété comporte obligatoirement les éléments suivants :",
+            "- la destination des parties privatives et communes et les conditions de leur usage;",
             "- la définition des règles relatives à l'administration des parties communes et le droit de jouissance y afférent;",
             "- la répartition des quotes-parts d'indivision relative aux parties communes à chaque fraction divise;",
             "- la définition des règles de gestion du syndicat et de la tenue de l'assemblée générale des copropriétaires et ses attributions;",
-            '- les règles et les critères de désignation du syndic et de son adjoint;',
+            "- les règles et les critères de désignation du syndic et de son adjoint;",
             "- la fixation des charges relatives à la conservation, à l'entretien et à l'administration de la copropriété;",
             "- la fixation des charges relatives au fonctionnement et à l'entretien des équipements communs;",
-            '- la fixation des charges de chaque service collectif décidé par le syndicat;',
-            '- la fixation de la part de chaque propriétaire dans les charges, selon la quote-part indivise correspondant à chaque partie privative.',
+            "- la fixation des charges de chaque service collectif décidé par le syndicat;",
+            "- la fixation de la part de chaque propriétaire dans les charges, selon la quote-part indivise correspondant à chaque partie privative.",
             "Est considérée comme nulle, toute condition contraignante au droit des copropriétaires d'user de leurs fractions individuelles, à l'exception de l'affectation, de la caractéristique et de l'emplacement de l'immeuble en copropriété.",
             "Le règlement de copropriété est signé par le propriétaire initial ou les copropriétaires ou leurs mandataires, sous réserve des dispositions de l'article 21 ci-dessous.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 10',
+        number: "Article 10",
         body: [
             "Est annexé au règlement de copropriété, un dossier technique établi selon les conditions et les modalités prévues par voie législative et réglementaire, notamment l'article 17 du décret n° 2-13-18 du 16 ramadan 1435 (14 juillet 2014) relatif aux formalités de l'immatriculation foncière.",
             "Si l'immeuble est non immatriculé, le règlement de copropriété doit être accompagné des documents suivants :",
-            '- les plans d’architecture portant la mention « ne varietur »;',
-            '- les plans topographiques indiquant la situation, les limites, la superficie, la hauteur et le contenu des parties privatives et des parties communes à chaque niveau de la construction;',
-            '- le permis de construire;',
-            '- le cahier des charges, le cas échéant;',
-            '- le procès-verbal de division signé par le propriétaire, indiquant la situation, les limites, la superficie, la hauteur et le contenu des parties privatives et communes, ainsi que la superficie de la parcelle de terrain sur laquelle a été construit le bâtiment soumis au règlement de copropriété;',
-            '- le procès-verbal de la première assemblée générale du syndicat des copropriétaires, le cas échéant.',
+            "- les plans d’architecture portant la mention « ne varietur »;",
+            "- les plans topographiques indiquant la situation, les limites, la superficie, la hauteur et le contenu des parties privatives et des parties communes à chaque niveau de la construction;",
+            "- le permis de construire;",
+            "- le cahier des charges, le cas échéant;",
+            "- le procès-verbal de division signé par le propriétaire, indiquant la situation, les limites, la superficie, la hauteur et le contenu des parties privatives et communes, ainsi que la superficie de la parcelle de terrain sur laquelle a été construit le bâtiment soumis au règlement de copropriété;",
+            "- le procès-verbal de la première assemblée générale du syndicat des copropriétaires, le cas échéant.",
         ],
-        note: 'Abrogé et remplacé par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Abrogé et remplacé par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
     {
-        number: 'Article 11',
+        number: "Article 11",
         body: [
             "Le règlement de copropriété auquel sont annexées les pièces jointes et les modifications éventuelles faites conformément à la loi doit faire l'objet, pour les immeubles immatriculés, d'un dépôt et d'un enregistrement au registre foncier auprès de la conservation foncière du lieu de situation de l'immeuble.",
             "Le vendeur doit mettre à la disposition de l'acquéreur une copie du règlement de copropriété, des copies des plans architecturaux portant la mention « ne varietur » et des plans topographiques relatifs à la partie acquise, mentionnés à l'article 10 ci-dessus ainsi que les autres pièces qui lui sont jointes.",
             "L'acte de vente doit mentionner obligatoirement que l'acquéreur a accédé et pris connaissance des dispositions du règlement de copropriété, des plans architecturaux et topographiques.",
             "Si l'immeuble est non immatriculé, le règlement de copropriété avec les modifications portées éventuellement sur lui accompagné le cas échéant des pièces prévues à l'article 10 ci-dessus, est déposé au secrétariat-greffe du tribunal de première instance de la circonscription dont relève l'immeuble.",
         ],
-        note: 'Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.',
+        note: "Modifié par la loi n° 106-12 du 17 octobre 2016 - B.O. n° 6514 du 3 novembre 2016.",
     },
 ];
 
@@ -138,111 +138,118 @@ const pickArticles = (numbers) =>
     loi1800Articles.filter((article) => numbers.includes(article.number));
 
 export const arabicBlogImages = {
-    '/images/image1.png': '/images/image3arabe.png',
-    '/images/image2.png': '/images/image2arabe.png',
-    '/images/image3.png': '/images/image1arabe.png',
+    "/images/loisyndic.png": "/images/loisyndic.png",
+    "/images/reglementsyndic.png": "/images/reglementsyndic.png",
+    "/images/droitsyndic.png": "/images/droitsyndic.png",
 };
 
 export function blogImageForLocale(post, locale) {
-    return locale === 'ar' ? arabicBlogImages[post.image] ?? post.image : post.image;
+    return locale === "ar"
+        ? (arabicBlogImages[post.image] ?? post.image)
+        : post.image;
 }
 
 export const blogPosts = [
     {
-        slug: 'loi-18-00-copropriete-maroc',
-        href: '/blog/loi-18-00-copropriete-maroc',
-        title: 'Nouvelle loi syndic de copropriété au Maroc (Loi 18-00)',
-        category: 'Légal',
-        readTime: '8 min',
-        image: '/images/image3.png',
+        slug: "loi-18-00-copropriete-maroc",
+        href: "/blog/loi-18-00-copropriete-maroc",
+        title: "Nouvelle loi syndic de copropriété au Maroc (Loi 18-00)",
+        category: "Légal",
+        readTime: "8 min",
+        image: "/images/loisyndic.png",
         description:
-            'Le cadre juridique complet régissant le statut de la copropriété des immeubles bâtis au Maroc. Une référence essentielle pour les syndics et les copropriétaires, mise à jour et facile à naviguer.',
+            "Le cadre juridique complet régissant le statut de la copropriété des immeubles bâtis au Maroc. Une référence essentielle pour les syndics et les copropriétaires, mise à jour et facile à naviguer.",
         sections: [
             {
-                heading: 'Objectif de cet article',
+                heading: "Objectif de cet article",
                 body: [
-                    'Cet article présente la Loi 18-00 comme base juridique de la copropriété au Maroc.',
-                    'Il aide le syndic et les copropriétaires à retrouver rapidement les notions importantes: parties communes, syndicat, charges, assemblée générale et obligations.',
+                    "Cet article présente la Loi 18-00 comme base juridique de la copropriété au Maroc.",
+                    "Il aide le syndic et les copropriétaires à retrouver rapidement les notions importantes: parties communes, syndicat, charges, assemblée générale et obligations.",
                 ],
             },
         ],
         legalContent: {
-            title: 'Texte navigable de la loi 18-00',
+            title: "Texte navigable de la loi 18-00",
             description:
-                'Recherchez rapidement dans les dispositions générales et les articles clés de la copropriété.',
-            placeholder: 'Rechercher un article...',
+                "Recherchez rapidement dans les dispositions générales et les articles clés de la copropriété.",
+            placeholder: "Rechercher un article...",
             groups: [
                 {
-                    title: 'I - Dispositions générales',
+                    title: "I - Dispositions générales",
                     articles: loi1800Articles,
                 },
             ],
         },
     },
     {
-        slug: 'reglement-copropriete-maroc',
-        href: '/blog/reglement-copropriete-maroc',
-        title: 'Pourquoi le règlement de copropriété est indispensable au Maroc',
-        category: 'Organisation',
-        readTime: '5 min',
-        image: '/images/image2.png',
+        slug: "reglement-copropriete-maroc",
+        href: "/blog/reglement-copropriete-maroc",
+        title: "Pourquoi le règlement de copropriété est indispensable au Maroc",
+        category: "Organisation",
+        readTime: "5 min",
+        image: "/images/reglementsyndic.png",
         description:
             "Contenu obligatoire du règlement de copropriété selon la loi 18-00: quotes-parts, charges, organisation du syndicat et obligations lors de la gestion de l'immeuble.",
         sections: [
             {
-                heading: 'Rôle du règlement',
+                heading: "Rôle du règlement",
                 body: [
-                    'Le règlement de copropriété fixe les règles communes de la résidence.',
+                    "Le règlement de copropriété fixe les règles communes de la résidence.",
                     "Il précise l'usage des parties privatives et communes, la répartition des charges et les droits de vote.",
                 ],
             },
         ],
         legalContent: {
-            title: 'Articles clés sur le règlement de copropriété',
+            title: "Articles clés sur le règlement de copropriété",
             description:
-                'Les articles ci-dessous regroupent les obligations principales liées au règlement de copropriété.',
-            placeholder: 'Rechercher dans le règlement...',
+                "Les articles ci-dessous regroupent les obligations principales liées au règlement de copropriété.",
+            placeholder: "Rechercher dans le règlement...",
             groups: [
                 {
-                    title: 'Règlement de copropriété',
-                    articles: pickArticles(['Article 8', 'Article 9', 'Article 10', 'Article 11']),
+                    title: "Règlement de copropriété",
+                    articles: pickArticles([
+                        "Article 8",
+                        "Article 9",
+                        "Article 10",
+                        "Article 11",
+                    ]),
                 },
             ],
         },
     },
     {
-        slug: 'travaux-copropriete-maroc',
-        href: '/blog/travaux-copropriete-maroc',
-        title: 'Travaux en copropriété au Maroc : droits et limites',
-        category: 'Travaux',
-        readTime: '5 min',
-        image: '/images/image1.png',
+        slug: "travaux-copropriete-maroc",
+        href: "/blog/travaux-copropriete-maroc",
+        title: "Travaux en copropriété au Maroc : droits et limites",
+        category: "Travaux",
+        readTime: "5 min",
+        image: "/images/droitsyndic.png",
         description:
             "Parties privatives et communes, autorisation de l'AG, obligation d'accès pour travaux d'intérêt commun selon la loi 18-00.",
         sections: [
             {
-                heading: 'Parties privatives et communes',
+                heading: "Parties privatives et communes",
                 body: [
-                    'Les travaux dans une partie privative ne doivent pas nuire aux parties communes ni aux droits des autres copropriétaires.',
-                    'Les travaux qui touchent les parties communes demandent une organisation plus stricte et une validation adaptée.',
+                    "Les travaux dans une partie privative ne doivent pas nuire aux parties communes ni aux droits des autres copropriétaires.",
+                    "Les travaux qui touchent les parties communes demandent une organisation plus stricte et une validation adaptée.",
                 ],
             },
         ],
         legalContent: {
-            title: 'Articles utiles pour les travaux',
+            title: "Articles utiles pour les travaux",
             description:
-                'Ces extraits aident à distinguer les parties privatives, les parties communes et les droits accessoires pouvant concernér les travaux.',
-            placeholder: 'Rechercher travaux, parties communes...',
+                "Ces extraits aident à distinguer les parties privatives, les parties communes et les droits accessoires pouvant concernér les travaux.",
+            placeholder: "Rechercher travaux, parties communes...",
             groups: [
                 {
-                    title: 'Parties privatives, communes et droits accessoires',
+                    title: "Parties privatives, communes et droits accessoires",
                     articles: pickArticles([
-                        'Article 2',
-                        'Article 3',
-                        'Article 4',
-                        'Article 4 bis',
-                        'Article 5',
-                        'Article 9',
+                        "Article 2",
+                        "Article 3",
+                        "Article 4",
+                        "Article 4 bis",
+                        "Article 5",
+                        "Article 9",
                     ]),
                 },
             ],

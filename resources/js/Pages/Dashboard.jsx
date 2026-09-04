@@ -1234,8 +1234,8 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                                 Lot {apartment.number}
                                             </p>
                                             <p className="mt-1 text-sm text-slate-500">
-                                                {apartment.building || "-"} - Étage{" "}
-                                                {apartment.floor || "-"}
+                                                {apartment.building || "-"} -
+                                                Étage {apartment.floor || "-"}
                                             </p>
                                         </div>
                                         <Badge
@@ -1254,7 +1254,8 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                                 Surface
                                             </p>
                                             <p className="truncate text-sm font-semibold text-slate-950">
-                                                {formatNumber(apartment.area)} m²
+                                                {formatNumber(apartment.area)}{" "}
+                                                m²
                                             </p>
                                         </div>
                                         <div className="min-w-0">
@@ -1262,7 +1263,9 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                                 Solde
                                             </p>
                                             <p className="truncate text-sm font-semibold text-slate-950">
-                                                {formatCurrency(apartment.balance)}
+                                                {formatCurrency(
+                                                    apartment.balance,
+                                                )}
                                             </p>
                                         </div>
                                         <div className="min-w-0">
@@ -1295,7 +1298,7 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                         subtitle="Charges rattachées à vos lots."
                     >
                         <CompactList
-                            items={charges}
+                            items={charges.slice(0, 3)}
                             empty="Aucun appel de fonds trouvé."
                         >
                             {(charge) => (
@@ -1339,12 +1342,12 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                             <OwnerLineChart data={monthlySeries} />
                         </Panel>
 
-                        <Panel
+                        {/* <Panel
                             title="Paiements"
                             subtitle="Dernières opérations enregistrées."
                         >
                             <CompactList
-                                items={payments}
+                                items={payments.slice(0, 3)}
                                 empty="Aucun paiement trouvé."
                             >
                                 {(payment) => (
@@ -1360,12 +1363,14 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                                     )}
                                                 </p>
                                                 <p className="mt-1 text-sm text-slate-500">
-                                                    {payment.charge || "Charge"} -{" "}
-                                                    {payment.payment_date}
+                                                    {payment.charge || "Charge"}{" "}
+                                                    - {payment.payment_date}
                                                 </p>
                                             </div>
                                             <Badge
-                                                tone={statusTone(payment.status)}
+                                                tone={statusTone(
+                                                    payment.status,
+                                                )}
                                             >
                                                 {statusLabel(payment.status)}
                                             </Badge>
@@ -1373,12 +1378,12 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                     </div>
                                 )}
                             </CompactList>
-                        </Panel>
+                        </Panel> */}
                     </div>
                 </section>
 
                 <section className="grid gap-5 xl:grid-cols-3 xl:items-start">
-                    <Panel
+                    {/* <Panel
                         title="PV d'AG et documents"
                         subtitle="Fichiers disponibles au téléchargement."
                     >
@@ -1400,7 +1405,9 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                     </p>
                                     {document.file_path && (
                                         <a
-                                            href={documentHref(document.file_path)}
+                                            href={documentHref(
+                                                document.file_path,
+                                            )}
                                             className="mt-3 inline-flex rounded-md border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
                                             target="_blank"
                                             rel="noreferrer"
@@ -1442,7 +1449,7 @@ function CoOwnerDashboard({ auth = {}, data = {} }) {
                                 <TicketCard key={ticket.id} ticket={ticket} />
                             )}
                         </CompactList>
-                    </Panel>
+                    </Panel> */}
                 </section>
             </div>
         </AdminLayout>
@@ -1549,7 +1556,7 @@ function TenantDashboard({ auth = {}, data = {} }) {
                             <IncidentForm apartments={apartments} />
                         </Panel>
 
-                        <Panel
+                        {/* <Panel
                             title="Appartement occupé"
                             subtitle="Logement associé à votre compte."
                         >
@@ -1572,7 +1579,7 @@ function TenantDashboard({ auth = {}, data = {} }) {
                                     </div>
                                 )}
                             </CompactList>
-                        </Panel>
+                        </Panel> */}
                     </div>
                 </section>
 

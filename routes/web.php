@@ -49,7 +49,19 @@ Route::get('/blog/{slug}', function (string $slug) {
         'slug' => $slug,
     ]);
 })->name('blog.show');
+Route::get('/mentions-legales', function () {
+    return Inertia::render('Legal/MentionsLegales');
+})->name('legal.mentions');
+Route::get('/confidentialite', function () {
+    return Inertia::render('Legal/Confidentialite');
+})->name('legal.confidentialite');
+Route::get('/conditions-utilisation', function () {
+    return Inertia::render('Legal/ConditionsUtilisation');
+})->name('legal.conditions');
 
+Route::get('/cookies', function () {
+    return Inertia::render('Legal/Cookies');
+})->name('legal.cookies');
 
 Route::middleware(['auth', 'verified', 'role:SuperAdmin'])
     ->prefix('admin')

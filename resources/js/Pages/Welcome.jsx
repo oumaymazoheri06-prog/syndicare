@@ -1,158 +1,191 @@
-﻿import { Head, Link } from '@inertiajs/react';
-import { useEffect, useRef, useState } from 'react';
-import { blogImageForLocale, blogPosts } from './Blog/articles';
-import LanguageSwitcher from '@/Components/LanguageSwitcher';
-import { useI18n } from '@/i18n/I18nProvider';
+﻿import { Head, Link } from "@inertiajs/react";
+import { useEffect, useRef, useState } from "react";
+import { blogImageForLocale, blogPosts } from "./Blog/articles";
+import LanguageSwitcher from "@/Components/LanguageSwitcher";
+import { useI18n } from "@/i18n/I18nProvider";
 
-const desktopShot = '/images/dashboard%20final.png';
-const mobileShot = '/images/dashboardfinal%20movile.png';
-const heroImage = '/images/hero.jpg';
-const arabicDesktopShot = '/images/deskscreen.png';
-const arabicMobileShot = '/images/phonescreen.png';
+const desktopShot = "/images/dashboard%20final.png";
+const mobileShot = "/images/dashboardfinal%20movile.png";
+const heroImage = "/images/hero.jpg";
+const arabicDesktopShot = "/images/deskscreen.png";
+const arabicMobileShot = "/images/phonescreen.png";
 const LOT_MIN = 1;
 const LOT_MAX = 1000;
 const PRICING_PRESETS = [10, 45, 100, 200, 500];
-const CONTACT_EMAIL = 'syndicaremanager@gmail.com';
-const WHATSAPP_URL = 'https://wa.me/212663442169';
+const CONTACT_EMAIL = "syndicaremanager@gmail.com";
+const WHATSAPP_URL = "https://wa.me/212663442169";
 const INTRO_DURATION_MS = 3200;
-const INTRO_STORAGE_KEY = 'syndicare_landing_intro_seen_v2';
+const INTRO_STORAGE_KEY = "syndicare_landing_intro_seen_v2";
 
 const landingNavLinks = [
-    ['#produit', 'Produit'],
-    ['#fonctionnalites', 'Fonctionnalités'],
-    ['#tarifs', 'Tarifs'],
-    ['#testimonials', 'Avis'],
-    ['#faq', 'FAQ'],
-    ['#blog', 'Blog'],
-    ['#contact', 'Contact'],
+    ["#produit", "Produit"],
+    ["#fonctionnalites", "Fonctionnalités"],
+    ["#tarifs", "Tarifs"],
+    ["#testimonials", "Avis"],
+    ["#faq", "FAQ"],
+    ["#blog", "Blog"],
+    ["#contact", "Contact"],
 ];
 
 const syndicFeatures = [
-    ['Gestion des lots', 'Suivez les lots, résidents, immeubles et étages depuis un seul espace.'],
-    ['Suivi financier', 'Contrôlez les charges, paiements, dépenses et reçus en temps réel.'],
-    ['Documents ciblés', 'Partagez les documents par rôle, immeuble, lot ou pour tous.'],
-    ['Réclamations', 'Centralisez les tickets et gardez un historique clair des échanges.'],
-    ['Annonces', 'Diffusez les informations importantes aux résidents concernés.'],
-    ['Objets perdus', 'Facilitez la déclaration et le rapprochement des objets retrouvés.'],
+    [
+        "Gestion des lots",
+        "Suivez les lots, résidents, immeubles et étages depuis un seul espace.",
+    ],
+    [
+        "Suivi financier",
+        "Contrôlez les charges, paiements, dépenses et reçus en temps réel.",
+    ],
+    [
+        "Documents ciblés",
+        "Partagez les documents par rôle, immeuble, lot ou pour tous.",
+    ],
+    [
+        "Réclamations",
+        "Centralisez les tickets et gardez un historique clair des échanges.",
+    ],
+    [
+        "Annonces",
+        "Diffusez les informations importantes aux résidents concernés.",
+    ],
+    [
+        "Objets perdus",
+        "Facilitez la déclaration et le rapprochement des objets retrouvés.",
+    ],
 ];
 
 const faqs = [
     [
-        'Est-ce que SyndiCare gère plusieurs immeubles ?',
-        'Oui. Le syndic peut organiser les immeubles, les étages, les lots et les résidents depuis le même espace.',
+        "Est-ce que SyndiCare gère plusieurs immeubles ?",
+        "Oui. Le syndic peut organiser les immeubles, les étages, les lots et les résidents depuis le même espace.",
     ],
     [
-        'Les locataires et copropriétaires voient-ils les mêmes données ?',
-        'Non. Les permissions et le filtrage permettent de montrer seulement les informations qui concernent chaque utilisateur.',
+        "Les locataires et copropriétaires voient-ils les mêmes données ?",
+        "Non. Les permissions et le filtrage permettent de montrer seulement les informations qui concernent chaque utilisateur.",
     ],
     [
-        'Peut-on suivre les réclamations ?',
-        'Oui. Chaque ticket peut contenir un suivi avec les réponses du syndic et du résident.',
+        "Peut-on suivre les réclamations ?",
+        "Oui. Chaque ticket peut contenir un suivi avec les réponses du syndic et du résident.",
     ],
     [
-        'Le simulateur de tarif est-il automatique ?',
-        'Oui. Le montant estimé change selon le nombre de lots et le mode de facturation choisi.',
+        "Le simulateur de tarif est-il automatique ?",
+        "Oui. Le montant estimé change selon le nombre de lots et le mode de facturation choisi.",
     ],
 ];
 
 const dashboardPreviewStats = [
     {
-        label: 'Recouvrement',
+        label: "Recouvrement",
         value: 78,
-        suffix: '%',
-        caption: 'Charges du mois',
-        tone: 'emerald',
+        suffix: "%",
+        caption: "Charges du mois",
+        tone: "emerald",
     },
     {
-        label: 'À valider',
+        label: "À valider",
         value: 23,
-        suffix: '',
-        caption: 'Paiements reçus',
-        tone: 'amber',
+        suffix: "",
+        caption: "Paiements reçus",
+        tone: "amber",
     },
     {
-        label: 'Tickets actifs',
+        label: "Tickets actifs",
         value: 7,
-        suffix: '',
-        caption: 'Demandes ouvertes',
-        tone: 'sky',
+        suffix: "",
+        caption: "Demandes ouvertes",
+        tone: "sky",
     },
     {
-        label: 'Impayés',
+        label: "Impayés",
         value: 11172,
-        suffix: ' MAD',
-        caption: 'Charges en attente',
-        tone: 'rose',
+        suffix: " MAD",
+        caption: "Charges en attente",
+        tone: "rose",
     },
 ];
 
 const dashboardPreviewTickets = [
-    ['Julia Martin', 'Fuite d’eau au parking', 'Urgent'],
-    ['Nadia El Idrissi', 'Ascenseur bloqué', 'En cours'],
-    ['Youssef Amrani', 'Éclairage palier', 'Nouveau'],
+    ["Julia Martin", "Fuite d’eau au parking", "Urgent"],
+    ["Nadia El Idrissi", "Ascenseur bloqué", "En cours"],
+    ["Youssef Amrani", "Éclairage palier", "Nouveau"],
 ];
 
 const dashboardPreviewCharges = [
-    ['Lot A-12', '554 MAD'],
-    ['Lot B-08', '710 MAD'],
-    ['Lot C-03', '430 MAD'],
+    ["Lot A-12", "554 MAD"],
+    ["Lot B-08", "710 MAD"],
+    ["Lot C-03", "430 MAD"],
 ];
 
 const googleTestimonials = [
     {
-        name: 'Amina El Fassi',
-        role: 'Syndic professionnel',
-        initials: 'AE',
-        time: 'il y a 2 semaines',
-        text: 'Avant, je passais mes soirées à vérifier qui avait payé. Maintenant je retrouve l’information en quelques secondes. Franchement, ça m’a enlevé une bonne partie du stress de fin de mois.',
+        name: "Amina El Fassi",
+        role: "Syndic professionnel",
+        initials: "AE",
+        time: "il y a 2 semaines",
+        text: "Avant, je passais mes soirées à vérifier qui avait payé. Maintenant je retrouve l’information en quelques secondes. Franchement, ça m’a enlevé une bonne partie du stress de fin de mois.",
     },
     {
-        name: 'Youssef Amrani',
-        role: 'مسير إقامة',
-        initials: 'YA',
-        time: 'منذ شهر',
-        text: 'قبل كنت كنضيع وقت بزاف بين الواتساب وملفات إكسيل. دابا كلشي مجموع فبلاصة وحدة، وحتى السكان ولى ساهل عليهم يلقاو المعلومة.',
-        language: 'ar',
+        name: "Youssef Amrani",
+        role: "مسير إقامة",
+        initials: "YA",
+        time: "منذ شهر",
+        text: "قبل كنت كنضيع وقت بزاف بين الواتساب وملفات إكسيل. دابا كلشي مجموع فبلاصة وحدة، وحتى السكان ولى ساهل عليهم يلقاو المعلومة.",
+        language: "ar",
     },
     {
-        name: 'Nadia Bennani',
-        role: 'Copropriétaire',
-        initials: 'NB',
-        time: 'il y a 3 semaines',
-        text: 'Je ne suis pas très à l’aise avec les outils compliqués, mais ici j’ai vite compris où voir mes charges et mes reçus. Je consulte surtout depuis mon téléphone.',
+        name: "Nadia Bennani",
+        role: "Copropriétaire",
+        initials: "NB",
+        time: "il y a 3 semaines",
+        text: "Je ne suis pas très à l’aise avec les outils compliqués, mais ici j’ai vite compris où voir mes charges et mes reçus. Je consulte surtout depuis mon téléphone.",
     },
     {
-        name: 'Karim Alaoui',
-        role: 'مالك مشترك',
-        initials: 'KA',
-        time: 'منذ 3 أسابيع',
-        text: 'التطبيق بسيط وواضح. كنشوف المصاريف والإعلانات ديال العمارة بلا ما نبقى كل مرة نسول السنديك، وهاد الشي ريحني بزاف.',
-        language: 'ar',
+        name: "Karim Alaoui",
+        role: "مالك مشترك",
+        initials: "KA",
+        time: "منذ 3 أسابيع",
+        text: "التطبيق بسيط وواضح. كنشوف المصاريف والإعلانات ديال العمارة بلا ما نبقى كل مرة نسول السنديك، وهاد الشي ريحني بزاف.",
+        language: "ar",
     },
     {
-        name: 'Salma Rami',
-        role: 'Copropriétaire',
-        initials: 'SR',
-        time: 'il y a 1 semaine',
-        text: 'Quand j’ai signalé une fuite, j’ai pu suivre la réponse sans rappeler plusieurs fois. C’est surtout ce petit détail qui m’a convaincue.',
+        name: "Salma Rami",
+        role: "Copropriétaire",
+        initials: "SR",
+        time: "il y a 1 semaine",
+        text: "Quand j’ai signalé une fuite, j’ai pu suivre la réponse sans rappeler plusieurs fois. C’est surtout ce petit détail qui m’a convaincue.",
     },
 ];
 
 const ecosystemActors = [
-    ['SP', 'Syndics professionnels', 'Pilotage quotidien des immeubles'],
-    ['CG', 'Cabinets de gestion', 'Suivi financier et administratif'],
-    ['PM', 'Prestataires maintenance', 'Interventions et demandes terrain'],
-    ['RP', 'Résidences privées', 'Communication avec les résidents'],
-    ['CP', 'Copropriétés', 'Lots, appels de charges et documents'],
-    ['CS', 'Conseils syndicaux', 'Vision claire des décisions'],
+    ["SP", "Syndics professionnels", "Pilotage quotidien des immeubles"],
+    ["CG", "Cabinets de gestion", "Suivi financier et administratif"],
+    ["PM", "Prestataires maintenance", "Interventions et demandes terrain"],
+    ["RP", "Résidences privées", "Communication avec les résidents"],
+    ["CP", "Copropriétés", "Lots, appels de charges et documents"],
+    ["CS", "Conseils syndicaux", "Vision claire des décisions"],
 ];
 
 const trustFeatures = [
-    ['Données structurées', 'Charges, paiements, tickets et documents restent reliés au bon lot.'],
-    ['Accès par rôle', 'Le syndic, le copropriétaire et le locataire voient seulement ce qui les concerne.'],
-    ['Historique clair', 'Les validations, notifications et changements importants restent traçables.'],
-    ['Français / Arabe', 'L’interface accompagne les résidents dans les deux langues.'],
-    ['Loi 18-00', 'Une organisation pensée pour le contexte de la copropriété au Maroc.'],
+    [
+        "Données structurées",
+        "Charges, paiements, tickets et documents restent reliés au bon lot.",
+    ],
+    [
+        "Accès par rôle",
+        "Le syndic, le copropriétaire et le locataire voient seulement ce qui les concerne.",
+    ],
+    [
+        "Historique clair",
+        "Les validations, notifications et changements importants restent traçables.",
+    ],
+    [
+        "Français / Arabe",
+        "L’interface accompagne les résidents dans les deux langues.",
+    ],
+    [
+        "Loi 18-00",
+        "Une organisation pensée pour le contexte de la copropriété au Maroc.",
+    ],
 ];
 
 function priceForLots(lots) {
@@ -171,7 +204,7 @@ function pricingDétailsForLots(lots) {
     if (lots < 20) {
         return {
             monthlyBase: 100,
-            rateLabel: 'Forfait minimum',
+            rateLabel: "Forfait minimum",
             calculation: "100 Dh / mois jusqu'à 19 lots",
         };
     }
@@ -180,13 +213,13 @@ function pricingDétailsForLots(lots) {
 
     return {
         monthlyBase: priceForLots(lots),
-        rateLabel: `${rate.toLocaleString('fr-FR')} Dh / lot`,
-        calculation: `${lots} lots x ${rate.toLocaleString('fr-FR')} Dh`,
+        rateLabel: `${rate.toLocaleString("fr-FR")} Dh / lot`,
+        calculation: `${lots} lots x ${rate.toLocaleString("fr-FR")} Dh`,
     };
 }
 
 function formatPrice(value) {
-    return `${Math.round(value).toLocaleString('fr-FR')} Dh`;
+    return `${Math.round(value).toLocaleString("fr-FR")} Dh`;
 }
 
 function normalizeLots(value) {
@@ -199,18 +232,21 @@ function normalizeLots(value) {
     return Math.min(LOT_MAX, Math.max(LOT_MIN, Math.round(parsed)));
 }
 
-function useReplayInView({ rootMargin = '0px 0px -12% 0px', threshold = 0.22 } = {}) {
+function useReplayInView({
+    rootMargin = "0px 0px -12% 0px",
+    threshold = 0.22,
+} = {}) {
     const ref = useRef(null);
     const wasVisibleRef = useRef(false);
     const [isVisible, setIsVisible] = useState(false);
     const [playKey, setPlayKey] = useState(0);
 
     useEffect(() => {
-        if (typeof window === 'undefined') {
+        if (typeof window === "undefined") {
             return undefined;
         }
 
-        if (!('IntersectionObserver' in window)) {
+        if (!("IntersectionObserver" in window)) {
             setIsVisible(true);
             setPlayKey((current) => current + 1);
             return undefined;
@@ -256,7 +292,7 @@ function useAnimatedNumber(target, playKey = 0, isActive = true, delay = 0) {
             return undefined;
         }
 
-        if (typeof window === 'undefined') {
+        if (typeof window === "undefined") {
             setValue(target);
             return undefined;
         }
@@ -273,9 +309,9 @@ function useAnimatedNumber(target, playKey = 0, isActive = true, delay = 0) {
             }
 
             const progress = Math.min((now - startedAt) / duration, 1);
-            const eased = 1 - ((1 - progress) ** 3);
+            const eased = 1 - (1 - progress) ** 3;
 
-            setValue(Math.round(startValue + ((target - startValue) * eased)));
+            setValue(Math.round(startValue + (target - startValue) * eased));
 
             if (progress < 1) {
                 frameId = window.requestAnimationFrame(tick);
@@ -301,10 +337,10 @@ function useAnimatedNumber(target, playKey = 0, isActive = true, delay = 0) {
 function AnimatedStat({ stat, index, playKey = 0, isActive = true }) {
     const value = useAnimatedNumber(stat.value, playKey, isActive, index * 90);
     const toneClasses = {
-        emerald: 'border-emerald-100 bg-emerald-50 text-emerald-950',
-        amber: 'border-amber-100 bg-amber-50 text-amber-950',
-        sky: 'border-sky-100 bg-sky-50 text-sky-950',
-        rose: 'border-rose-100 bg-rose-50 text-rose-950',
+        emerald: "border-emerald-100 bg-emerald-50 text-emerald-950",
+        amber: "border-amber-100 bg-amber-50 text-amber-950",
+        sky: "border-sky-100 bg-sky-50 text-sky-950",
+        rose: "border-rose-100 bg-rose-50 text-rose-950",
     };
 
     return (
@@ -316,7 +352,8 @@ function AnimatedStat({ stat, index, playKey = 0, isActive = true }) {
                 {stat.label}
             </p>
             <p className="mt-3 text-2xl font-black leading-none sm:text-3xl">
-                {value.toLocaleString('fr-FR')}{stat.suffix}
+                {value.toLocaleString("fr-FR")}
+                {stat.suffix}
             </p>
             <p className="mt-2 text-xs font-semibold opacity-70">
                 {stat.caption}
@@ -325,10 +362,20 @@ function AnimatedStat({ stat, index, playKey = 0, isActive = true }) {
     );
 }
 
-function AnimatedMetricValue({ value, playKey = 0, isActive = true, delay = 0 }) {
+function AnimatedMetricValue({
+    value,
+    playKey = 0,
+    isActive = true,
+    delay = 0,
+}) {
     const textValue = String(value);
     const match = textValue.match(/^([+]?)(\d+)(.*)$/);
-    const animatedValue = useAnimatedNumber(match ? Number(match[2]) : 0, playKey, isActive, delay);
+    const animatedValue = useAnimatedNumber(
+        match ? Number(match[2]) : 0,
+        playKey,
+        isActive,
+        delay,
+    );
 
     if (!match) {
         return textValue;
@@ -336,12 +383,15 @@ function AnimatedMetricValue({ value, playKey = 0, isActive = true, delay = 0 })
 
     const [, prefix, , suffix] = match;
 
-    return `${prefix}${animatedValue.toLocaleString('fr-FR')}${suffix}`;
+    return `${prefix}${animatedValue.toLocaleString("fr-FR")}${suffix}`;
 }
 
 function EcosystemMarquee() {
     return (
-        <section className="border-b border-emerald-950/10 bg-white" aria-label="Écosystème SyndiCare">
+        <section
+            className="border-b border-emerald-950/10 bg-white"
+            aria-label="Écosystème SyndiCare"
+        >
             <div className="mx-auto flex max-w-[112rem] flex-col gap-3 px-4 py-5 sm:px-6 sm:py-6 lg:flex-row lg:items-end lg:justify-between lg:px-10">
                 <div>
                     <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
@@ -352,7 +402,8 @@ function EcosystemMarquee() {
                     </h2>
                 </div>
                 <p className="max-w-xl text-sm font-semibold leading-6 text-slate-500">
-                    SyndiCare connecte les acteurs qui participent à la gestion, au suivi et à la communication autour des immeubles.
+                    SyndiCare connecte les acteurs qui participent à la gestion,
+                    au suivi et à la communication autour des immeubles.
                 </p>
             </div>
 
@@ -362,26 +413,28 @@ function EcosystemMarquee() {
                         <div
                             key={group}
                             className="flex shrink-0 gap-3"
-                            aria-hidden={group === 1 ? 'true' : undefined}
+                            aria-hidden={group === 1 ? "true" : undefined}
                         >
-                            {ecosystemActors.map(([badge, title, description]) => (
-                                <article
-                                    key={`${group}-${title}`}
-                                    className="flex w-[17rem] shrink-0 items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3 shadow-sm sm:w-[19rem]"
-                                >
-                                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F5132] text-xs font-black text-white">
-                                        {badge}
-                                    </span>
-                                    <span className="min-w-0">
-                                        <span className="block truncate text-sm font-black text-[#0F5132]">
-                                            {title}
+                            {ecosystemActors.map(
+                                ([badge, title, description]) => (
+                                    <article
+                                        key={`${group}-${title}`}
+                                        className="flex w-[17rem] shrink-0 items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3 shadow-sm sm:w-[19rem]"
+                                    >
+                                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F5132] text-xs font-black text-white">
+                                            {badge}
                                         </span>
-                                        <span className="mt-1 block truncate text-xs font-semibold text-slate-500">
-                                            {description}
+                                        <span className="min-w-0">
+                                            <span className="block truncate text-sm font-black text-[#0F5132]">
+                                                {title}
+                                            </span>
+                                            <span className="mt-1 block truncate text-xs font-semibold text-slate-500">
+                                                {description}
+                                            </span>
                                         </span>
-                                    </span>
-                                </article>
-                            ))}
+                                    </article>
+                                ),
+                            )}
                         </div>
                     ))}
                 </div>
@@ -402,7 +455,9 @@ function TrustHighlights() {
                         Des repères rassurants pour le syndic et les résidents.
                     </h2>
                     <p className="mt-4 text-sm font-semibold leading-6 text-slate-600">
-                        La landing montre que le projet ne se limite pas à une interface: il respecte les rôles, les données et le suivi métier.
+                        La landing montre que le projet ne se limite pas à une
+                        interface: il respecte les rôles, les données et le
+                        suivi métier.
                     </p>
                 </div>
 
@@ -448,7 +503,7 @@ function StarRating() {
     );
 }
 
-function GoogleMark({ className = 'h-5 w-5' }) {
+function GoogleMark({ className = "h-5 w-5" }) {
     return (
         <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -471,7 +526,7 @@ function GoogleMark({ className = 'h-5 w-5' }) {
     );
 }
 
-function WhatsAppMark({ className = 'h-5 w-5' }) {
+function WhatsAppMark({ className = "h-5 w-5" }) {
     return (
         <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -482,9 +537,14 @@ function WhatsAppMark({ className = 'h-5 w-5' }) {
     );
 }
 
-function GmailMark({ className = 'h-5 w-5' }) {
+function GmailMark({ className = "h-5 w-5" }) {
     return (
-        <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg
+            className={className}
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+        >
             <path
                 d="M4.75 6.75h14.5v10.5H4.75V6.75Z"
                 stroke="currentColor"
@@ -502,77 +562,6 @@ function GmailMark({ className = 'h-5 w-5' }) {
     );
 }
 
-function GoogleTestimonials() {
-    const testimonials = [...googleTestimonials, ...googleTestimonials];
-
-    return (
-        <section id="testimonials" className="overflow-hidden border-y border-slate-200 bg-[#f8faf8] py-10 sm:py-12 lg:py-14">
-            <div className="mx-auto max-w-[112rem] px-4 text-center sm:px-6 lg:px-10">
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
-                    Avis Google
-                </p>
-                <h2 className="mx-auto mt-3 max-w-3xl text-2xl font-black text-[#0F5132] sm:text-3xl lg:text-4xl">
-                    Ne nous croyez pas sur parole
-                    <span className="ml-2 inline-flex align-middle text-rose-500" aria-hidden="true">
-                        ♥
-                    </span>
-                </h2>
-                <p className="mx-auto mt-3 max-w-2xl text-sm font-semibold leading-6 text-slate-500 sm:text-base">
-                    Ils utilisent SyndiCare au quotidien et partagent simplement leur expérience.
-                </p>
-            </div>
-
-            <div className="mt-7 w-full overflow-hidden">
-                <div className="landing-google-strip flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:px-6 lg:px-10">
-                    {testimonials.map((testimonial, index) => (
-                        <article
-                            key={`${testimonial.name}-${index}`}
-                            lang={testimonial.language}
-                            dir={testimonial.language === 'ar' ? 'rtl' : undefined}
-                            className="landing-google-review w-[92%] shrink-0 snap-center rounded-sm bg-neutral-100 p-5 shadow-[0_12px_34px_rgba(15,23,42,0.08)] ring-1 ring-slate-200/80 transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_44px_rgba(15,23,42,0.12)] sm:w-[48%] lg:w-[42%] xl:w-[34rem]"
-                        >
-                            <div className="flex items-start justify-between gap-4">
-                                <div className="flex min-w-0 items-center gap-3">
-                                    <div className="rounded-full bg-[conic-gradient(from_0deg,#4285f4,#34a853,#fbbc05,#ea4335,#4285f4)] p-[2px]">
-                                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-sm font-black text-slate-900">
-                                            {testimonial.initials}
-                                        </div>
-                                    </div>
-                                    <div className="min-w-0">
-                                        <h3 className="truncate text-base font-black text-slate-950">
-                                            {testimonial.name}
-                                        </h3>
-                                        <p className="truncate text-sm font-semibold text-slate-500">
-                                            {testimonial.role}
-                                        </p>
-                                    </div>
-                                </div>
-                                <GoogleMark className="h-6 w-6 shrink-0" />
-                            </div>
-
-                            <div className="mt-5 flex flex-wrap items-center gap-3">
-                                <StarRating />
-                                <span className="text-sm font-semibold text-slate-500">
-                                    {testimonial.time}
-                                </span>
-                            </div>
-
-                            <p className="mt-4 line-clamp-4 min-h-[6rem] text-base font-medium leading-7 text-slate-600">
-                                {testimonial.text}
-                            </p>
-
-                            <div className="mt-5 flex items-center gap-2 border-t border-slate-200 pt-4 text-sm font-black text-slate-500">
-                                <GoogleMark className="h-4 w-4" />
-                                <span>Posté sur Google</span>
-                            </div>
-                        </article>
-                    ))}
-                </div>
-            </div>
-        </section>
-    );
-}
-
 function BlogSection({ localizedBlogImage }) {
     return (
         <section
@@ -586,11 +575,13 @@ function BlogSection({ localizedBlogImage }) {
                             Blog
                         </p>
                         <h2 className="mt-3 text-2xl font-black text-[#0F5132] sm:text-3xl lg:text-4xl">
-                            Des conseils pratiques pour gérer une copropriété avec plus de clarté.
+                            Des conseils pratiques pour gérer une copropriété
+                            avec plus de clarté.
                         </h2>
                         <p className="mt-4 text-base leading-7 text-slate-600">
-                            Une sélection de contenus courts pour aider les syndics à mieux
-                            organiser les finances, les documents et la relation avec les résidents.
+                            Une sélection de contenus courts pour aider les
+                            syndics à mieux organiser les finances, les
+                            documents et la relation avec les résidents.
                         </p>
                     </div>
                     <a
@@ -602,29 +593,51 @@ function BlogSection({ localizedBlogImage }) {
                 </div>
 
                 <div className="mt-8 grid gap-5 md:grid-cols-3">
-                    {blogPosts.map((post) => (
+                    {blogPosts.map((post, index) => (
                         <Link
                             href={post.href}
                             key={post.title}
-                            className="group overflow-hidden rounded-[1.5rem] border border-emerald-100 bg-[#f8faf8] shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-950/10"
+                            className={`group overflow-hidden rounded-[1.5rem] border border-emerald-100 bg-[#f8faf8] shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-emerald-950/10 ${
+                                index === 0 ? "" : "flex md:block"
+                            }`}
                         >
                             <img
                                 src={localizedBlogImage(post)}
                                 alt={post.title}
-                                className="aspect-[16/10] w-full object-cover object-left-top transition duration-500 group-hover:scale-[1.03]"
+                                className={`object-cover object-left-top transition duration-500 group-hover:scale-[1.03] ${
+                                    index === 0
+                                        ? "aspect-[16/10] w-full"
+                                        : "h-32 w-32 shrink-0 md:aspect-[16/10] md:h-auto md:w-full"
+                                }`}
                             />
-                            <div className="p-4 sm:p-5">
+                            <div
+                                className={`p-4 sm:p-5 ${
+                                    index === 0 ? "" : "min-w-0 flex-1"
+                                }`}
+                            >
                                 <div className="flex items-center justify-between gap-3 text-xs font-black uppercase tracking-[0.16em]">
-                                    <span className="text-emerald-700">{post.category}</span>
-                                    <span className="text-slate-400">{post.readTime}</span>
+                                    <span className="text-emerald-700">
+                                        {post.category}
+                                    </span>
+                                    <span className="text-slate-400">
+                                        {post.readTime}
+                                    </span>
                                 </div>
                                 <h3 className="mt-4 text-xl font-black leading-tight text-[#0F5132]">
                                     {post.title}
                                 </h3>
-                                <p className="mt-3 text-sm leading-6 text-slate-600">
+                                <p
+                                    className={`mt-3 text-sm leading-6 text-slate-600 ${
+                                        index === 0 ? "" : "hidden md:block"
+                                    }`}
+                                >
                                     {post.description}
                                 </p>
-                                <p className="mt-5 text-sm font-black text-[#0F5132]">
+                                <p
+                                    className={`mt-5 text-sm font-black text-[#0F5132] ${
+                                        index === 0 ? "" : "hidden md:block"
+                                    }`}
+                                >
                                     Lire l'article
                                 </p>
                             </div>
@@ -638,7 +651,10 @@ function BlogSection({ localizedBlogImage }) {
 
 function ContactSection() {
     return (
-        <section id="contact" className="scroll-mt-28 bg-[#f8faf8] px-4 py-12 sm:px-6 sm:py-14 lg:px-10 lg:py-16">
+        <section
+            id="contact"
+            className="scroll-mt-28 bg-[#f8faf8] px-4 py-12 sm:px-6 sm:py-14 lg:px-10 lg:py-16"
+        >
             <div className="mx-auto max-w-5xl">
                 <div className="landing-stat-card rounded-[2rem] border border-emerald-100 bg-white p-5 shadow-xl shadow-emerald-950/10 sm:p-8">
                     <div className="flex items-center justify-between gap-4">
@@ -652,20 +668,35 @@ function ContactSection() {
                         Lancez une gestion plus claire dès cette semaine.
                     </h2>
                     <p className="mt-4 max-w-3xl text-sm font-semibold leading-6 text-slate-600">
-                        Présentez vos immeubles, vos lots et votre méthode actuelle.
-                        SyndiCare vous aide à organiser le suivi dans une plateforme unique.
+                        Présentez vos immeubles, vos lots et votre méthode
+                        actuelle. SyndiCare vous aide à organiser le suivi dans
+                        une plateforme unique.
                     </p>
 
                     <div className="mt-6 grid gap-3 md:grid-cols-3">
                         {[
-                            ['01', 'Démo ciblée', 'Vision claire sur vos besoins réels.'],
-                            ['02', 'Structure des lots', 'Immeubles, résidents et charges organisés.'],
-                            ['03', 'Lancement simple', 'Un espace prêt pour le syndic et les résidents.'],
+                            [
+                                "01",
+                                "Démo ciblée",
+                                "Vision claire sur vos besoins réels.",
+                            ],
+                            [
+                                "02",
+                                "Structure des lots",
+                                "Immeubles, résidents et charges organisés.",
+                            ],
+                            [
+                                "03",
+                                "Lancement simple",
+                                "Un espace prêt pour le syndic et les résidents.",
+                            ],
                         ].map(([step, title, description], index) => (
                             <div
                                 key={title}
                                 className="landing-stat-card flex gap-3 rounded-2xl border border-slate-200 bg-[#f8faf8] p-4"
-                                style={{ animationDelay: `${180 + index * 120}ms` }}
+                                style={{
+                                    animationDelay: `${180 + index * 120}ms`,
+                                }}
                             >
                                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-xs font-black text-[#0F5132] shadow-sm">
                                     {step}
@@ -714,7 +745,8 @@ function ContactSection() {
                             Réponse rapide
                         </p>
                         <p className="mt-1 text-sm leading-6 text-slate-600">
-                            Idéal pour valider le périmètre, les lots et le premier immeuble à configurer.
+                            Idéal pour valider le périmètre, les lots et le
+                            premier immeuble à configurer.
                         </p>
                     </div>
                 </div>
@@ -725,29 +757,84 @@ function ContactSection() {
 
 function ProductExperiencePreview() {
     const { ref: previewRef, isVisible } = useReplayInView();
+    const hasAutoHintedRef = useRef(false);
+
+    useEffect(() => {
+        if (
+            !isVisible ||
+            hasAutoHintedRef.current ||
+            typeof window === "undefined" ||
+            window.innerWidth >= 1280 ||
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+            return;
+        }
+
+        const container = previewRef.current;
+
+        if (!container) {
+            return;
+        }
+
+        hasAutoHintedRef.current = true;
+
+        const timer = window.setTimeout(() => {
+            container.scrollBy({
+                left: 75,
+                behavior: "smooth",
+            });
+
+            window.setTimeout(() => {
+                container.scrollTo({
+                    left: 0,
+                    behavior: "smooth",
+                });
+            }, 650);
+        }, 900);
+
+        return () => window.clearTimeout(timer);
+    }, [isVisible, previewRef]);
     const syndicActions = [
-        ['Structure du parc', 'Immeubles, étages, lots et résidents réunis dans un seul espace.'],
-        ['Gestion quotidienne', 'Charges, documents et demandes restent liés aux bonnes personnes.'],
-        ['Diffusion ciblée', 'Chaque information est partagée selon le rôle, l’immeuble ou le lot.'],
+        [
+            "Structure du parc",
+            "Immeubles, étages, lots et résidents réunis dans un seul espace.",
+        ],
+        [
+            "Gestion quotidienne",
+            "Charges, documents et demandes restent liés aux bonnes personnes.",
+        ],
+        [
+            "Diffusion ciblée",
+            "Chaque information est partagée selon le rôle, l’immeuble ou le lot.",
+        ],
     ];
     const residentActions = [
-        ['Consulter ses charges', 'Un solde et un historique faciles à retrouver.'],
-        ['Envoyer un paiement', 'Une preuve transmise directement au syndic.'],
-        ['Suivre ses demandes', 'Des réponses et des statuts visibles au même endroit.'],
+        [
+            "Consulter ses charges",
+            "Un solde et un historique faciles à retrouver.",
+        ],
+        ["Envoyer un paiement", "Une preuve transmise directement au syndic."],
+        [
+            "Suivre ses demandes",
+            "Des réponses et des statuts visibles au même endroit.",
+        ],
     ];
     const flowSteps = [
-        ['Le syndic publie', 'Une charge, un document ou une annonce est ciblé.'],
-        ['Le résident agit', 'Il consulte, paie ou ouvre une demande.'],
-        ['La plateforme met à jour', 'Les informations restent synchronisées.'],
-        ['Chacun est informé', 'Une notification confirme l’avancement.'],
+        [
+            "Le syndic publie",
+            "Une charge, un document ou une annonce est ciblé.",
+        ],
+        ["Le résident agit", "Il consulte, paie ou ouvre une demande."],
+        ["La plateforme met à jour", "Les informations restent synchronisées."],
+        ["Chacun est informé", "Une notification confirme l’avancement."],
     ];
 
     return (
         <div
             ref={previewRef}
-            className={`landing-product-preview mt-8 grid gap-4 xl:grid-cols-[1.05fr_0.95fr_0.9fr] ${isVisible ? 'is-visible' : ''}`}
+            className={`landing-product-preview mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden xl:grid xl:grid-cols-[1.05fr_0.95fr_0.9fr] xl:overflow-visible xl:pb-0 ${isVisible ? "is-visible" : ""}`}
         >
-            <article className="landing-stat-card overflow-hidden rounded-2xl border border-emerald-100 bg-[#f8faf8] p-5 shadow-sm sm:rounded-[2rem] sm:p-6">
+            <article className="min-w-[88%] snap-start xl:min-w-0 landing-stat-card overflow-hidden rounded-2xl border border-emerald-100 bg-[#f8faf8] p-5 shadow-sm sm:rounded-[2rem] sm:p-6">
                 <div className="flex items-start justify-between gap-4">
                     <div>
                         <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
@@ -787,7 +874,10 @@ function ProductExperiencePreview() {
                 </div>
             </article>
 
-            <article className="landing-stat-card overflow-hidden rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-6" style={{ animationDelay: '130ms' }}>
+            <article
+                className="min-w-[88%] snap-start xl:min-w-0 landing-stat-card overflow-hidden rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm sm:rounded-[2rem] sm:p-6"
+                style={{ animationDelay: "130ms" }}
+            >
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
                     Espace résident
                 </p>
@@ -826,12 +916,18 @@ function ProductExperiencePreview() {
                     ))}
                 </div>
 
-                <div className="landing-resident-row mt-4 w-full rounded-full bg-[#0F5132] px-4 py-3 text-center text-sm font-black text-white shadow-sm" style={{ animationDelay: '760ms' }}>
+                <div
+                    className="landing-resident-row mt-4 w-full rounded-full bg-[#0F5132] px-4 py-3 text-center text-sm font-black text-white shadow-sm"
+                    style={{ animationDelay: "760ms" }}
+                >
                     Accéder à son espace
                 </div>
             </article>
 
-            <article className="landing-stat-card overflow-hidden rounded-2xl border border-emerald-100 bg-[#0F5132] p-5 text-white shadow-sm sm:rounded-[2rem] sm:p-6" style={{ animationDelay: '260ms' }}>
+            <article
+                className="min-w-[88%] snap-start xl:min-w-0 landing-stat-card overflow-hidden rounded-2xl border border-emerald-100 bg-[#0F5132] p-5 text-white shadow-sm sm:rounded-[2rem] sm:p-6"
+                style={{ animationDelay: "260ms" }}
+            >
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-[#C9A227]">
                     Automatisation
                 </p>
@@ -847,7 +943,12 @@ function ProductExperiencePreview() {
                             style={{ animationDelay: `${420 + index * 130}ms` }}
                         >
                             <div className="flex flex-col items-center">
-                                <span className="landing-flow-pulse flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-black text-[#0F5132]" style={{ animationDelay: `${index * 180}ms` }}>
+                                <span
+                                    className="landing-flow-pulse flex h-8 w-8 items-center justify-center rounded-full bg-white text-xs font-black text-[#0F5132]"
+                                    style={{
+                                        animationDelay: `${index * 180}ms`,
+                                    }}
+                                >
                                     {index + 1}
                                 </span>
                                 {index < flowSteps.length - 1 && (
@@ -855,9 +956,7 @@ function ProductExperiencePreview() {
                                 )}
                             </div>
                             <div className="pb-4">
-                                <p className="text-sm font-black">
-                                    {title}
-                                </p>
+                                <p className="text-sm font-black">{title}</p>
                                 <p className="mt-1 text-xs font-semibold leading-5 text-emerald-50/75">
                                     {description}
                                 </p>
@@ -872,34 +971,78 @@ function ProductExperiencePreview() {
 
 function WorkflowStatsPreview() {
     const { ref, isVisible, playKey } = useReplayInView();
+    const hasAutoHintedRef = useRef(false);
+
+    useEffect(() => {
+        if (
+            !isVisible ||
+            hasAutoHintedRef.current ||
+            typeof window === "undefined" ||
+            window.innerWidth >= 1024 ||
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+            return;
+        }
+
+        const container = ref.current;
+
+        if (!container) {
+            return;
+        }
+
+        hasAutoHintedRef.current = true;
+
+        const direction = document.documentElement.dir === "rtl" ? -1 : 1;
+
+        const timer = window.setTimeout(() => {
+            container.scrollBy({
+                left: 75 * direction,
+                behavior: "smooth",
+            });
+
+            window.setTimeout(() => {
+                container.scrollTo({
+                    left: 0,
+                    behavior: "smooth",
+                });
+            }, 650);
+        }, 900);
+
+        return () => window.clearTimeout(timer);
+    }, [isVisible, ref]);
     const workflowSteps = [
         {
-            title: 'Le syndic prépare',
-            description: 'Immeubles, lots, résidents, documents et appels de charges sont structurés avant diffusion.',
-            stat: '12 lots',
-            label: 'prêts à facturer',
+            title: "Le syndic prépare",
+            description:
+                "Immeubles, lots, résidents, documents et appels de charges sont structurés avant diffusion.",
+            stat: "12 lots",
+            label: "prêts à facturer",
         },
         {
-            title: 'Les résidents consultent',
-            description: 'Chaque utilisateur retrouve uniquement les informations liées à son lot et à son rôle.',
-            stat: '32 vues',
-            label: 'sur les annonces',
+            title: "Les résidents consultent",
+            description:
+                "Chaque utilisateur retrouve uniquement les informations liées à son lot et à son rôle.",
+            stat: "32 vues",
+            label: "sur les annonces",
         },
         {
-            title: 'Les paiements sont validés',
-            description: 'Les preuves sont contrôlées par le syndic, puis les soldes et statistiques se mettent à jour.',
-            stat: '23',
-            label: 'paiements à valider',
+            title: "Les paiements sont validés",
+            description:
+                "Les preuves sont contrôlées par le syndic, puis les soldes et statistiques se mettent à jour.",
+            stat: "23",
+            label: "paiements à valider",
         },
         {
-            title: 'Tout est historisé',
-            description: 'Notifications, tickets, documents et changements de statut restent traçables dans le temps.',
-            stat: 'Historique',
-            label: 'actions tracées',
+            title: "Tout est historisé",
+            description:
+                "Notifications, tickets, documents et changements de statut restent traçables dans le temps.",
+            stat: "Historique",
+            label: "actions tracées",
         },
     ];
 
-    return ( <></>
+    return (
+        <></>
         // <section ref={ref} className={`landing-replay-section border-y border-emerald-950/10 bg-white ${isVisible ? 'is-visible' : ''}`}>
         //     <div className="mx-auto max-w-[112rem] px-4 py-12 sm:px-6 sm:py-14 lg:px-10 lg:py-16">
         //         <div className="max-w-4xl">
@@ -969,10 +1112,65 @@ function WorkflowStatsPreview() {
 
 function SyndicDashboardPreview({ features }) {
     const { ref, isVisible, playKey } = useReplayInView();
+    const hasAutoHintedRef = useRef(false);
 
+    useEffect(() => {
+        if (
+            !isVisible ||
+            hasAutoHintedRef.current ||
+            typeof window === "undefined" ||
+            window.innerWidth >= 1024 ||
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+            return;
+        }
+
+        const container = ref.current;
+
+        if (!container) {
+            return;
+        }
+
+        let backTimer;
+        let restoreTimer;
+
+        const timer = window.setTimeout(() => {
+            hasAutoHintedRef.current = true;
+
+            const direction = document.documentElement.dir === "rtl" ? -1 : 1;
+
+            container.style.scrollSnapType = "none";
+
+            container.scrollBy({
+                left: 90 * direction,
+                behavior: "smooth",
+            });
+
+            backTimer = window.setTimeout(() => {
+                container.scrollTo({
+                    left: 0,
+                    behavior: "smooth",
+                });
+
+                restoreTimer = window.setTimeout(() => {
+                    container.style.scrollSnapType = "";
+                }, 500);
+            }, 650);
+        }, 800);
+
+        return () => {
+            window.clearTimeout(timer);
+            window.clearTimeout(backTimer);
+            window.clearTimeout(restoreTimer);
+            container.style.scrollSnapType = "";
+        };
+    }, [isVisible, ref]);
     return (
-        <section ref={ref} className={`landing-dashboard-replay mx-auto grid w-full max-w-[112rem] gap-8 px-4 py-12 sm:px-6 sm:py-14 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:px-10 lg:py-16 ${isVisible ? 'is-visible' : ''}`}>
-            <div>
+        <section
+            ref={ref}
+            className={`landing-dashboard-replay mx-auto flex w-full max-w-[112rem] snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth py-12 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:px-6 sm:py-14 lg:grid lg:grid-cols-2 lg:items-center lg:gap-8 lg:overflow-visible lg:px-10 lg:py-16 ${isVisible ? "is-visible" : ""}`}
+        >
+            <div className="w-[88%] shrink-0 snap-start px-4 lg:w-auto lg:min-w-0 lg:px-0">
                 <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
                     Pour le syndic
                 </p>
@@ -980,29 +1178,32 @@ function SyndicDashboardPreview({ features }) {
                     Un tableau de bord pour gérer le parc immobilier.
                 </h2>
                 <p className="mt-4 max-w-xl text-base leading-7 text-slate-600">
-                    Le syndic garde une vision claire des opérations importantes et réduit les suivis dispersés entre Excel, messages et dossiers locaux.
+                    Le syndic garde une vision claire des opérations importantes
+                    et réduit les suivis dispersés entre Excel, messages et
+                    dossiers locaux.
                 </p>
 
                 <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                    {features.slice(0, 4).map(([featureTitle, featureDescription]) => (
-                        <article
-                            key={featureTitle}
-                            className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm"
-                        >
-                            <span className="block h-1.5 w-8 rounded-full bg-[#C9A227]" />
-                            <h3 className="mt-3 text-sm font-black text-slate-950">
-                                {featureTitle}
-                            </h3>
-                            <p className="mt-1 text-xs leading-5 text-slate-600">
-                                {featureDescription}
-                            </p>
-                        </article>
-                    ))}
+                    {features
+                        .slice(0, 4)
+                        .map(([featureTitle, featureDescription]) => (
+                            <article
+                                key={featureTitle}
+                                className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm"
+                            >
+                                <span className="block h-1.5 w-8 rounded-full bg-[#C9A227]" />
+                                <h3 className="mt-3 text-sm font-black text-slate-950">
+                                    {featureTitle}
+                                </h3>
+                                <p className="mt-1 text-xs leading-5 text-slate-600">
+                                    {featureDescription}
+                                </p>
+                            </article>
+                        ))}
                 </div>
             </div>
-
-            <div className="relative min-w-0">
-                <div className="landing-dashboard-preview overflow-hidden rounded-3xl border border-emerald-100 bg-white p-4 shadow-2xl shadow-emerald-950/10 sm:p-5">
+            <div className="relative w-[88%] shrink-0 snap-start px-4 lg:w-auto lg:min-w-0 lg:px-0">
+                <div className="landing-dashboard-preview h-full overflow-hidden rounded-3xl border border-emerald-100 bg-white p-4 shadow-2xl shadow-emerald-950/10 sm:p-5">
                     <div className="flex flex-col gap-3 border-b border-emerald-100 pb-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="text-xs font-black uppercase tracking-[0.18em] text-emerald-700">
@@ -1016,9 +1217,7 @@ function SyndicDashboardPreview({ features }) {
                             <span className="rounded-full bg-[#0F5132] px-3 py-1.5 text-white">
                                 Juin
                             </span>
-                            <span className="px-3 py-1.5">
-                                2026
-                            </span>
+                            <span className="px-3 py-1.5">2026</span>
                         </div>
                     </div>
 
@@ -1034,8 +1233,8 @@ function SyndicDashboardPreview({ features }) {
                         ))}
                     </div>
 
-                    <div className="mt-4 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
-                        <div className="rounded-2xl border border-emerald-100 bg-[#f8faf8] p-4">
+                    <div className="mt-4 grid gap-4 xl:grid-cols-2">
+                        <div className="hidden rounded-2xl border border-emerald-100 bg-[#f8faf8] p-4 sm:block">
                             <div className="flex items-start justify-between gap-4">
                                 <div>
                                     <p className="text-sm font-black text-[#0F5132]">
@@ -1058,9 +1257,23 @@ function SyndicDashboardPreview({ features }) {
                                 aria-label="Courbe de revenus de démonstration"
                             >
                                 <defs>
-                                    <linearGradient id="landingRevenueFill" x1="0" x2="0" y1="0" y2="1">
-                                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.24" />
-                                        <stop offset="100%" stopColor="#10b981" stopOpacity="0.02" />
+                                    <linearGradient
+                                        id="landingRevenueFill"
+                                        x1="0"
+                                        x2="0"
+                                        y1="0"
+                                        y2="1"
+                                    >
+                                        <stop
+                                            offset="0%"
+                                            stopColor="#10b981"
+                                            stopOpacity="0.24"
+                                        />
+                                        <stop
+                                            offset="100%"
+                                            stopColor="#10b981"
+                                            stopOpacity="0.02"
+                                        />
                                     </linearGradient>
                                 </defs>
                                 {[30, 70, 110, 150].map((y) => (
@@ -1099,14 +1312,15 @@ function SyndicDashboardPreview({ features }) {
                                             fill="#C9A227"
                                             stroke="white"
                                             strokeWidth="4"
-                                            style={{ animationDelay: `${700 + index * 120}ms` }}
+                                            style={{
+                                                animationDelay: `${700 + index * 120}ms`,
+                                            }}
                                         />
                                     );
                                 })}
                             </svg>
                         </div>
-
-                        <div className="grid gap-4">
+                        <div className="hidden xl:grid xl:gap-4">
                             <div className="rounded-2xl border border-rose-100 bg-rose-50 p-4">
                                 <div className="flex items-center justify-between gap-3">
                                     <p className="text-sm font-black text-rose-950">
@@ -1117,12 +1331,21 @@ function SyndicDashboardPreview({ features }) {
                                     </span>
                                 </div>
                                 <div className="mt-3 grid gap-2">
-                                    {dashboardPreviewCharges.map(([lot, amount]) => (
-                                        <div key={lot} className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm">
-                                            <span className="font-bold text-slate-700">{lot}</span>
-                                            <span className="font-black text-rose-700">{amount}</span>
-                                        </div>
-                                    ))}
+                                    {dashboardPreviewCharges.map(
+                                        ([lot, amount]) => (
+                                            <div
+                                                key={lot}
+                                                className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm"
+                                            >
+                                                <span className="font-bold text-slate-700">
+                                                    {lot}
+                                                </span>
+                                                <span className="font-black text-rose-700">
+                                                    {amount}
+                                                </span>
+                                            </div>
+                                        ),
+                                    )}
                                 </div>
                             </div>
 
@@ -1131,21 +1354,26 @@ function SyndicDashboardPreview({ features }) {
                                     Derniers tickets
                                 </p>
                                 <div className="mt-3 grid gap-2">
-                                    {dashboardPreviewTickets.map(([resident, problem, status]) => (
-                                        <div key={problem} className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2">
-                                            <div className="flex items-center justify-between gap-3">
-                                                <p className="truncate text-sm font-black text-slate-900">
-                                                    {resident}
+                                    {dashboardPreviewTickets.map(
+                                        ([resident, problem, status]) => (
+                                            <div
+                                                key={problem}
+                                                className="rounded-xl border border-slate-100 bg-slate-50 px-3 py-2"
+                                            >
+                                                <div className="flex items-center justify-between gap-3">
+                                                    <p className="truncate text-sm font-black text-slate-900">
+                                                        {resident}
+                                                    </p>
+                                                    <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-800">
+                                                        {status}
+                                                    </span>
+                                                </div>
+                                                <p className="mt-1 truncate text-xs font-semibold text-slate-500">
+                                                    {problem}
                                                 </p>
-                                                <span className="shrink-0 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-800">
-                                                    {status}
-                                                </span>
                                             </div>
-                                            <p className="mt-1 truncate text-xs font-semibold text-slate-500">
-                                                {problem}
-                                            </p>
-                                        </div>
-                                    ))}
+                                        ),
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1157,7 +1385,7 @@ function SyndicDashboardPreview({ features }) {
 }
 
 function LandingIntro() {
-    const letters = 'SyndiCare'.split('');
+    const letters = "SyndiCare".split("");
 
     return (
         <div
@@ -1209,26 +1437,27 @@ function LandingIntro() {
 export default function Welcome({ auth }) {
     const { locale } = useI18n();
     const [showIntro, setShowIntro] = useState(() => {
-        if (typeof window === 'undefined') {
+        if (typeof window === "undefined") {
             return false;
         }
 
-        return window.sessionStorage.getItem(INTRO_STORAGE_KEY) !== '1';
+        return window.sessionStorage.getItem(INTRO_STORAGE_KEY) !== "1";
     });
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [lots, setLots] = useState(45);
-    const [billing, setBilling] = useState('monthly');
+    const [billing, setBilling] = useState("monthly");
     const updateLots = (value) => setLots(normalizeLots(value));
     const pricingDétails = pricingDétailsForLots(lots);
-    const monthlyPrice = billing === 'annual'
-        ? pricingDétails.monthlyBase * 0.9
-        : pricingDétails.monthlyBase;
+    const monthlyPrice =
+        billing === "annual"
+            ? pricingDétails.monthlyBase * 0.9
+            : pricingDétails.monthlyBase;
     const annualPrice = monthlyPrice * 12;
     const sliderProgress = ((lots - LOT_MIN) / (LOT_MAX - LOT_MIN)) * 100;
 
-    const destination = auth?.user ? route('dashboard') : route('login');
+    const destination = auth?.user ? route("dashboard") : route("login");
     const currentYear = new Date().getFullYear();
-    const isArabic = locale === 'ar';
+    const isArabic = locale === "ar";
     const localizedDesktopShot = isArabic ? arabicDesktopShot : desktopShot;
     const localizedMobileShot = isArabic ? arabicMobileShot : mobileShot;
     const localizedBlogImage = (post) => blogImageForLocale(post, locale);
@@ -1239,7 +1468,7 @@ export default function Welcome({ auth }) {
         }
 
         const hideIntro = window.setTimeout(() => {
-            window.sessionStorage.setItem(INTRO_STORAGE_KEY, '1');
+            window.sessionStorage.setItem(INTRO_STORAGE_KEY, "1");
             setShowIntro(false);
         }, INTRO_DURATION_MS);
 
@@ -1273,7 +1502,11 @@ export default function Welcome({ auth }) {
 
                         <nav className="hidden items-center gap-6 text-sm font-semibold text-slate-700 lg:flex">
                             {landingNavLinks.map(([href, label]) => (
-                                <a key={href} href={href} className="transition hover:text-[#0F5132]">
+                                <a
+                                    key={href}
+                                    href={href}
+                                    className="transition hover:text-[#0F5132]"
+                                >
                                     {label}
                                 </a>
                             ))}
@@ -1287,27 +1520,35 @@ export default function Welcome({ auth }) {
                                 href={destination}
                                 className="inline-flex rounded-full border border-emerald-900/15 bg-white px-3 py-2 text-xs font-black text-[#0F5132] shadow-sm transition hover:bg-emerald-50 sm:hidden"
                             >
-                                {auth?.user ? 'Dashboard' : 'Connexion'}
+                                {auth?.user ? "Dashboard" : "Connexion"}
                             </Link>
                             <Link
                                 href={destination}
                                 className="hidden rounded-full border border-emerald-900/15 bg-white px-4 py-2 text-sm font-bold text-[#0F5132] shadow-sm transition hover:bg-emerald-50 sm:inline-flex"
                             >
-                                {auth?.user ? 'Tableau de bord' : 'Connexion'}
+                                {auth?.user ? "Tableau de bord" : "Connexion"}
                             </Link>
 
                             <button
                                 type="button"
-                                onClick={() => setIsMobileMenuOpen((current) => !current)}
+                                onClick={() =>
+                                    setIsMobileMenuOpen((current) => !current)
+                                }
                                 aria-expanded={isMobileMenuOpen}
                                 aria-controls="landing-mobile-menu"
                                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-emerald-900/15 bg-white text-[#0F5132] shadow-sm transition hover:bg-emerald-50 lg:hidden"
                             >
                                 <span className="sr-only">Menu</span>
                                 <span className="grid gap-1">
-                                    <span className={`block h-0.5 w-4 rounded-full bg-current transition ${isMobileMenuOpen ? 'translate-y-1.5 rotate-45' : ''}`} />
-                                    <span className={`block h-0.5 w-4 rounded-full bg-current transition ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-                                    <span className={`block h-0.5 w-4 rounded-full bg-current transition ${isMobileMenuOpen ? '-translate-y-1.5 -rotate-45' : ''}`} />
+                                    <span
+                                        className={`block h-0.5 w-4 rounded-full bg-current transition ${isMobileMenuOpen ? "translate-y-1.5 rotate-45" : ""}`}
+                                    />
+                                    <span
+                                        className={`block h-0.5 w-4 rounded-full bg-current transition ${isMobileMenuOpen ? "opacity-0" : ""}`}
+                                    />
+                                    <span
+                                        className={`block h-0.5 w-4 rounded-full bg-current transition ${isMobileMenuOpen ? "-translate-y-1.5 -rotate-45" : ""}`}
+                                    />
                                 </span>
                             </button>
                         </div>
@@ -1323,7 +1564,9 @@ export default function Welcome({ auth }) {
                                     <a
                                         key={href}
                                         href={href}
-                                        onClick={() => setIsMobileMenuOpen(false)}
+                                        onClick={() =>
+                                            setIsMobileMenuOpen(false)
+                                        }
                                         className="rounded-2xl px-4 py-3 text-sm font-black text-slate-700 transition hover:bg-emerald-50 hover:text-[#0F5132]"
                                     >
                                         {label}
@@ -1354,8 +1597,8 @@ export default function Welcome({ auth }) {
                         className="relative min-h-[calc(100svh-3.5rem)] overflow-hidden bg-[#132018] sm:min-h-[calc(100svh-4.5rem)]"
                         style={{
                             backgroundImage: `linear-gradient(90deg, rgba(8, 26, 18, 0.86) 0%, rgba(10, 28, 21, 0.64) 46%, rgba(15, 23, 42, 0.18) 100%), url(${heroImage})`,
-                            backgroundPosition: 'center top',
-                            backgroundSize: 'cover',
+                            backgroundPosition: "center top",
+                            backgroundSize: "cover",
                         }}
                     >
                         <div className="mx-auto grid min-h-[calc(100svh-3.5rem)] w-full min-w-0 max-w-[112rem] content-center gap-7 px-4 py-8 sm:min-h-[calc(100svh-4.5rem)] sm:px-6 sm:py-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-center lg:gap-10 lg:px-10">
@@ -1370,23 +1613,23 @@ export default function Welcome({ auth }) {
                                 </div>
 
                                 <h1 className="mt-5 max-w-2xl text-4xl font-black leading-[1.06] text-white sm:text-5xl lg:text-6xl">
-                                    Une plateforme claire pour piloter votre syndic.
+                                    Une plateforme claire pour piloter votre
+                                    syndic.
                                 </h1>
                                 <p className="mt-5 max-w-xl text-base leading-7 text-emerald-50/80 sm:mt-6 sm:text-lg sm:leading-8">
-                                    SyndiCare rassemble charges, paiements, documents,
-                                    annonces, réclamations et résidents dans une interface
-                                    simple à suivre au quotidien.
+                                    SyndiCare rassemble charges, paiements,
+                                    documents, annonces, réclamations et
+                                    résidents dans une interface simple à suivre
+                                    au quotidien.
                                 </p>
 
                                 <div className="mt-7 flex max-w-md flex-col gap-3 sm:mt-8 sm:max-w-none sm:flex-row">
-                                    <a
-                                        href={WHATSAPP_URL}
-                                        target="_blank"
-                                        rel="noreferrer"
+                                    <Link
+                                        href={route("login")}
                                         className="inline-flex justify-center rounded-full bg-white px-6 py-3 text-sm font-black text-[#0F5132] shadow-lg shadow-slate-950/20 transition hover:bg-emerald-50"
                                     >
-                                        Demander une démo
-                                    </a>
+                                        Tester la démo
+                                    </Link>
                                     <a
                                         href="#produit"
                                         className="inline-flex justify-center rounded-full border border-white/25 bg-white/10 px-6 py-3 text-sm font-black text-white shadow-sm transition hover:bg-white/20"
@@ -1397,9 +1640,9 @@ export default function Welcome({ auth }) {
 
                                 <div className="mt-7 grid w-full max-w-lg grid-cols-3 gap-2 sm:mt-8 sm:max-w-xl sm:gap-3">
                                     {[
-                                        ['+10', 'modules métier'],
-                                        ['24h', 'suivi continu'],
-                                        ['100%', 'interface responsive'],
+                                        ["+10", "modules métier"],
+                                        ["24h", "suivi continu"],
+                                        ["100%", "interface responsive"],
                                     ].map(([value, label]) => (
                                         <div
                                             key={label}
@@ -1438,8 +1681,6 @@ export default function Welcome({ auth }) {
 
                     <EcosystemMarquee />
 
-                    <TrustHighlights />
-
                     <section
                         id="produit"
                         className="border-y border-emerald-950/10 bg-white py-12 sm:py-14 lg:py-16"
@@ -1450,7 +1691,8 @@ export default function Welcome({ auth }) {
                                     Vue produit
                                 </p>
                                 <h2 className="mt-3 text-2xl font-black text-[#0F5132] sm:text-3xl lg:text-4xl">
-                                    Une gestion connectée entre le syndic, les lots et les résidents.
+                                    Une gestion connectée entre le syndic, les
+                                    lots et les résidents.
                                 </h2>
                             </div>
 
@@ -1464,32 +1706,53 @@ export default function Welcome({ auth }) {
                         <SyndicDashboardPreview features={syndicFeatures} />
                     </div>
 
-                    <section id="tarifs" className="mx-auto max-w-[112rem] px-4 py-12 sm:px-6 sm:py-14 lg:px-10 lg:py-16">
+                    <section
+                        id="tarifs"
+                        className="mx-auto max-w-[112rem] px-4 py-12 sm:px-6 sm:py-14 lg:px-10 lg:py-16"
+                    >
                         <div className="grid gap-7 lg:grid-cols-[0.95fr_1.05fr] lg:items-start lg:gap-8">
                             <div>
                                 <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
                                     Tarification
                                 </p>
                                 <h2 className="mt-3 text-2xl font-black text-[#0F5132] sm:text-3xl lg:text-4xl">
-                                    Estimez votre abonnement selon le nombre de lots.
+                                    Estimez votre abonnement selon le nombre de
+                                    lots.
                                 </h2>
                                 <p className="mt-4 text-base leading-7 text-slate-600">
-                                    Ajustez le volume géré et choisissez le mode de facturation.
-                                    Le simulateur donne une estimation simple pour préparer votre offre.
+                                    Ajustez le volume géré et choisissez le mode
+                                    de facturation. Le simulateur donne une
+                                    estimation simple pour préparer votre offre.
                                 </p>
 
-                                <div className="mt-6 grid gap-3">
+                                <div className="mt-6 hidden gap-3 lg:grid">
                                     {[
-                                        ['Portefeuille léger', 'Moins de 20 lots', '100 Dh / mois'],
-                                        ['Portefeuille standard', '20 à 100 lots', '4,7 Dh / lot'],
-                                        ['Portefeuille étendu', 'Plus de 100 lots', '4,5 Dh / lot'],
+                                        [
+                                            "Portefeuille léger",
+                                            "Moins de 20 lots",
+                                            "100 Dh / mois",
+                                        ],
+                                        [
+                                            "Portefeuille standard",
+                                            "20 à 100 lots",
+                                            "4,7 Dh / lot",
+                                        ],
+                                        [
+                                            "Portefeuille étendu",
+                                            "Plus de 100 lots",
+                                            "4,5 Dh / lot",
+                                        ],
                                     ].map(([name, range, price]) => (
                                         <div
                                             key={name}
                                             className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm"
                                         >
-                                            <p className="font-bold text-slate-950">{name}</p>
-                                            <p className="mt-1 text-sm text-slate-500">{range}</p>
+                                            <p className="font-bold text-slate-950">
+                                                {name}
+                                            </p>
+                                            <p className="mt-1 text-sm text-slate-500">
+                                                {range}
+                                            </p>
                                             <p className="mt-2 text-sm font-black text-[#0F5132]">
                                                 {price}
                                             </p>
@@ -1510,17 +1773,19 @@ export default function Welcome({ auth }) {
                                     </div>
                                     <div className="grid grid-cols-2 rounded-full bg-emerald-50 p-1 sm:flex">
                                         {[
-                                            ['monthly', 'Mensuel'],
-                                            ['annual', 'Annuel -10%'],
+                                            ["monthly", "Mensuel"],
+                                            ["annual", "Annuel -10%"],
                                         ].map(([value, label]) => (
                                             <button
                                                 key={value}
                                                 type="button"
-                                                onClick={() => setBilling(value)}
+                                                onClick={() =>
+                                                    setBilling(value)
+                                                }
                                                 className={`rounded-full px-3 py-2 text-sm font-bold transition sm:px-4 ${
                                                     billing === value
-                                                        ? 'bg-[#0F5132] text-white'
-                                                        : 'text-emerald-900'
+                                                        ? "bg-[#0F5132] text-white"
+                                                        : "text-emerald-900"
                                                 }`}
                                             >
                                                 {label}
@@ -1553,8 +1818,16 @@ export default function Welcome({ auth }) {
                                             max={LOT_MAX}
                                             step="1"
                                             value={lots}
-                                            onInput={(event) => updateLots(event.currentTarget.value)}
-                                            onChange={(event) => updateLots(event.currentTarget.value)}
+                                            onInput={(event) =>
+                                                updateLots(
+                                                    event.currentTarget.value,
+                                                )
+                                            }
+                                            onChange={(event) =>
+                                                updateLots(
+                                                    event.currentTarget.value,
+                                                )
+                                            }
                                             className="h-11 w-full rounded-xl border-emerald-200 text-center text-base font-black text-[#0F5132] focus:border-[#0F5132] focus:ring-[#0F5132]"
                                         />
                                         <button
@@ -1576,8 +1849,12 @@ export default function Welcome({ auth }) {
                                     step="1"
                                     value={lots}
                                     aria-label="Nombre total de lots"
-                                    onInput={(event) => updateLots(event.currentTarget.value)}
-                                    onChange={(event) => updateLots(event.currentTarget.value)}
+                                    onInput={(event) =>
+                                        updateLots(event.currentTarget.value)
+                                    }
+                                    onChange={(event) =>
+                                        updateLots(event.currentTarget.value)
+                                    }
                                     className="mt-6 h-2 w-full cursor-pointer rounded-full accent-[#0F5132]"
                                     style={{
                                         background: `linear-gradient(to right, #0F5132 ${sliderProgress}%, #d1fae5 ${sliderProgress}%)`,
@@ -1588,7 +1865,7 @@ export default function Welcome({ auth }) {
                                     <span>1000 lots</span>
                                 </div>
 
-                                <div className="mt-4 flex flex-wrap gap-2">
+                                <div className="mt-4 hidden flex-wrap gap-2 sm:flex">
                                     {PRICING_PRESETS.map((preset) => (
                                         <button
                                             key={preset}
@@ -1596,8 +1873,8 @@ export default function Welcome({ auth }) {
                                             onClick={() => updateLots(preset)}
                                             className={`rounded-full border px-3 py-1.5 text-xs font-black transition ${
                                                 lots === preset
-                                                    ? 'border-[#0F5132] bg-[#0F5132] text-white'
-                                                    : 'border-emerald-200 bg-emerald-50 text-[#0F5132] hover:bg-emerald-100'
+                                                    ? "border-[#0F5132] bg-[#0F5132] text-white"
+                                                    : "border-emerald-200 bg-emerald-50 text-[#0F5132] hover:bg-emerald-100"
                                             }`}
                                         >
                                             {preset} lots
@@ -1609,11 +1886,17 @@ export default function Welcome({ auth }) {
                                     <p className="text-sm font-semibold text-emerald-100">
                                         Total estimé
                                     </p>
-                                    <p key={monthlyPrice} className="mt-2 text-3xl font-black sm:text-5xl">
+                                    <p
+                                        key={monthlyPrice}
+                                        className="mt-2 text-3xl font-black sm:text-5xl"
+                                    >
                                         {formatPrice(monthlyPrice)}
                                     </p>
                                     <p className="mt-2 text-sm text-emerald-50/75">
-                                        par mois {billing === 'annual' ? 'avec facturation annuelle' : 'en facturation mensuelle'}
+                                        par mois{" "}
+                                        {billing === "annual"
+                                            ? "avec facturation annuelle"
+                                            : "en facturation mensuelle"}
                                     </p>
                                     <div className="mt-5 grid gap-2 text-sm font-semibold text-emerald-50/90 sm:grid-cols-2">
                                         <p className="rounded-xl bg-white/10 px-3 py-2">
@@ -1623,68 +1906,124 @@ export default function Welcome({ auth }) {
                                             Calcul: {pricingDétails.calculation}
                                         </p>
                                     </div>
-                                    {billing === 'annual' && (
+                                    {billing === "annual" && (
                                         <p className="mt-3 rounded-xl bg-white/10 px-3 py-2 text-sm font-semibold text-emerald-50/90">
-                                            Total annuel estimé: {formatPrice(annualPrice)}
+                                            Total annuel estimé:{" "}
+                                            {formatPrice(annualPrice)}
                                         </p>
                                     )}
                                 </div>
 
                                 <div className="mt-6 grid gap-2 text-sm font-semibold text-slate-600 sm:grid-cols-2">
-                                    {['Multi-immeubles', 'Résidents illimités', 'Support et assistance', 'Mises à jour incluses'].map((item) => (
-                                        <p key={item} className="rounded-xl bg-emerald-50 px-3 py-2">
+                                    {[
+                                        "Multi-immeubles",
+                                        "Résidents illimités",
+                                        "Support et assistance",
+                                        "Mises à jour incluses",
+                                    ].map((item) => (
+                                        <p
+                                            key={item}
+                                            className="rounded-xl bg-emerald-50 px-3 py-2"
+                                        >
                                             {item}
                                         </p>
                                     ))}
                                 </div>
                             </div>
-                        </div>
-                    </section>
 
-                    <GoogleTestimonials />
+                            <details className="mt-6 rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm lg:hidden">
+                                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-black text-[#0F5132]">
+                                    <span>Voir la grille tarifaire</span>
+                                    <span className="text-lg">+</span>
+                                </summary>
 
-                    <section id="faq" className="border-y border-emerald-950/10 bg-[#f8faf8]">
-                        <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-14 lg:px-10 lg:py-16">
-                            <div>
-                                <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
-                                    FAQ
-                                </p>
-                                <h2 className="mt-3 text-2xl font-black text-[#0F5132] sm:text-3xl lg:text-4xl">
-                                    Questions fréquentes
-                                </h2>
-                                <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-                                    Les réponses essentielles avant de présenter SyndiCare à votre équipe ou à vos résidents.
-                                </p>
-
-                                <div className="mt-8 space-y-3">
-                                    {faqs.map(([question, answer]) => (
-                                        <details
-                                            key={question}
-                                            className="group rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-950/5"
+                                <div className="mt-4 grid gap-3">
+                                    {[
+                                        [
+                                            "Portefeuille léger",
+                                            "Moins de 20 lots",
+                                            "100 Dh / mois",
+                                        ],
+                                        [
+                                            "Portefeuille standard",
+                                            "20 à 100 lots",
+                                            "4,7 Dh / lot",
+                                        ],
+                                        [
+                                            "Portefeuille étendu",
+                                            "Plus de 100 lots",
+                                            "4,5 Dh / lot",
+                                        ],
+                                    ].map(([name, range, price]) => (
+                                        <div
+                                            key={name}
+                                            className="rounded-xl bg-emerald-50 p-3"
                                         >
-                                            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-slate-950">
-                                                <span>{question}</span>
-                                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-lg font-black text-[#0F5132] transition group-open:rotate-45">
-                                                    +
-                                                </span>
-                                            </summary>
-                                            <p className="mt-3 text-sm leading-6 text-slate-600">
-                                                {answer}
+                                            <p className="font-bold text-slate-950">
+                                                {name}
                                             </p>
-                                        </details>
+
+                                            <p className="mt-1 text-sm text-slate-500">
+                                                {range}
+                                            </p>
+
+                                            <p className="mt-1 text-sm font-black text-[#0F5132]">
+                                                {price}
+                                            </p>
+                                        </div>
                                     ))}
                                 </div>
-                            </div>
+                            </details>
                         </div>
                     </section>
-
                     <BlogSection localizedBlogImage={localizedBlogImage} />
+                    <div className="grid bg-[#f8faf8] lg:grid-cols-2 lg:items-start">
+                        <section
+                            id="faq"
+                            className="border-y border-emerald-950/10 bg-[#f8faf8]"
+                        >
+                            <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-14 lg:px-10 lg:py-16">
+                                <div>
+                                    <p className="text-xs font-black uppercase tracking-[0.24em] text-emerald-700">
+                                        FAQ
+                                    </p>
+                                    <h2 className="mt-3 text-2xl font-black text-[#0F5132] sm:text-3xl lg:text-4xl">
+                                        Questions fréquentes
+                                    </h2>
+                                    <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
+                                        Les réponses essentielles avant de
+                                        présenter SyndiCare à votre équipe ou à
+                                        vos résidents.
+                                    </p>
 
-                    <ContactSection />
+                                    <div className="mt-8 space-y-3">
+                                        {faqs.map(([question, answer]) => (
+                                            <details
+                                                key={question}
+                                                className="group rounded-2xl border border-emerald-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-950/5"
+                                            >
+                                                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-base font-bold text-slate-950">
+                                                    <span>{question}</span>
+                                                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-lg font-black text-[#0F5132] transition group-open:rotate-45">
+                                                        +
+                                                    </span>
+                                                </summary>
+                                                <p className="mt-3 text-sm leading-6 text-slate-600">
+                                                    {answer}
+                                                </p>
+                                            </details>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <ContactSection />
+                    </div>
                 </main>
 
                 <footer className="border-t border-emerald-950/10 bg-[#0F5132] text-white">
-                    <div className="mx-auto grid max-w-[112rem] gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_auto_auto_auto] lg:px-10">
+                    <div className="mx-auto grid max-w-[112rem] gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:px-10">
                         <div>
                             <div className="flex items-center gap-3">
                                 <img
@@ -1695,8 +2034,9 @@ export default function Welcome({ auth }) {
                                 <p className="text-2xl font-black">SyndiCare</p>
                             </div>
                             <p className="mt-3 max-w-md text-sm leading-6 text-emerald-50/75">
-                                Plateforme de gestion pour syndics: finances, réclamations,
-                                documents, annonces et suivi résident.
+                                Plateforme de gestion pour syndics: finances,
+                                réclamations, documents, annonces et suivi
+                                résident.
                             </p>
                         </div>
                         <div className="text-sm">
@@ -1711,18 +2051,49 @@ export default function Welcome({ auth }) {
                         <div className="text-sm">
                             <p className="font-black">Accès</p>
                             <div className="mt-3 grid gap-2 text-emerald-50/75">
-                                <Link href={route('login')}>Connexion</Link>
-                                <Link href={route('register')}>Inscription</Link>
+                                <Link href={route("login")}>Connexion</Link>
+                                <Link href={route("register")}>
+                                    Inscription
+                                </Link>
+                            </div>
+                        </div>
+                        <div className="text-sm">
+                            <p className="font-black">Informations légales</p>
+
+                            <div className="mt-3 grid gap-2 text-emerald-50/75">
+                                <Link href="/mentions-legales">
+                                    Mentions légales
+                                </Link>
+
+                                <Link href="/confidentialite">
+                                    Politique de confidentialité
+                                </Link>
+
+                                <Link href="/conditions-utilisation">
+                                    Conditions d’utilisation
+                                </Link>
+
+                                <Link href="/cookies">
+                                    Politique de cookies
+                                </Link>
                             </div>
                         </div>
                         <div className="text-sm">
                             <p className="font-black">Contact</p>
                             <div className="mt-3 grid gap-2 text-emerald-50/75">
-                                <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center gap-2">
+                                <a
+                                    href={`mailto:${CONTACT_EMAIL}`}
+                                    className="inline-flex items-center gap-2"
+                                >
                                     <GmailMark className="h-4 w-4 shrink-0" />
                                     <span>{CONTACT_EMAIL}</span>
                                 </a>
-                                <a href={WHATSAPP_URL} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2">
+                                <a
+                                    href={WHATSAPP_URL}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="inline-flex items-center gap-2"
+                                >
                                     <WhatsAppMark className="h-4 w-4 shrink-0" />
                                     WhatsApp
                                 </a>
