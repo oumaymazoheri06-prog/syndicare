@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-LIKB6pdd.js";import{r as t}from"./CrudScaffold-Bqmyt2OA.js";import{n}from"./resources-GxRqeU-_.js";var r=e();function i({auth:e,expense:i}){let a=n.expenses;return(0,r.jsx)(t,{title:a.title,resource:a.route,record:i,fields:a.showFields,routeKey:a.routeKey,canEdit:e?.user?.role===`Syndic`})}export{i as default};

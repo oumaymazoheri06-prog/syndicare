@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-LIKB6pdd.js";import{n as t}from"./CrudScaffold-Bqmyt2OA.js";import{n}from"./resources-GxRqeU-_.js";var r=e();function i({cacheLocks:e}){let i=n.cacheLocks;return(0,r.jsx)(t,{title:i.title,resource:i.route,items:e,columns:i.indexColumns,routeKey:i.routeKey,createLabel:`Nouveau ${i.singular}`})}export{i as default};
