@@ -421,7 +421,7 @@ function EcosystemMarquee() {
                                         key={`${group}-${title}`}
                                         className="flex w-[17rem] shrink-0 items-center gap-3 rounded-2xl border border-emerald-100 bg-white px-4 py-3 shadow-sm sm:w-[19rem]"
                                     >
-                                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0F5132] text-xs font-black text-white">
+                                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#C9A227] text-xs font-black text-white">
                                             {badge}
                                         </span>
                                         <span className="min-w-0">
@@ -1594,29 +1594,41 @@ export default function Welcome({ auth }) {
 
                 <main id="accueil">
                     <section
-                        className="relative min-h-[calc(100svh-3.5rem)] overflow-hidden bg-[#132018] sm:min-h-[calc(100svh-4.5rem)]"
+                        className="relative overflow-hidden bg-[#132018] sm:min-h-[calc(100svh-4.5rem)]"
                         style={{
                             backgroundImage: `linear-gradient(90deg, rgba(8, 26, 18, 0.86) 0%, rgba(10, 28, 21, 0.64) 46%, rgba(15, 23, 42, 0.18) 100%), url(${heroImage})`,
                             backgroundPosition: "center top",
                             backgroundSize: "cover",
                         }}
                     >
-                        <div className="mx-auto grid min-h-[calc(100svh-3.5rem)] w-full min-w-0 max-w-[112rem] content-center gap-7 px-4 py-8 sm:min-h-[calc(100svh-4.5rem)] sm:px-6 sm:py-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-center lg:gap-10 lg:px-10">
+                        <div className="mx-auto grid w-full min-w-0 max-w-[112rem] content-center gap-7 px-4 py-8 sm:min-h-[calc(100svh-4.5rem)] sm:px-6 sm:py-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-center lg:gap-10 lg:px-10">
                             <div className="relative z-10 min-w-0 max-w-full">
-                                <div className="flex flex-wrap gap-2">
-                                    <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-emerald-50">
-                                        Solution pour syndics au Maroc
-                                    </span>
-                                    <span className="rounded-full border border-[#C9A227]/40 bg-[#C9A227]/20 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-[#fff4c1]">
-                                        Pensée pour la loi 18-00
-                                    </span>
+                                <div className="relative pl-5">
+                                    {/* Ligne décorative */}
+                                    <span className="absolute left-0 top-1 h-[46px] w-px bg-gradient-to-b from-emerald-100 via-white/40 to-[#C9A227]" />
+
+                                    <div className="flex items-center gap-3">
+                                        <span className="h-1.5 w-1.5 rotate-45 bg-emerald-100" />
+                                        <p className="text-[11px] font-black uppercase tracking-[0.22em] text-emerald-50 sm:text-xs">
+                                            Solution pour syndics au Maroc
+                                        </p>
+                                    </div>
+
+                                    <div className="mt-2.5 flex items-center gap-3">
+                                        <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A227]" />
+                                        <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#E9D98D] sm:text-xs">
+                                            Pensée pour la loi 18-00
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <h1 className="mt-5 max-w-2xl text-4xl font-black leading-[1.06] text-white sm:text-5xl lg:text-6xl">
-                                    Une plateforme claire pour piloter votre
-                                    syndic.
+                                    Une plateforme claire pour piloter{" "}
+                                    <span className="text-[#C9A227]">
+                                        votre syndic.
+                                    </span>
                                 </h1>
-                                <p className="mt-5 max-w-xl text-base leading-7 text-emerald-50/80 sm:mt-6 sm:text-lg sm:leading-8">
+                                <p className="mt-5 hidden max-w-xl text-base leading-7 text-emerald-50/80 sm:mt-6 sm:block sm:text-lg sm:leading-8">
                                     SyndiCare rassemble charges, paiements,
                                     documents, annonces, réclamations et
                                     résidents dans une interface simple à suivre

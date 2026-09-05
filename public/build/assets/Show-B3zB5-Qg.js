@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-LIKB6pdd.js";import{r as t}from"./CrudScaffold-M15Z4oEh.js";import{n}from"./resources-GxRqeU-_.js";var r=e();function i({apartment:e}){let i=n.apartments;return(0,r.jsx)(t,{title:i.title,resource:i.route,record:e,fields:i.showFields,routeKey:i.routeKey})}export{i as default};

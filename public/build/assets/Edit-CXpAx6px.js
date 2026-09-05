@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-LIKB6pdd.js";import t from"./Form-CAHCQLll.js";var n=e();function r({item:e,apartments:r}){return(0,n.jsx)(t,{item:e,apartments:r})}export{r as default};

@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-LIKB6pdd.js";import t from"./Form-CSA_pNpa.js";var n=e();function r({apartments:e}){return(0,n.jsx)(t,{apartments:e})}export{r as default};
